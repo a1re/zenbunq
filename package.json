@@ -1,0 +1,23 @@
+{
+  "name": "zenbunq",
+  "version": "0.1.0",
+  "description": "Converting tool for Bunq bank statement for ZenMoney financial planner",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/a1re/zenbunq.git"
+  },
+  "author": "Yuriy A Marin",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/a1re/zenbunq/issues"
+  },
+  "homepage": "https://github.com/a1re/zenbunq#readme",
+  "devDependencies": {
+    "webpack": "^5.87.0",
+    "webpack-cli": "^4.10.0"
+  }
+}
