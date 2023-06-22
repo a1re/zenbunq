@@ -12,4 +12,5 @@ Thumbs.db
 *.log*
 node_modules/
 
-
+# Результат сборки
+public/

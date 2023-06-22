@@ -1,7 +1,7 @@
 {
   "name": "zenbunq",
   "version": "0.1.0",
-  "description": "Converting tool for Bunq bank statement for ZenMoney financial planner",
+  "description": "Converting tool for Bunq bank statement to ZenMoney financial planner",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
