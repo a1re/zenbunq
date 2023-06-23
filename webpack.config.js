@@ -1,3 +1,6 @@
+const DIST_PATH = 'public_html';
+const SOURCE_PATH = 'src';
+
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
@@ -6,15 +9,15 @@ module.exports = {
     entry: './src/app.js',
     output: {
        filename: 'app.js',
-       path: path.resolve(__dirname, 'public')
+       path: path.resolve(__dirname, DIST_PATH)
     },
     devServer: {
-      static: path.join(__dirname, 'public'),
+      static: path.join(__dirname, DIST_PATH),
       port: 3000
     },
     plugins: [
       new HtmlWebpackPlugin({
-        template: './src/index.html',
+        template: SOURCE_PATH + '/index.html',
         filename: 'index.html',
         inject: 'body',
         scriptLoading: 'defer'
@@ -29,6 +32,14 @@ module.exports = {
             minimize: true,
           }
         },
+        {
+          loader: 'posthtml-loader',
+          options: {
+            plugins: [
+              require('posthtml-include')({ root: SOURCE_PATH })
+            ]
+          }
+        }
       ]
     }
 };
