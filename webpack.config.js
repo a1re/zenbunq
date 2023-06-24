@@ -46,6 +46,18 @@ module.exports = {
           }
         },
         {
+          test: /\.js$/i,
+          exclude: /(node_modules)/i,
+          use: {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                ['@babel/preset-env', { targets: "defaults" }]
+              ]
+            }
+          }
+        },
+        {
           test: /\.(s?)css$/i,
           use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
         },
