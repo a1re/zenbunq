@@ -26,6 +26,8 @@
     "posthtml-include": "^1.7.4",
     "posthtml-loader": "^2.0.1",
     "posthtml-parser": "^0.11.0",
+    "sass": "^1.63.6",
+    "sass-loader": "^13.3.2",
     "webpack": "^5.87.0",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.15.1"

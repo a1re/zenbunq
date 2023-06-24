@@ -7,11 +7,15 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
     mode: 'development',
-    entry: './src/app.js',
+    entry: [
+      path.resolve(__dirname, SOURCE_PATH, 'app.js'),
+      path.resolve(__dirname, SOURCE_PATH, 'style.scss'),
+    ],
     output: {
-       filename: 'bundle.js',
+       filename: 'bundle.[hash].js',
        path: path.resolve(__dirname, DIST_PATH),
-       assetModuleFilename: 'assets/[name][ext]'
+       assetModuleFilename: 'assets/[name].[hash][ext]',
+       clean:true
     },
     devServer: {
       static: path.join(__dirname, DIST_PATH),
@@ -25,7 +29,7 @@ module.exports = {
         scriptLoading: 'defer'
       }),
       new MiniCssExtractPlugin({
-        filename: "style.css",
+        filename: "style.[hash].css",
       })
     ],
     module: {
@@ -38,12 +42,12 @@ module.exports = {
           test: /\.html$/i,
           loader: "html-loader",
           options: {
-//            minimize: true,
+            minimize: false,
           }
         },
         {
-          test: /\.css$/i,
-          use: [MiniCssExtractPlugin.loader, "css-loader"],
+          test: /\.(s?)css$/i,
+          use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
         },
         {
           test: /\.html$/i,
