@@ -1,14 +1,2 @@
-$logoImage: url("./img/bunq_logo.svg");
-
-.logo {
-  width: 100px;
-  height: 100px;
-  background-image: $logoImage;
-  background-position: left top;
-  background-repeat: no-repeat;
-}
-
-svg {
-  width: 100px;
-  height: 100px;
-}
+@import "global.scss";
+@import "fonts.scss";
