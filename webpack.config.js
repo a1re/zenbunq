@@ -12,9 +12,9 @@ module.exports = {
       path.resolve(__dirname, SOURCE_PATH, 'style.scss'),
     ],
     output: {
-       filename: 'bundle.[hash].js',
+       filename: 'bundle.js',
        path: path.resolve(__dirname, DIST_PATH),
-       assetModuleFilename: 'assets/[name].[hash][ext]',
+       assetModuleFilename: 'assets/[name][ext]',
        clean:true
     },
     devServer: {
@@ -29,7 +29,7 @@ module.exports = {
         scriptLoading: 'defer'
       }),
       new MiniCssExtractPlugin({
-        filename: "style.[hash].css",
+        filename: "style.css",
       })
     ],
     module: {
