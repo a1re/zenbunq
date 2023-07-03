@@ -1,0 +1,86 @@
+.panel {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 15px;
+
+  &__guide {
+    margin: 0;
+    padding: 0;
+  }
+
+  &__form {
+    display: flex;
+    gap: 15px;
+    align-items: baseline;
+
+    margin: 0;
+    padding: 0;
+  }
+
+  &__file-input {
+    @extend .visually-hidden;
+
+    &:focus + label {
+      outline: #3FA4FF 2px solid;
+
+      transform: translateY(-2px);
+    }
+  }
+
+  &__file-name {
+    width: 200px;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+
+    transform: translateY(1px);
+
+    &::before {
+      content: url("data:image/svg+xml; utf8, <svg width='11' height='15' viewBox='0 0 11 15' fill='none' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' clip-rule='evenodd' d='M6.875 0.714295H0.6875V14.2857H10.3125V4.28572H7.21875C7.0289 4.28572 6.875 4.12582 6.875 3.92858V0.714295ZM9.82636 3.57144L7.5625 1.21937V3.57144H9.82636ZM11 3.93136V14.6429C11 14.8401 10.8461 15 10.6562 15H0.34375C0.153902 15 0 14.8401 0 14.6429V0.357153C0 0.159908 0.153902 1.04303e-05 0.34375 1.04303e-05H7.21605H7.21875C7.23379 1.04303e-05 0.373732 0.00103437 0.388485 0.00304584C0.372792 0.000903769 7.23194 -0.000115776 7.21605 1.04303e-05M10.9974 3.88451C10.9991 3.89906 11 3.91377 11 3.92858V3.93136' fill='black'/></svg>");
+
+      position: static;
+      display: inline;
+      vertical-align: middle;
+      margin-right: 5px;
+
+      width: 11px;
+      height: 15px;
+    }
+
+    &--empty {
+      padding-left: 0;
+
+      font-style: italic;
+
+      &::before {
+        display: none;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 1029px) {
+  .panel {
+    flex-direction: column;
+    align-items: center;
+
+    &__form {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    &__file-name {
+      text-align: center;
+
+      transform: translateY(2px);
+    }
+
+    &__file-submit,
+    &__file-select,
+    &__settings-link {
+      width: 150px;
+    }
+  }
+}
