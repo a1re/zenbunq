@@ -1,7 +1,6 @@
-@import "utilities/global.scss";
-@import "utilities/fonts.scss";
-@import "utilities/container.scss";
-@import "utilities/hidden.scss";
-@import "components/button/button.scss";
-@import "components/page/page.scss";
+@import "globals/body.scss";
+@import "globals/fonts.scss";
+@import "globals/utils.scss";
+@import "globals/page.scss";
+@import "globals/button.scss";
 @import "components/panel/panel.scss";
