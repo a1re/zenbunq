@@ -1,0 +1,14 @@
+.result {
+    &__header {
+        margin: 40px 0 20px 0;
+        padding: 0;
+    }
+
+    &__card-list {
+        @extend .margin-padding-0;
+
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+        gap: 15px;
+    }
+}
