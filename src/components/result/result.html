@@ -1,19 +1,19 @@
 <section class="result">
-    <h2 class="result__header header">
-        Новые контрагенты
-        <span class="header__badge">5</span>
-    </h2>
-    <ul class="result__card-list">
-      <include src="components/card/card.html" locals='{"className": "result__card-item", "description": "TURKISH AIRLINES"}'></include>
-      <include src="components/card/card.html" locals='{"className": "result__card-item", "description": "RTA DUBAI METRO"}'></include>
-      <include src="components/card/card.html" locals='{"className": "result__card-item", "description": "DUBAI TAXI"}'></include>
-      <include src="components/card/card.html" locals='{"className": "result__card-item", "description": "REST N CAFE ZOU ZOU BR"}'></include>
-    </ul>
-    <h2 class="result__header header">
-        Транзакции
-        <button type="button" class="header__button button">Загрузить</button>
-    </h2>
-    <div class="result__transactions">
-        asdf
-    </div>
+  <h2 class="result__header header">
+    Новые контрагенты
+    <span class="header__badge">5</span>
+  </h2>
+  <ul class="result__card-list">
+    <include src="components/card/card.html" locals='{"className": "result__card-item", "description": "TURKISH AIRLINES"}'></include>
+    <include src="components/card/card.html" locals='{"className": "result__card-item", "description": "RTA DUBAI METRO"}'></include>
+    <include src="components/card/card.html" locals='{"className": "result__card-item", "description": "DUBAI TAXI"}'></include>
+    <include src="components/card/card.html" locals='{"className": "result__card-item", "description": "REST N CAFE ZOU ZOU BR"}'></include>
+  </ul>
+  <h2 class="result__header header">
+    Транзакции
+    <button type="button" class="header__button button">Скачать CSV</button>
+  </h2>
+  <div class="result__transactions">
+    <include src="components/transactions/transactions.html"></include>
+  </div>
 </section>

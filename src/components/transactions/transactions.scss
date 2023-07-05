@@ -1,0 +1,62 @@
+.transactions {
+  width: 100%;
+  border-collapse: collapse;
+
+  & th, & td {
+    padding: 10px 5px;
+
+    &:first-child {
+      padding-left: 0;
+    }
+
+    &:last-child {
+      padding-right: 0;
+    }
+  }
+
+  & th {
+    border-bottom: #eee 2px solid;
+
+    text-align: left;
+    font-weight: bold;
+  }
+
+  & td {
+    border-bottom: #eee 1px solid;
+  }
+
+  &__sum, th.transactions__sum {
+    text-align: right;
+  }
+
+  &__row &__comment {
+    max-width: 200px;
+    padding: 10px 5px;
+    overflow: hidden;
+
+    text-align: left;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-style: italic;
+  }
+
+  &__empty {
+    color: #ccc;
+  }
+
+  &__actions {
+    text-align: right;
+  }
+}
+
+@media only screen and (max-width: ($breakpoint - 1px)) {
+  .transactions {
+    &__date,
+    &__category,
+    &__payer,
+    &__payee,
+    &__comment {
+      display: none;
+    }
+  }
+}
