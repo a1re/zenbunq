@@ -24,3 +24,19 @@
   margin: 0;
   padding: 0;
 }
+
+.mobile-only {
+  display: none;
+}
+
+@media only screen and (min-width: $breakpoint) {
+  .mobile-only {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: ($breakpoint - 1px)) {
+  .desktop-only {
+    display: none;
+  }
+}
