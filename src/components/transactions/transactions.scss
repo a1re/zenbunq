@@ -58,5 +58,209 @@
     &__comment {
       display: none;
     }
+
+    &__header-row {
+      display: grid;
+      grid-template-columns: auto 100px 50px;
+    }
+  
+    &__row {
+      position: relative;
+
+      display: grid;
+      grid-template-columns: auto 100px 50px;
+
+
+      .transactions__sum {
+        padding-top: .9em;
+
+        font-size: 18px;
+        font-weight: bold;
+      }
+    
+
+      .transactions__date {
+        position: absolute;
+        top: 0px;
+
+        font-style: italic;
+        font-size: 12px;
+        color: #999;
+
+        display: block;
+        border-bottom: none;
+      }
+
+      .transactions__category {
+        position: absolute;
+        top: 0px;
+        left: 11ch;
+
+        font-style: italic;
+        font-size: 12px;
+        color: #999;
+
+        display: block;
+        border-bottom: none;
+
+        &::before {
+          content: "•";
+
+          position: absolute;
+          
+          left: -1ch;
+
+          display: block;
+        }
+      }
+
+      .transactions__counterpart {
+        padding: 25px 5px 10px 0;
+      }
+
+      .transactions__actions {
+        padding-top: 1.2em;
+      }
+
+      .transactions__edit-button,
+      .transactions__delete-button {
+        display: none;
+      }
+    }
+
+    &__row--expanded {
+      position: relative;
+
+      grid-template-columns: 1fr 1fr 50px;
+      gap: 10px;
+
+      padding: 10px 0 30px 0;
+
+      border-bottom: #eee 1px solid;
+
+      .transactions__date,
+      .transactions__category,
+      .transactions__sum {
+        font-style: normal;
+        font-weight: normal;
+        font-size: inherit;
+        color: #000;
+        text-align: left;
+      }
+
+      .transactions__date,
+      .transactions__category,
+      .transactions__counterpart,
+      .transactions__payer,
+      .transactions__payee,
+      .transactions__comment,
+      .transactions__sum {
+        position: static;
+        display: block;
+
+        padding: 0;
+        border: none;
+
+        &::before {
+          position: static;
+          display: block;
+
+          font-style: italic;
+          font-size: 12px;
+          color: #999;
+        }
+      }
+
+      .transactions__date::before {
+        content: "Дата";
+      }
+
+      .transactions__category::before {
+        content: "Категория";
+      }
+
+      .transactions__counterpart::before {
+        content: "Контрагент";
+      }
+
+      .transactions__payer::before {
+        content: "Счет-плательщик";
+      }
+
+      .transactions__payee::before {
+        content: "Счет-получатель";
+      }
+
+      .transactions__sum::before {
+        content: "Сумма";
+      }
+
+      .transactions__comment::before {
+        content: "Комментарий";
+      }
+
+      .transactions__counterpart,
+      .transactions__comment,
+      .transactions__sum {
+        grid-column: span 2;
+      }
+
+      .transactions__actions {
+        grid-column: -2 / -1;
+        grid-row: 1 / span 6;
+
+        padding: 0;
+
+        border: none;
+      }
+
+      .transactions__expand-button .icon {
+        transform: rotate(180deg) translateY(-0.1em);
+      }
+
+      .transactions__edit-button:not(.button),
+      .transactions__delete-button:not(.button) {
+        position: absolute;
+        bottom: 10px;
+        display: block;
+
+        border: none;
+        background: none;
+        padding: 0;
+
+        cursor: pointer;
+
+        transition: transform 500ms;
+
+        &:hover {
+          transform: translateY(-0.2em);
+        }
+
+        &:focus {
+          outline-color: #3FA4FF;
+          outline-width: 3px;
+          outline-offset: 2px;
+
+          transform: translateY(-0.2em);
+
+        }
+
+        &:active {
+          transform: none;
+        }
+      }
+
+      .transactions__edit-button {
+        left: 0;
+
+        color: #2872BC;
+      }
+
+      .transactions__delete-button {
+        left: 14ch;
+
+        color: #E13030;
+      }
+    }
   }
 }
