@@ -6,9 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZenBunq 0.1.0</title>
 </head>
-<body class="page">
+<body class="page page--noscroll">
   <div class="page__notification hidden"></div>
-  <div class="page__modal hidden"></div>
+  <div class="page__modal">
+    <include src="components/modal/modal.html"></include>
+  </div>
   <header class="page__logo container">
     <div class="page__logo-sign">
       <include src="img/bunq_logo.svg"></include>

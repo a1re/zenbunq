@@ -1,0 +1,17 @@
+<form class="form" method="post" action="#">
+  <label class="form__label" for="id">Идентификатор</label>
+  <input class="form__text-input" id="id" name="id" value="" />
+  <aside class="form__validation-container"></aside>
+  <label class="form__label" for="category">Категория</label>
+  <input class="form__text-input form__text-input--error" id="category" name="category" value="Продукты" />
+  <aside class="form__validation-container">
+    <include src="components/message/message.html" locals='{"type": "error", "message": "Такая категория уже есть"}'></include>
+  </aside>
+  <label class="form__label" for="name">Имя</label>
+  <input class="form__text-input" id="name" name="name" value="" />
+  <aside class="form__validation-container"></aside>
+  <div class="form__buttons-container">
+    <button class="button form__submit" type="submit" disabled>Сохранить</button>
+    <button class="button button--silver" type="reset">Отмена</button>
+  </div>
+</form>
