@@ -3,13 +3,13 @@
   <input class="form__text-input" id="id" name="id" value="" />
   <aside class="form__validation-container"></aside>
   <label class="form__label" for="category">Категория</label>
-  <input class="form__text-input form__text-input--error" id="category" name="category" value="Продукты" />
+  <input class="form__text-input" id="category" name="category" value="Продукты" />
+  <aside class="form__validation-container"></aside>
+  <label class="form__label" for="name">Имя</label>
+  <input class="form__text-input form__text-input--error" id="name" name="name" value="" />
   <aside class="form__validation-container">
     <include src="components/message/message.html" locals='{"type": "error", "message": "Такая категория уже есть"}'></include>
   </aside>
-  <label class="form__label" for="name">Имя</label>
-  <input class="form__text-input" id="name" name="name" value="" />
-  <aside class="form__validation-container"></aside>
   <div class="form__buttons-container">
     <button class="button form__submit" type="submit" disabled>Сохранить</button>
     <button class="button button--silver" type="reset">Отмена</button>
@@ -18,60 +18,60 @@
 
 <table class="transactions">
   <tr class="transactions__header-row">
-    <th class="transactions__date">Дата</th>
-    <th class="transactions__payer">Счет-плательщик</th>
-    <th class="transactions__payee">Счет-получатель</th>
-    <th class="transactions__sum">Сумма</th>
-    <th class="transactions__comment">Комментарий</th>
+    <th>Дата</th>
+    <th class="desktop-only">Счет-плательщик</th>
+    <th class="desktop-only">Счет-получатель</th>
+    <th>Комментарий</th>
+    <th>Сумма</th>
   </tr>
   <tr class="transactions__row">
-    <td class="transactions__date">22.03.2022</td>
-    <td class="transactions__payer">Bunq | Main</td>
-    <td class="transactions__payee"><span class="transactions__empty">&mdash;</span></td>
-    <td class="transactions__sum">7.15</td>
-    <td class="transactions__comment">Jutter Speijs B.V. Hilversum, NL</td>
+    <td>22.03.2022</td>
+    <td class="desktop-only">Bunq | Main</td>
+    <td class="desktop-only"><span class="transactions__empty">&mdash;</span></td>
+    <td>Jutter Speijs B.V. Hilversum, NL</td>
+    <td>7.15</td>
   </tr>
   <tr class="transactions__row">
-    <td class="transactions__date">22.03.2022</td>
-    <td class="transactions__payer">Bunq | Main</td>
-    <td class="transactions__payee"><span class="transactions__empty">&mdash;</span></td>
-    <td class="transactions__sum">5.00</td>
-    <td class="transactions__comment">Комиссия за входящий платеж от RaiffeisenBank Russia</td>
+    <td>22.03.2022</td>
+    <td class="desktop-only">Bunq | Main</td>
+    <td class="desktop-only"><span class="transactions__empty">&mdash;</span></td>
+    <td>Комиссия за входящий платеж от RaiffeisenBank Russia</td>
+    <td>5.00</td>
   </tr>
   <tr class="transactions__row">
-    <td class="transactions__date">22.03.2022</td>
-    <td class="transactions__payer">Bunq | Main</td>
-    <td class="transactions__payee"><span class="transactions__empty">&mdash;</span></td>
-    <td class="transactions__sum">20.39</td>
-    <td class="transactions__comment"><span class="transactions__empty">&mdash;</span></td>
+    <td>22.03.2022</td>
+    <td class="desktop-only">Bunq | Main</td>
+    <td class="desktop-only"><span class="transactions__empty">&mdash;</span></td>
+    <td><span class="transactions__empty">&mdash;</span></td>
+    <td>20.39</td>
   </tr>
   <tr class="transactions__row">
-    <td class="transactions__date">23.03.2022</td>
-    <td class="transactions__payer">Bunq | Main</td>
-    <td class="transactions__payee"><span class="transactions__empty">&mdash;</span></td>
-    <td class="transactions__sum">59.00</td>
-    <td class="transactions__comment">Отель в Милане для Ани</td>
+    <td>23.03.2022</td>
+    <td class="desktop-only">Bunq | Main</td>
+    <td class="desktop-only"><span class="transactions__empty">&mdash;</span></td>
+    <td>Отель в Милане для Ани</td>
+    <td>59.00</td>
   </tr>
   <tr class="transactions__row">
-    <td class="transactions__date">23.03.2022</td>
-    <td class="transactions__payer">Bunq | Main</td>
-    <td class="transactions__payee"><span class="transactions__empty">&mdash;</span></td>
-    <td class="transactions__sum">3.80</td>
-    <td class="transactions__comment">Кофе</td>
+    <td>23.03.2022</td>
+    <td class="desktop-only">Bunq | Main</td>
+    <td class="desktop-only"><span class="transactions__empty">&mdash;</span></td>
+    <td>Кофе</td>
+    <td>3.80</td>
   </tr>
   <tr class="transactions__row">
-    <td class="transactions__date">23.03.2022</td>
-    <td class="transactions__payer">Bunq | Main</td>
-    <td class="transactions__payee"><span class="transactions__empty">&mdash;</span></td>
-    <td class="transactions__sum">2.90</td>
-    <td class="transactions__comment">Jutter Speijs B.V. Hilversum, NL</td>
+    <td>23.03.2022</td>
+    <td class="desktop-only">Bunq | Main</td>
+    <td class="desktop-only"><span class="transactions__empty">&mdash;</span></td>
+    <td>Jutter Speijs B.V. Hilversum, NL</td>
+    <td>2.90</td>
   </tr>
   <tr class="transactions__row">
-    <td class="transactions__date">24.03.2022</td>
-    <td class="transactions__payer">Bunq | Main</td>
-    <td class="transactions__payee"><span class="transactions__empty">&mdash;</span></td>
-    <td class="transactions__sum">20.00</td>
-    <td class="transactions__comment"><span class="transactions__empty">&mdash;</span></td>
+    <td>24.03.2022</td>
+    <td class="desktop-only">Bunq | Main</td>
+    <td class="desktop-only"><span class="transactions__empty">&mdash;</span></td>
+    <td><span class="transactions__empty">&mdash;</span></td>
+    <td>20.00</td>
   </tr>
 </table>
 

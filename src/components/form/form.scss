@@ -57,5 +57,16 @@
     &__buttons-container {
       grid-column: span 1;
     }
+
+    &--horizontal {
+      grid-template-columns: 1fr;
+      grid-auto-flow: row;
+
+      .form__buttons-container {
+        grid-area: auto;
+
+        margin: 10px 0;
+      }
+    }
   }
 }
