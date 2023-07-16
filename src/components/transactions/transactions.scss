@@ -15,14 +15,14 @@
   }
 
   & th {
-    border-bottom: #eee 2px solid;
+    border-bottom: $lightGrey 2px solid;
 
     text-align: left;
     font-weight: bold;
   }
 
   & td {
-    border-bottom: #eee 1px solid;
+    border-bottom: $lightGrey 1px solid;
   }
 
   &__sum, th.transactions__sum {
@@ -41,7 +41,7 @@
   }
 
   &__empty {
-    color: #ccc;
+    color: $grey;
   }
 
   &__actions {
@@ -67,7 +67,7 @@
         grid-template-columns: 80px auto 50px;
       }
     }
-  
+
     &__row {
       position: relative;
 
@@ -84,7 +84,6 @@
         font-size: 18px;
         font-weight: bold;
       }
-    
 
       .transactions__date {
         position: absolute;
@@ -92,7 +91,7 @@
 
         font-style: italic;
         font-size: 12px;
-        color: #999;
+        color: $darkGrey;
 
         display: block;
         border-bottom: none;
@@ -105,7 +104,7 @@
 
         font-style: italic;
         font-size: 12px;
-        color: #999;
+        color: $darkGrey;
 
         display: block;
         border-bottom: none;
@@ -114,7 +113,7 @@
           content: "•";
 
           position: absolute;
-          
+
           left: -1ch;
 
           display: block;
@@ -143,7 +142,7 @@
 
       padding: 10px 0 30px 0;
 
-      border-bottom: #eee 1px solid;
+      border-bottom: $lightGrey 1px solid;
 
       .transactions__date,
       .transactions__category,
@@ -151,7 +150,7 @@
         font-style: normal;
         font-weight: normal;
         font-size: inherit;
-        color: #000;
+        color: $black;
         text-align: left;
       }
 
@@ -174,7 +173,7 @@
 
           font-style: italic;
           font-size: 12px;
-          color: #999;
+          color: $darkGrey;
         }
       }
 
@@ -244,12 +243,11 @@
         }
 
         &:focus {
-          outline-color: #3FA4FF;
+          outline-color: $outlineBlue;
           outline-width: 3px;
           outline-offset: 2px;
 
           transform: translateY(-0.2em);
-
         }
 
         &:active {
@@ -260,13 +258,13 @@
       .transactions__edit-button {
         left: 0;
 
-        color: #2872BC;
+        color: $blue;
       }
 
       .transactions__delete-button {
         left: 14ch;
 
-        color: #E13030;
+        color: $red;
       }
     }
   }

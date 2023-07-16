@@ -5,20 +5,20 @@
 
   border: none;
   border-radius: 5px;
-  background: linear-gradient(180deg, #77B2E7 0%, #3971B2 100%);
+  background: $buttonBackground;
   box-shadow:
-    0 4px 4px 0 rgba(0, 0, 0, 0.25),
-    0 2px 0 0 #235085,
-    0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+    $buttonNormalShadowXOffset $buttonNormalShadowYOffset $buttonNormalShadowBlur 0 $buttonShadowNormalColor,
+    $buttonNormalLiftXOffset $buttonNormalLiftYOffset 0 0 $buttonLiftColor,
+    $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
 
-  color: #FFF;
+  color: $white;
   text-align: center;
-  text-shadow: 0 -1px 0 rgba(57, 113, 178, 0.50);
+  text-shadow: $buttonTextShadowXOffset $buttonTextShadowYOffset 0 $buttonTextShadowColor;
   text-decoration: none;
-  font-size: 15px;
+  font-size: $buttonTextFontSize;
   font-weight: bold;
   font-family: 'PT Sans', Helvetica, Arial, sans-serif;
-  line-height: 15px;
+  line-height: $buttonTextFontSize;
 
   cursor: pointer;
 
@@ -26,37 +26,37 @@
 
   &:hover {
     box-shadow:
-      0 8px 4px 0 rgba(0, 0, 0, 0.15),
-      0 2px 0 0 #235085,
-      0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+      $buttonHoverShadowXOffset $buttonHoverShadowYOffset $buttonHoverShadowBlur 0 $buttonShadowHoverColor,
+      $buttonHoverLiftXOffset $buttonHoverLiftYOffset 0 0 $buttonLiftColor,
+      $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
 
-    transform: translateY(-2px);
+    transform: translateY(-$buttonLiftDistance);
   }
 
   &:focus {
     box-shadow:
-      0 8px 4px 0 rgba(0, 0, 0, 0.15),
-      0 2px 0 0 #235085,
-      0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
-    outline-color: #3FA4FF;
+      $buttonHoverShadowXOffset $buttonHoverShadowYOffset $buttonHoverShadowBlur 0 $buttonShadowHoverColor,
+      $buttonHoverLiftXOffset $buttonHoverLiftYOffset 0 0 $buttonLiftColor,
+      $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
+    outline-color: $outlineBlue;
     outline-width: 3px;
 
-    transform: translateY(-2px);
+    transform: translateY(-$buttonLiftDistance);
   }
 
   &:active {
     text-shadow: none;
     box-shadow:
-      0 2px 2px 0 rgba(0, 0, 0, 0.35),
-      0 1px 0 0 #316199;
+      $buttonActiveShadowXOffset $buttonActiveShadowYOffset $buttonActiveShadowBlur 0 $buttonShadowActiveColor,
+      $buttonActiveLiftXOffset $buttonActiveLiftYOffset 0 0 $buttonLiftColor;
 
     transform: translateY(0);
   }
 
   &:disabled {
-    opacity: 0.75;
+    opacity: $disabledButtonOpacity;
 
-    cursor:not-allowed;
+    cursor: not-allowed;
 
     transform: none;
   }
@@ -72,134 +72,134 @@
 
     border-radius: 50%;
 
-    transform: translateY(-2px);
+    transform: translateY($pinButtonYOffset);
 
     &:hover,
     &:focus {
-      transform: translateY(-4px);
+      transform: translateY($pinButtonYOffset - $buttonLiftDistance);
     }
 
     &:active {
-      transform: translateY(0px);
+      transform: translateY(0);
     }
   }
 
   &--silver {
-    background: linear-gradient(180deg, #F4F4F4 0%, #BBB 100%);
+    background: $silverButtonBackground;
     box-shadow:
-      0 4px 4px 0 rgba(0, 0, 0, 0.25),
-      0 2px 0 0 #A8A8A8,
-      0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+      $buttonNormalShadowXOffset $buttonNormalShadowYOffset $buttonNormalShadowBlur 0 $buttonShadowNormalColor,
+      $buttonNormalLiftXOffset $buttonNormalLiftYOffset 0 0 $silverButtonLiftColor,
+      $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
 
-    color: #828282;
-    text-shadow: 0 1px 0 #E1E1E1;
+    color: $darkGrey;
+    text-shadow: $silverButtonTextShadowXOffset $silverButtonTextShadowYOffset 0 $silverButtonTextShadowColor;
 
     &:hover {
       box-shadow:
-        0 8px 4px 0 rgba(0, 0, 0, 0.15),
-        0 2px 0 0 #A8A8A8,
-        0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+        $buttonHoverShadowXOffset $buttonHoverShadowYOffset $buttonHoverShadowBlur 0 $buttonShadowHoverColor,
+        $buttonHoverLiftXOffset $buttonHoverLiftYOffset 0 0 $silverButtonLiftColor,
+        $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
     }
 
     &:focus {
       box-shadow:
-        0 8px 4px 0 rgba(0, 0, 0, 0.15),
-        0 2px 0 0 #A8A8A8,
-        0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+        $buttonHoverShadowXOffset $buttonHoverShadowYOffset $buttonHoverShadowBlur 0 $buttonShadowHoverColor,
+        $buttonHoverLiftXOffset $buttonHoverLiftYOffset 0 0 $silverButtonLiftColor,
+        $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
     }
 
     &:active {
       box-shadow:
-        0 2px 2px 0 rgba(0, 0, 0, 0.35),
-        0 1px 0 0 #A8A8A8,
-        0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+        $buttonActiveShadowXOffset $buttonActiveShadowYOffset $buttonActiveShadowBlur 0 $buttonShadowActiveColor,
+        $buttonActiveLiftXOffset $buttonActiveLiftYOffset 0 0 $silverButtonLiftColor,
+        $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
     }
   }
 
   &--red {
-    background: linear-gradient(180deg, #E77777 0%, #B23939 100%);
+    background: $redButtonBackground;
     box-shadow:
-      0 2px 2px 0 rgba(0, 0, 0, 0.25),
-      0 1px 0 0 #852323,
-      0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+      $pinButtonNormalShadowXOffset $pinButtonNormalShadowYOffset $pinButtonNormalShadowBlur 0 $buttonShadowNormalColor,
+      $pinButtonNormalLiftXOffset $pinButtonNormalLiftYOffset 0 0 $redButtonLiftColor,
+      $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
 
     &:hover {
       box-shadow:
-        0 8px 4px 0 rgba(0, 0, 0, 0.15),
-        0 1px 0 0 #852323,
-        0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+        $pinButtonHoverShadowXOffset $pinButtonHoverShadowYOffset $pinButtonHoverShadowBlur 0 $buttonShadowHoverColor,
+        $pinButtonHoverLiftXOffset $pinButtonHoverLiftYOffset 0 0 $redButtonLiftColor,
+        $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
     }
 
     &:focus {
       box-shadow:
-        0 8px 4px 0 rgba(0, 0, 0, 0.15),
-        0 1px 0 0 #852323,
-        0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+        $pinButtonHoverShadowXOffset $pinButtonHoverShadowYOffset $pinButtonHoverShadowBlur 0 $buttonShadowHoverColor,
+        $pinButtonHoverLiftXOffset $pinButtonHoverLiftYOffset 0 0 $redButtonLiftColor,
+        $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
     }
 
     &:active {
       box-shadow:
-        0 0 1px 0 rgba(0, 0, 0, 0.35),
-        0 0 0 0 #852323,
-        0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+        $pinButtonActiveShadowXOffset $pinButtonActiveShadowYOffset $pinButtonActiveShadowBlur 0 $buttonShadowActiveColor,
+        $pinButtonActiveLiftXOffset $pinButtonActiveLiftYOffset 0 0 $redButtonLiftColor,
+        $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
     }
   }
 
   &--gold {
-    background: linear-gradient(180deg, #E7DB77 0%, #B2A639 100%);
+    background: $goldButtonBackground;
     box-shadow:
-      0 2px 2px 0 rgba(0, 0, 0, 0.25),
-      0 1px 0 0 #857B23,
-      0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+      $pinButtonNormalShadowXOffset $pinButtonNormalShadowYOffset $pinButtonNormalShadowBlur 0 $buttonShadowNormalColor,
+      $pinButtonNormalLiftXOffset $pinButtonNormalLiftYOffset 0 0 $goldButtonLiftColor,
+      $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
 
     &:hover {
       box-shadow:
-        0 8px 4px 0 rgba(0, 0, 0, 0.15),
-        0 1px 0 0 #857B23,
-        0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+        $pinButtonHoverShadowXOffset $pinButtonHoverShadowYOffset $pinButtonHoverShadowBlur 0 $buttonShadowHoverColor,
+        $pinButtonHoverLiftXOffset $pinButtonHoverLiftYOffset 0 0 $goldButtonLiftColor,
+        $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
     }
 
     &:focus {
       box-shadow:
-        0 8px 4px 0 rgba(0, 0, 0, 0.15),
-        0 1px 0 0 #857B23,
-        0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+        $pinButtonHoverShadowXOffset $pinButtonHoverShadowYOffset $pinButtonHoverShadowBlur 0 $buttonShadowHoverColor,
+        $pinButtonHoverLiftXOffset $pinButtonHoverLiftYOffset 0 0 $goldButtonLiftColor,
+        $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
     }
 
     &:active {
       box-shadow:
-        0 0 1px 0 rgba(0, 0, 0, 0.35),
-        0 0 0 0 #857B23,
-        0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+        $pinButtonActiveShadowXOffset $pinButtonActiveShadowYOffset $pinButtonActiveShadowBlur 0 $buttonShadowActiveColor,
+        $pinButtonActiveLiftXOffset $pinButtonActiveLiftYOffset 0 0 $goldButtonLiftColor,
+        $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
     }
   }
 
   &--green {
-    background: linear-gradient(180deg, #B6E777 0%, #6FB239 100%);
+    background: $greenButtonBackground;
     box-shadow:
-      0 2px 2px 0 rgba(0, 0, 0, 0.25),
-      0 1px 0 0 #378523,
-      0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+      $pinButtonNormalShadowXOffset $pinButtonNormalShadowYOffset $pinButtonNormalShadowBlur 0 $buttonShadowNormalColor,
+      $pinButtonNormalLiftXOffset $pinButtonNormalLiftYOffset 0 0 $greenButtonLiftColor,
+      $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
 
     &:hover {
       box-shadow:
-        0 8px 4px 0 rgba(0, 0, 0, 0.25),
-        0 1px 0 0 #378523,
-        0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+        $pinButtonHoverShadowXOffset $pinButtonHoverShadowYOffset $pinButtonHoverShadowBlur 0 $buttonShadowNormalColor,
+        $pinButtonHoverLiftXOffset $pinButtonHoverLiftYOffset 0 0 $greenButtonLiftColor,
+        $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
     }
 
     &:focus {
       box-shadow:
-        0 8px 4px 0 rgba(0, 0, 0, 0.25),
-        0 1px 0 0 #378523,
-        0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+        $pinButtonHoverShadowXOffset $pinButtonHoverShadowYOffset $pinButtonHoverShadowBlur 0 $buttonShadowNormalColor,
+        $pinButtonHoverLiftXOffset $pinButtonHoverLiftYOffset 0 0 $greenButtonLiftColor,
+        $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
     }
 
     &:active {
       box-shadow:
-        0 0 1px 0 rgba(0, 0, 0, 0.25),
-        0 0 0 0 #378523,
-        0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+        $pinButtonActiveShadowXOffset $pinButtonActiveShadowYOffset $pinButtonActiveShadowBlur 0 $buttonShadowNormalColor,
+        $pinButtonActiveLiftXOffset $pinButtonActiveLiftYOffset 0 0 $greenButtonLiftColor,
+        $buttonHighlightXOffset $buttonHighlightYOffset $buttonHighlightBlur 0 $buttonHighlightColor inset;
     }
   }
 }

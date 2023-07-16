@@ -8,16 +8,16 @@
     background-size: 100% 100%;
 
     &--pen {
-        background-image: url("data:image/svg+xml;utf8,<svg width='15' height='15' viewBox='0 0 15 15' fill='none' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' clip-rule='evenodd' d='M11.7057 6.56059L8.45703 3.31189L11.5601 0.208793C11.744 0.0248724 12.0226 -0.024975 12.2507 0.0999968C12.6556 0.321821 13.3023 0.717209 13.8014 1.21626C14.3004 1.71531 14.6958 2.36201 14.9176 2.76691C15.0426 2.99502 14.9928 3.27358 14.8088 3.4575L11.7057 6.56059Z' fill='white'/><path fill-rule='evenodd' clip-rule='evenodd' d='M11.198 7.09172L7.94929 3.84302L1.07697 10.7153C1.00155 10.7908 0.946807 10.8843 0.917988 10.987L0.0238146 14.1732C-0.10526 14.6331 0.310988 15.0608 0.774233 14.9441L4.04417 14.121C4.15312 14.0935 4.2526 14.0371 4.33204 13.9577L11.198 7.09172Z' fill='white'/></svg>");
+        background-image: $penIcon;
     }
 
     &--up {
-        background-image: url("data:image/svg+xml;utf8,<svg width='15' height='9' viewBox='0 0 15 9' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M7.5 0L15 9L0 9L7.5 0Z' fill='white'/></svg>");
+        background-image: $upIcon;
         transform: scale(0.9);
     }
 
     &--down {
-        background-image: url("data:image/svg+xml;utf8,<svg width='15' height='9' viewBox='0 0 15 9' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M7.5 9L-7.05101e-07 -7.749e-07L15 5.36442e-07L7.5 9Z' fill='white'/></svg>");
+        background-image: $downIcon;
         background-position: left bottom;
         transform: translateY(10%) scale(0.9);
     }

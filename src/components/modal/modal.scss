@@ -13,13 +13,13 @@
   padding: 10px;
   box-sizing: border-box;
 
-  background: rgba(0, 0, 0, 0.5);
+  background: $shadowBlack;
 
   &__window {
     margin: auto;
     padding: 20px;
 
-    background: white;
+    background: $white;
   }
 
   &__header-wrapper {
@@ -42,10 +42,10 @@
     padding: 0;
 
     background: none;
-    border: #ccc 1px solid;
+    border: $grey 1px solid;
     border-radius: 50%;
 
-    color: #ccc;
+    color: $grey;
     font-size: 2em;
     text-align: center;
     line-height: 1.1em;
@@ -59,7 +59,7 @@
     }
 
     &:focus {
-      border-color: #3FA4FF;
+      border-color: $outlineBlue;
       border-width: 2px;
       outline: none;
 
