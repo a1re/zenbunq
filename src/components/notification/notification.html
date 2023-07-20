@@ -1,0 +1,10 @@
+<div class="notification">
+  <include src="components/message/message.html" locals='{"type": "success", "message": "Такая категория уже есть"}'></include>
+  <button class="notification__close">&times;</button>
+</div>
+<script lang="javasrcipt">
+  setTimeout(() => {
+    const notificationWindow = document.querySelector(".notification");
+    notificationWindow.classList.add("notification--visible");
+  }, 500)
+</script>

@@ -12,21 +12,29 @@ $shadowBlack: rgba(0, 0, 0, 0.5);
 
 $outlineBlue: #3FA4FF;
 $errorRed: #af1c1c;
+$successGreen: #6C9932;
 
 $blue: #2872BC;
 $red: #E13030;
+$ligthtGreen: #C8EBA4;
+$ligthtRed: #EBA4A5;
 
 $warningIcon: url("data:image/svg+xml,%3Csvg width='17' height='15' viewBox='0 0 17 15' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0 15L8.5 0L17 15H0ZM1.54545 14.0909L8.5 1.81818L15.4545 14.0909H1.54545ZM8.99999 4.59998H8.00399V8.76398L8.20799 10.876H8.79599L8.99999 8.76398V4.59998ZM7.97999 11.944C7.85999 12.064 7.79999 12.232 7.79999 12.448C7.79999 12.656 7.85999 12.824 7.97999 12.952C8.10799 13.08 8.27599 13.144 8.48399 13.144C8.69999 13.144 8.87199 13.08 8.99999 12.952C9.12799 12.824 9.19199 12.656 9.19199 12.448C9.19199 12.232 9.12799 12.064 8.99999 11.944C8.87199 11.816 8.69999 11.752 8.48399 11.752C8.27599 11.752 8.10799 11.816 7.97999 11.944Z' fill='%23AF1C1C'/%3E%3C/svg%3E");
-$fileIcon: url("data:image/svg+xml; utf8, <svg width='11' height='15' viewBox='0 0 11 15' fill='none' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' clip-rule='evenodd' d='M6.875 0.714295H0.6875V14.2857H10.3125V4.28572H7.21875C7.0289 4.28572 6.875 4.12582 6.875 3.92858V0.714295ZM9.82636 3.57144L7.5625 1.21937V3.57144H9.82636ZM11 3.93136V14.6429C11 14.8401 10.8461 15 10.6562 15H0.34375C0.153902 15 0 14.8401 0 14.6429V0.357153C0 0.159908 0.153902 1.04303e-05 0.34375 1.04303e-05H7.21605H7.21875C7.23379 1.04303e-05 0.373732 0.00103437 0.388485 0.00304584C0.372792 0.000903769 7.23194 -0.000115776 7.21605 1.04303e-05M10.9974 3.88451C10.9991 3.89906 11 3.91377 11 3.92858V3.93136' fill='black'/></svg>");
+$fileIcon: url("data:image/svg+xml;utf8,<svg width='11' height='15' viewBox='0 0 11 15' fill='none' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' clip-rule='evenodd' d='M6.875 0.714295H0.6875V14.2857H10.3125V4.28572H7.21875C7.0289 4.28572 6.875 4.12582 6.875 3.92858V0.714295ZM9.82636 3.57144L7.5625 1.21937V3.57144H9.82636ZM11 3.93136V14.6429C11 14.8401 10.8461 15 10.6562 15H0.34375C0.153902 15 0 14.8401 0 14.6429V0.357153C0 0.159908 0.153902 1.04303e-05 0.34375 1.04303e-05H7.21605H7.21875C7.23379 1.04303e-05 0.373732 0.00103437 0.388485 0.00304584C0.372792 0.000903769 7.23194 -0.000115776 7.21605 1.04303e-05M10.9974 3.88451C10.9991 3.89906 11 3.91377 11 3.92858V3.93136' fill='black'/></svg>");
 $penIcon: url("data:image/svg+xml;utf8,<svg width='15' height='15' viewBox='0 0 15 15' fill='none' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' clip-rule='evenodd' d='M11.7057 6.56059L8.45703 3.31189L11.5601 0.208793C11.744 0.0248724 12.0226 -0.024975 12.2507 0.0999968C12.6556 0.321821 13.3023 0.717209 13.8014 1.21626C14.3004 1.71531 14.6958 2.36201 14.9176 2.76691C15.0426 2.99502 14.9928 3.27358 14.8088 3.4575L11.7057 6.56059Z' fill='white'/><path fill-rule='evenodd' clip-rule='evenodd' d='M11.198 7.09172L7.94929 3.84302L1.07697 10.7153C1.00155 10.7908 0.946807 10.8843 0.917988 10.987L0.0238146 14.1732C-0.10526 14.6331 0.310988 15.0608 0.774233 14.9441L4.04417 14.121C4.15312 14.0935 4.2526 14.0371 4.33204 13.9577L11.198 7.09172Z' fill='white'/></svg>");
 $upIcon: url("data:image/svg+xml;utf8,<svg width='15' height='9' viewBox='0 0 15 9' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M7.5 0L15 9L0 9L7.5 0Z' fill='white'/></svg>");
 $downIcon: url("data:image/svg+xml;utf8,<svg width='15' height='9' viewBox='0 0 15 9' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M7.5 9L-7.05101e-07 -7.749e-07L15 5.36442e-07L7.5 9Z' fill='white'/></svg>");
+$successIcon: url("data:image/svg+xml,%3Csvg width='17' height='18' viewBox='0 0 17 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M16 9C16 13.1421 12.6421 16.5 8.5 16.5C4.35786 16.5 1 13.1421 1 9C1 4.85786 4.35786 1.5 8.5 1.5C12.6421 1.5 16 4.85786 16 9ZM17 9C17 13.6944 13.1944 17.5 8.5 17.5C3.80558 17.5 0 13.6944 0 9C0 4.30558 3.80558 0.5 8.5 0.5C13.1944 0.5 17 4.30558 17 9ZM6.16048 8.73269C5.9837 8.52056 5.66841 8.49189 5.45627 8.66868C5.24414 8.84546 5.21547 9.16074 5.39226 9.37288L7.89226 12.3729C7.99663 12.4981 8.15551 12.5646 8.31798 12.5511C8.48046 12.5375 8.62611 12.4455 8.70826 12.3047L12.2083 6.30472C12.3474 6.0662 12.2668 5.76004 12.0283 5.6209C11.7898 5.48176 11.4836 5.56232 11.3445 5.80085L8.20386 11.1848L6.16048 8.73269Z' fill='%236C9932'/%3E%3C/svg%3E");
 
 $buttonBackground: linear-gradient(180deg, #77B2E7 0%, #3971B2 100%);
 $silverButtonBackground: linear-gradient(180deg, #F4F4F4 0%, #BBB 100%);
 $redButtonBackground: linear-gradient(180deg, #E77777 0%, #B23939 100%);
 $goldButtonBackground: linear-gradient(180deg, #E7DB77 0%, #B2A639 100%);
 $greenButtonBackground: linear-gradient(180deg, #B6E777 0%, #6FB239 100%);
+
+$notificationShadowXOffset: 0;
+$notificationShadowYOffset: 4px;
+$notificationShadowBlur: 15px;
 
 $buttonShadowNormalColor: rgba(0, 0, 0, 0.25);
 $buttonShadowHoverColor: rgba(0, 0, 0, 0.15);

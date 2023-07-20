@@ -1,5 +1,7 @@
 .message {
-  margin: 0;
+  margin: 0 0 0 22px;
+
+  line-height: 1.3em;
 
   &--error {
     color: $errorRed;
@@ -8,9 +10,22 @@
       content: $warningIcon;
       width: 17px;
       height: 15px;
-      margin-right: 5px;
+      margin: 0 5px 0 -22px;
 
       vertical-align: middle;
+    }
+  }
+
+  &--success {
+    color: $successGreen;
+
+    &::before {
+      content: $successIcon;
+      width: 17px;
+      height: 18px;
+      margin: 0 5px 0 -22px;
+
+      vertical-align: top;
     }
   }
 }

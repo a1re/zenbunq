@@ -1,0 +1,62 @@
+.notification {
+  display: flex;
+  justify-content: space-between;
+  max-width: 450px;
+  margin: 0 auto;
+  padding: 7px 7px 6px 7px;
+
+  background-color: $ligthtGreen;
+  border-radius: 5px;
+  box-shadow: $notificationShadowXOffset $notificationShadowYOffset $notificationShadowBlur 0 $buttonShadowNormalColor;
+
+  transform: translateY(-150%);
+
+  transition: transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &__close {
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+    margin-left: 20px;
+    padding: 0;
+
+    background: none;
+    border: none;
+
+    color: $successGreen;
+    font-size: 1.5em;
+    text-align: center;
+    line-height: 1.1em;
+
+    cursor: pointer;
+
+    transition: transform 250ms;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    &:focus {
+      outline-color: $outlineBlue;
+      outline-width: 2px;
+
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  &--error {
+    background-color: $ligthtRed;
+
+    & .notification__close {
+      color: $errorRed;
+    }
+  }
+
+  &--visible {
+    transform: translate(0);
+  }
+}

@@ -42,10 +42,11 @@
 .page__notification {
   position: absolute;
   top: 0;
-  left: 50%;
+  left: 0;
+  right: 0;
   z-index: 2;
 
-  transform: translateX(-50%);
+  padding: 15px;
 }
 
 .page__content {
