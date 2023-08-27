@@ -1,12 +1,16 @@
 import {Selector} from './const';
-import {getNode, getNodeFromTemplate, placeNode} from './utils';
+import NodeComposer from './node-composer';
 
-const resultsFragment = document.createDocumentFragment();
-const resultNode = getNodeFromTemplate(Selector.RESULT_TEMPLATE)
-const recordsNode = getNodeFromTemplate(Selector.RESULT_RECORDS_TEMPLATE)
-const transactionsNode = getNodeFromTemplate(Selector.TRANSACTIONS_TEMPLATE)
-
-placeNode(resultsFragment, resultNode);
-placeNode(getNode(Selector.RESULT_RECORDS_WRAPPER, resultsFragment), recordsNode);
-placeNode(getNode(Selector.TRANSACTIONS_WRAPPER, resultsFragment), transactionsNode);
-placeNode(getNode(Selector.PAGE_CONTENT), resultsFragment);
+const composer = new NodeComposer(NodeComposer.ERROR_MODE);
+composer.composeNode({
+  wrapper: Selector.PAGE_CONTENT,
+  template: Selector.RESULT_TEMPLATE,
+  children: [{
+    wrapper: Selector.RESULT_RECORDS_WRAPPER,
+    template: Selector.RESULT_RECORDS_TEMPLATE,
+    children: [{
+      wrapper: Selector.TRANSACTIONS_WRAPPER,
+      template: Selector.TRANSACTIONS_TEMPLATE
+    }]
+  }]
+});
