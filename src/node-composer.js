@@ -17,7 +17,9 @@ export default class NodeComposer {
     UNDEFINED_WRAPPER: "Wrapper is undefined",
     UNDEFINED_TEMPLATE: "Template is underfined",
     INVALID_VALUES: "Invalid values for template '{0}'",
-    INVALID_CHILDREN: "Invalid children for template '{0}'"
+    INVALID_CHILDREN: "Invalid children for template '{0}'",
+    NODE_ID_REQUIRED: "Id is required if `beforeUnset` is set",
+    NOT_A_FUNCTION: "'{0}' is not a valid function"
   }
 
   /**
@@ -27,6 +29,11 @@ export default class NodeComposer {
     Node.ELEMENT_NODE,
     Node.DOCUMENT_FRAGMENT_NODE
   ]
+
+  /**
+   * Array for functions to be triggered while unsetting the element
+   */
+  _beforeUnsets = []
 
   /**
    * Class constructor.
@@ -154,7 +161,7 @@ export default class NodeComposer {
    *          }
    *        ]
    *    ],
-   *  afterSetup: () => { ... },
+   *  afterInsert: () => { ... },
    *  beforeUnset: () => { ... }
    * })
    *
@@ -163,17 +170,22 @@ export default class NodeComposer {
    * @param  {Array}       options.values       Array of values to insert (optional)
    * @param  {Array}       options.children     Array of children to insert (optional)
    * @param  {HTMLElement} options.domain       Scope for selecting wrapper element (optional)
-   * @param  {Function}    options.afterSetup   Function to be triggered after element is placed
-   * @param  {Function}    options.beforeUnset  Function to be triggered after element is removed
+   * @param  {Function}    options.afterInsert  Function to be triggered after element
+   *                                            is placed (optional)
+   * @param  {Function}    options.beforeUnset  Function to be triggered after element
+   *                                            is placed (optional)
+   * @param  {String}      options.id           Id for the element. Required if beforeUnset
+   *                                            is set, otherwise optional
    * @return void
    */
   composeNode({
+    id,
     wrapper: wrapperSelector,
     template: templateSelector,
     values,
     children,
     domain,
-    afterSetup,
+    afterInsert,
     beforeUnset
   }) {
     if (!wrapperSelector) {
@@ -193,8 +205,27 @@ export default class NodeComposer {
     }
     const template = this._getNodeFromTemplate(templateSelector);
 
+    if (afterInsert && typeof afterInsert !== 'function') {
+      this._error(this._errorMessage.NOT_A_FUNCTION, 'afterInsert()');
+      return;
+    }
+
+    if (beforeUnset) {
+      if (typeof beforeUnset !== 'function') {
+        this._error(this._errorMessage.NOT_A_FUNCTION, 'beforeUnset()');
+        return;
+      }
+
+      if (!id) {
+        this._error(this._errorMessage.NODE_ID_REQUIRED);
+        return;
+      }
+    }
+
     const fragment = document.createDocumentFragment();
     fragment.appendChild(template);
+
+    const element = fragment.querySelector('*');
 
     if (values) {
       if (!Array.isArray(values)) {
@@ -233,6 +264,41 @@ export default class NodeComposer {
       });
     }
 
+    if (id) {
+      element.id = id;
+
+      if (beforeUnset) {
+        this._beforeUnsets.push({id, beforeUnset })
+      }
+    }
+
     wrapper.appendChild(fragment);
+
+    if (afterInsert) {
+      afterInsert(element);
+    }
+  }
+
+  /**
+   * Removes previously inserted node and triggers beforeUnset() function if it
+   * was defined
+   *
+   * @param  {String}  id  Id of the node to remove (without '#')
+   * @return void
+   */
+  removeNode(id) {
+    const element = document.querySelector('#' + id);
+
+    if (!element) {
+      this._error(this._errorMessage.NODE_NOT_FOUND, '#' + id);
+      return;
+    }
+
+    const triggerObject = this._beforeUnsets.find((object) => object.id === id);
+    if (triggerObject) {
+      triggerObject.beforeUnset(element);
+    }
+
+    element.remove();
   }
 };
