@@ -176,6 +176,8 @@ export default class NodeComposer {
    *                                            is placed (optional)
    * @param  {String}      options.id           Id for the element. Required if beforeUnset
    *                                            is set, otherwise optional
+   * @param  {Boolean}     option.incremental   Default is true. If set to false, wrapper is
+   *                                            cleared before inserting new nodes
    * @return void
    */
   composeNode({
@@ -186,7 +188,8 @@ export default class NodeComposer {
     children,
     domain,
     afterInsert,
-    beforeUnset
+    beforeUnset,
+    incremental
   }) {
     if (!wrapperSelector) {
       this._error(wrapperSelector)
@@ -269,6 +272,19 @@ export default class NodeComposer {
 
       if (beforeUnset) {
         this._beforeUnsets.push({id, beforeUnset })
+      }
+    }
+
+    if (incremental === false) {
+      this._beforeUnsets.forEach(({id:objectId, beforeUnset}) => {
+        const childObject = wrapper.querySelector('#' + objectId);
+        if (childObject) {
+          beforeUnset(childObject);
+        }
+      });
+
+      while (wrapper.firstChild) {
+        wrapper.firstChild.remove();
       }
     }
 
