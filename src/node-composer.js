@@ -294,10 +294,17 @@ export default class NodeComposer {
       return;
     }
 
-    const triggerObject = this._beforeUnsets.find((object) => object.id === id);
-    if (triggerObject) {
-      triggerObject.beforeUnset(element);
-    }
+    this._beforeUnsets.forEach(({id:objectId, beforeUnset}) => {
+      if (objectId === id) {
+        beforeUnset(element)
+        return;
+      }
+
+      const object = element.querySelector('#' + objectId);
+      if (object) {
+        beforeUnset(object);
+      }
+    });
 
     element.remove();
   }
