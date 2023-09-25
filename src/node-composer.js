@@ -1,8 +1,9 @@
 export default class NodeComposer {
 
-  static ERROR_MODE = 2;
-  static LOG_MODE = 1;
-  static SILENT_MODE = 0;
+  /**
+   * Setting for raising error messages in console
+   */
+  _showErrors = true;
 
   /**
    * Private value with error messages to make the code cleaner and get rid of
@@ -11,7 +12,6 @@ export default class NodeComposer {
   _errorMessage = {
     INVALID_NODE: "Passed scope parameter for query '{0}' is not a valid DOM node",
     INVALID_WRAPPER: "Passed wrapper element is not a valid DOM node",
-    INVALID_VOCAL_MODE: "Invalid vocal mode",
     NODE_NOT_FOUND: "No elements with selector '{0}' were found in the scope",
     TEMPLATE_NOT_FOUND: "Template '{0}' was not found in the page document",
     UNDEFINED_WRAPPER: "Wrapper is undefined",
@@ -36,24 +36,9 @@ export default class NodeComposer {
   _beforeUnsets = []
 
   /**
-   * Class constructor.
-   *
-   * @param {Number} vocalMode  NodeComposer.ERROR_MODE, NodeComposer.LOG_MODE,
-   *                            or NodeComposer.SILENT_MODE
-   */
-  constructor(vocalMode) {
-    if (![NodeComposer.ERROR_MODE, NodeComposer.LOG_MODE, NodeComposer.SILENT_MODE].includes(vocalMode)) {
-      console.error(this._errorMessage.INVALID_VOCAL_MODE);
-      return;
-    }
-
-    this._vocalMode = vocalMode;
-  }
-
-  /**
-   * Error reporting with a formatted message. Based on this._vocalMode, raises
-   * error in the console, log message or remains silent. Used for cleaner code
-   * with values from this._errorMessage.
+   * Error reporting with a formatted message. Based on this._showErrors, raises
+   * error in the console or remains silent. Used for cleaner code  with values
+   * from this._errorMessage.
    *
    * Example: this._error(this._errorMessage.INVALID_NODE, '.wrong-selector');
    *
@@ -63,7 +48,7 @@ export default class NodeComposer {
    * @returns
    */
   _error(message, ...args) {
-    if (this._vocalMode === this.SILENT_MODE) {
+    if (!this._showErrors) {
       return;
     }
 
@@ -71,11 +56,7 @@ export default class NodeComposer {
       return typeof args[number] != 'undefined' ? args[number] : match;
     });
 
-    if (this._vocalMode === this.LOG_MODE) {
-      console.log(formattedMessage);
-    } else {
-      console.error(formattedMessage);
-    }
+    console.error(formattedMessage);
   }
 
   /**
@@ -93,7 +74,7 @@ export default class NodeComposer {
 
   /**
    * Vocal HTML Node selector. If element is nout found, raises an error in the
-   * console based on this._vocaleMode value. Second parameter is a search scope.
+   * console based on this._showErrors value. Second parameter is a search scope.
    * If not passed, document is used.
    *
    * @param {string}      selector  HTML Selector string
@@ -119,7 +100,7 @@ export default class NodeComposer {
 
   /**
    * Searches for template element and clones to a new one. If template is not
-   * found, raises an error in the console based on this._vocalMode.
+   * found, raises an error in the console based on this._showErrors.
    *
    * @param   {string}      selector  HTML Selector string
    * @param   {HTMLElement} domain    HTML node for search scope (optional)

@@ -2,7 +2,7 @@ import {Selector, Value} from './const';
 import NodeComposer from './node-composer';
 import {mockData} from './mock-data';
 
-const composer = new NodeComposer(NodeComposer.ERROR_MODE);
+const composer = new NodeComposer;
 
 const showTransactions = (evt) => {
   evt.preventDefault();
