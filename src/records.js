@@ -1,12 +1,17 @@
 import {Selector, Value} from './const';
 import NodeComposer from './node-composer';
 
-export default class Transactions {
+export default class Records {
 
   /**
-   * Array for transaction record objects
+   * Array for transaction objects
    */
   transactions = [];
+
+  /**
+   * Array for counterparts objects
+   */
+  counterparts = [];
 
   /**
    * Selectors for wrappers
