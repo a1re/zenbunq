@@ -14,4 +14,4 @@ const showTransactions = (evt) => {
 };
 
 const uploadButton = document.querySelector(Selector.UPLOAD_BUTTON);
-uploadButton.addEventListener('click', showTransactions);
+uploadButton.onclick = showTransactions;
