@@ -126,7 +126,8 @@ export default class Transactions {
         wrapper: this._container.TRANSACTIONS,
         template: this._template.TABLE,
         children: rows
-      }]
+      }],
+      incremental: false
     })
   }
 
