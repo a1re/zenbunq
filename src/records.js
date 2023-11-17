@@ -1,5 +1,6 @@
 import {Selector, Value} from './const';
 import NodeComposer from './node-composer';
+import adaptBunqCsv from './helpers/adapt-bunq-csv';
 
 export default class Records {
 
@@ -12,6 +13,11 @@ export default class Records {
    * Array for counterparts objects
    */
   counterparts = [];
+
+  /**
+   * Flag for skipping header in raw data
+   */
+  _isSkipHeader = true;
 
   /**
    * Selectors for wrappers
@@ -101,6 +107,19 @@ export default class Records {
     if (!Array.isArray(data)) {
       this._error(this._errorMessage.INVALID_UPLOADED_DATA);
       return;
+    }
+
+    for (let i=0; i<data.length; i++) {
+      if (i === 0 && this._isSkipHeader) {
+        continue;
+      }
+
+      try {
+        const transaction = adaptBunqCsv(data[i]);
+        console.log(transaction);
+      } catch ({message}) {
+        this._error(message);
+      }
     }
 
     this.transactions = data; // TEMPORARY WITHOUT PROCESSING
