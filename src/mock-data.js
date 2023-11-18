@@ -63,7 +63,7 @@ export const mockData = {
       comment: 'Jutter Speijs B.V. Hilversum, NL'
     }
   ],
-  rawData: [
+  transactionsCSV: [
     ["Date","Interest Date","Amount","Account","Counterparty","Name","Description"],
     ["2022-04-01","2022-04-01","0,02","NL14BUNQ2068972565","NL10BUNQ2069339491","bunq","Interest payment"],
     ["2022-04-01","2022-04-01","-4,40","NL14BUNQ2068972565","","Jutter Speijs B.V.","Jutter Speijs B.V. Hilversum, NL"],

@@ -9,7 +9,7 @@ const records = new Records(composer);
 const showTransactions = (evt) => {
   evt.preventDefault();
 
-  records.uploadData(mockData.rawData);
+  records.uploadData(mockData.transactionsCSV);
   records.insertTable(Id.TRANSACTIONS_TABLE, Selector.PAGE_CONTENT);
 };
 
