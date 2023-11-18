@@ -206,6 +206,27 @@ export default class NodeComposer {
       }
     }
 
+    if (incremental === false) {
+      const executedBeforeUnsetIndexes = [];
+
+      for (let i = this._beforeUnsets.length-1; i >= 0; i--) {
+        const childObject = wrapper.querySelector('#' + this._beforeUnsets[i].id);
+        if (childObject) {
+          this._beforeUnsets[i].beforeUnset(childObject);
+
+          if (i === this._beforeUnsets.length-1) {
+            this._beforeUnsets.pop();
+          } else {
+            this._beforeUnsets.splice(i, 1); // NOT TESTED
+          }
+        }
+      }
+
+      while (wrapper.firstChild) {
+        wrapper.firstChild.remove();
+      }
+    }
+
     const fragment = document.createDocumentFragment();
     fragment.appendChild(template);
 
@@ -244,7 +265,7 @@ export default class NodeComposer {
           child = {...child, domain: fragment};
         }
 
-        this.composeNode(child)
+        this.composeNode(child);
       });
     }
 
@@ -253,19 +274,6 @@ export default class NodeComposer {
 
       if (beforeUnset) {
         this._beforeUnsets.push({id, beforeUnset })
-      }
-    }
-
-    if (incremental === false) {
-      this._beforeUnsets.forEach(({id:objectId, beforeUnset}) => {
-        const childObject = wrapper.querySelector('#' + objectId);
-        if (childObject) {
-          beforeUnset(childObject);
-        }
-      });
-
-      while (wrapper.firstChild) {
-        wrapper.firstChild.remove();
       }
     }
 
