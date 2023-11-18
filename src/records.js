@@ -108,21 +108,17 @@ export default class Records {
       this._error(this._errorMessage.INVALID_UPLOADED_DATA);
       return;
     }
-
     for (let i=0; i<data.length; i++) {
       if (i === 0 && this._isSkipHeader) {
         continue;
       }
 
       try {
-        const transaction = adaptBunqCsv(data[i]);
-        console.log(transaction);
+        this.transactions.push(adaptBunqCsv(data[i]));
       } catch ({message}) {
         this._error(message);
       }
     }
-
-    this.transactions = data; // TEMPORARY WITHOUT PROCESSING
   }
 
   /**
