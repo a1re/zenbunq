@@ -61,7 +61,8 @@ export default class Records {
   _errorMessage = {
     INVALID_COMPOSER: "Invalid composer object",
     INVALID_UPLOADED_DATA: "Uploaded data has invalid format",
-    MISSING_VALUE: "Missing {0} for transaction row"
+    MISSING_VALUE: "Missing {0} for transaction row",
+    TRANSACTION_BUTTON_NOT_FOUND: "Button '{0}' for transaction row '{1}' not found"
   }
 
   constructor(composer) {
@@ -108,6 +109,9 @@ export default class Records {
       this._error(this._errorMessage.INVALID_UPLOADED_DATA);
       return;
     }
+
+    this.transactions = [];
+
     for (let i=0; i<data.length; i++) {
       if (i === 0 && this._isSkipHeader) {
         continue;
@@ -211,7 +215,71 @@ export default class Records {
           wrapper: this._container.COMMENT,
           innerHTML: comment || ''
         }
-      ]
+      ],
+      afterInsert: (element) => {
+        const expandButton = element.querySelector(Selector.BUTTON.TRANSACTION.EXPAND);
+        if (!expandButton) {
+          this._error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EXPAND, id);
+          return;
+        }
+
+        expandButton.onclick = () => {
+          element.classList.toggle(Value.EXPANDED_TRANSACTION_ROW);
+        }
+
+        const deleteButtonList = element.querySelectorAll(Selector.BUTTON.TRANSACTION.DELETE);
+        if (deleteButtonList.length === 0) {
+          this._error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.DELETE, id);
+          return;
+        }
+
+        deleteButtonList.forEach((deleteButton) => {
+          deleteButton.onclick = () => {
+            console.log(`Delete '${id}'`);
+          }
+        });
+
+        const editButtonList = element.querySelectorAll(Selector.BUTTON.TRANSACTION.EDIT);
+        if (deleteButtonList.length === 0) {
+          this._error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EDIT, id);
+          return;
+        }
+
+        editButtonList.forEach((editButton) => {
+          editButton.onclick = () => {
+            console.log(`Edit '${id}'`);
+          }
+        });
+      },
+      beforeUnset: (element) => {
+        const expandButton = element.querySelectorAll(Selector.BUTTON.TRANSACTION.EXPAND);
+        if (!expandButton) {
+          this._error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EXPAND, id);
+          return;
+        }
+
+        expandButton.onclick = null;
+
+        const deleteButtonList = element.querySelectorAll(Selector.BUTTON.TRANSACTION.DELETE);
+        if (deleteButtonList.length === 0) {
+          this._error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.DELETE, id);
+          return;
+        }
+
+        deleteButtonList.forEach((deleteButton) => {
+          deleteButton.onclick = null;
+        });
+
+        const editButtonList = element.querySelectorAll(Selector.BUTTON.TRANSACTION.EDIT);
+        if (deleteButtonList.length === 0) {
+          this._error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EDIT, id);
+          return;
+        }
+
+        editButtonList.forEach((editButton) => {
+          editButton.onclick = null;
+        });
+      }
     }
   }
 

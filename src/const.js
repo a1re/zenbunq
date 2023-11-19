@@ -26,6 +26,13 @@ export const Selector = {
       LIST: '#transactions',
       ROW: '#transactions-row'
     }
+  },
+  BUTTON: {
+    TRANSACTION: {
+      EDIT: '.transactions__edit-button',
+      DELETE: '.transactions__delete-button',
+      EXPAND: '.transactions__expand-button'
+    }
   }
 };
 
@@ -34,5 +41,6 @@ export const Id = {
 }
 
 export const Value = {
-  TRANSACTION_EMPTY_STRING: '<span class="transactions__empty">&mdash;</span>'
+  TRANSACTION_EMPTY_STRING: '<span class="transactions__empty">&mdash;</span>',
+  EXPANDED_TRANSACTION_ROW: 'transactions__row--expanded'
 };

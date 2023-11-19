@@ -63,7 +63,7 @@ export const mockData = {
       comment: 'Jutter Speijs B.V. Hilversum, NL'
     }
   ],
-  transactionsCSV: [
+  transactionsCsv: [
     ["Date","Interest Date","Amount","Account","Counterparty","Name","Description"],
     ["2022-04-01","2022-04-01","0,02","NL14BUNQ2068972565","NL10BUNQ2069339491","bunq","Interest payment"],
     ["2022-04-01","2022-04-01","-4,40","NL14BUNQ2068972565","","Jutter Speijs B.V.","Jutter Speijs B.V. Hilversum, NL"],
@@ -159,5 +159,11 @@ export const mockData = {
     ["2022-04-30","2022-05-01","-15,25","NL14BUNQ2068972565","","Mc Donalds Bussum","Mc Donalds Bussum Bussum, NL"],
     ["2022-04-30","2022-05-01","-3,90","NL14BUNQ2068972565","","iZ *11 O COFFEE","iZ *11 O COFFEE Bussum, NL"],
     ["2022-04-30","2022-05-01","-6,49","NL14BUNQ2068972565","","APPLE.COM/BILL","APPLE.COM/BILL ITUNES.COM, IE"]
+  ],
+  transactionsCsvShort: [
+    ["Date","Interest Date","Amount","Account","Counterparty","Name","Description"],
+    ["2022-04-01","2022-04-01","0,02","NL14BUNQ2068972565","NL10BUNQ2069339491","bunq","Interest payment"],
+    ["2022-04-01","2022-04-01","-4,40","NL14BUNQ2068972565","","Jutter Speijs B.V.","Jutter Speijs B.V. Hilversum, NL"],
+    ["2022-04-01","2022-04-01","-37,58","NL14BUNQ2068972565","","Albert Heijn 4025","Albert Heijn 4025 HILVERSUM, NL"]
   ]
 }
