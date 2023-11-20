@@ -165,5 +165,17 @@ export const mockData = {
     ["2022-04-01","2022-04-01","0,02","NL14BUNQ2068972565","NL10BUNQ2069339491","bunq","Interest payment"],
     ["2022-04-01","2022-04-01","-4,40","NL14BUNQ2068972565","","Jutter Speijs B.V.","Jutter Speijs B.V. Hilversum, NL"],
     ["2022-04-01","2022-04-01","-37,58","NL14BUNQ2068972565","","Albert Heijn 4025","Albert Heijn 4025 HILVERSUM, NL"]
+  ],
+  accounts: [
+    { key: "NL14BUNQ2068972565", label: "bunq | Main" }
+  ],
+  categories: [
+    "Продукты", "Зарплата", "Переезд", "Еда вне дома", "Банковские услуги", "Семья", "Разное", "Подписки"
+  ],
+  counterparts: [
+    { key: "Hilversum City Apartme", label: "Hilversum City Apartments", category: "Разное" },
+    { key: "Wundermart", label: "Wundermart", category: "Продукты" },
+    { key: "APPLE.COM/BILL", label: "Apple", category: "Подписки" },
+    { key: "Albert Heijn 4025", label: "Albert Heijn", category: "Продукты" }
   ]
 }

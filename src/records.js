@@ -15,6 +15,16 @@ export default class Records {
   counterparts = [];
 
   /**
+   * Array for categories objects
+   */
+  categories = [];
+
+  /**
+   * Array for accounts
+   */
+  accounts = [];
+
+  /**
    * Flag for skipping header in raw data
    */
   _isSkipHeader = true;
@@ -62,7 +72,15 @@ export default class Records {
     INVALID_COMPOSER: "Invalid composer object",
     INVALID_UPLOADED_DATA: "Uploaded data has invalid format",
     MISSING_VALUE: "Missing {0} for transaction row",
-    TRANSACTION_BUTTON_NOT_FOUND: "Button '{0}' for transaction row '{1}' not found"
+    TRANSACTION_BUTTON_NOT_FOUND: "Button '{0}' for transaction row '{1}' not found",
+    INVALID_CATEGORIES: "Invalid categories data",
+    INVALID_ACCOUNTS: "Invalid accounts data",
+    INVALID_ACCOUNT_OBJECT: "Invalid account object",
+    INVALID_COUNTERPARTS: "Invalid counterparts data",
+    INVALID_COUNTERPART_OBJECT: "Invalid counterpart object",
+    EXISTING_COUNTERPART: "Counterpart with a key '{0}' is already existing and cannot be added",
+    EXISTING_CATEGORY: "Category '{0}' is already existing and cannot be added",
+    EXISTING_ACCOUNT: "Account a key '{0}' is already existing and cannot be added"
   }
 
   constructor(composer) {
@@ -123,6 +141,137 @@ export default class Records {
         this._error(message);
       }
     }
+  }
+
+  /**
+   * Counterparts setter
+   * @param {Array} counterparts 
+   * @return void
+   */
+  addCounterparts(counterparts) {
+    if (!Array.isArray(counterparts)) {
+      this._error(this._errorMessage.INVALID_COUNTERPARTS);
+      return;
+    }
+
+    counterparts.forEach((counterpart) => {
+      if (!counterpart.key || !counterpart.label || !counterpart.category) {
+        this._error(this._errorMessage.INVALID_COUNTERPART_OBJECT);
+        return;
+      }
+      if (this.counterparts.find((c) => c.key === counterpart.key)) {
+        this._error(this._errorMessage.EXISTING_COUNTERPART, counterpart.key);
+        return;
+      }
+      this.counterparts.push(counterpart);
+    });
+  }
+
+  /**
+   * Removes a counterparty from this.counterparts by its key
+   * @param  {String} counterpartyKey 
+   * @return {Boolean} - true if counterparty was found and removed, false if not
+   */
+  removeCounterparty(counterpartyKey) {
+    let isCounterpartyRemoved = false;
+    for (let i = this.counterparts.length - 1; i >= 0; i--) {
+      if (this.counterparts[i].key === counterpartyKey) {
+        this.counterparts = [
+          ...this.counterparts.slice(0, i),
+          ...this.counterparts.slice(i + 1)
+        ];
+
+        isCounterpartyRemoved = true;
+      }
+    }
+
+    return isCounterpartyRemoved;
+  }
+
+  /**
+   * Catagories setter
+   * @param {Array} categories
+   * @return void
+   */
+  addCategories(categories) {
+    if (!Array.isArray(categories)) {
+      this._error(this._errorMessage.INVALID_CATEGORIES);
+      return;
+    }
+
+    categories.forEach((category) => {
+      if (this.categories.find((c) => c === category)) {
+        this._error(this._errorMessage.EXISTING_CATEGORY, category);
+        return;
+      }
+      this.categories.push(category);
+    });
+  }
+
+  /**
+   * Removes a category from this.categories
+   * @param  {String} category 
+   * @return {Boolean} - true if the category was found and removed, false if not
+   */
+  removeCategory(category) {
+    let isCategoryRemoved = false;
+    for (let i = this.categories.length - 1; i >= 0; i--) {
+      if (this.categories[i] === category) {
+        this.categories = [
+          ...this.categories.slice(0, i),
+          ...this.categories.slice(i + 1)
+        ];
+
+        isCategoryRemoved = true;
+      }
+    }
+
+    return isCategoryRemoved;
+  }
+
+  /**
+   * Accounts setter
+   * @param {Array} accounts 
+   * @return void
+   */
+  addAccounts(accounts) {
+    if (!Array.isArray(accounts)) {
+      this._error(this._errorMessage.INVALID_ACCOUNTS);
+      return;
+    }
+
+    accounts.forEach((account) => {
+      if (!account.key || !account.label) {
+        this._error(this._errorMessage.INVALID_ACCOUNT_OBJECT);
+        return;
+      }
+      if (this.accounts.find((a) => a.key === account.key)) {
+        this._error(this._errorMessage.EXISTING_ACCOUNT, account.key);
+        return;
+      }
+      this.accounts.push(account);
+    });
+  }
+
+  /**
+   * Removes an account from this.accounts by its key
+   * @param  {String} accountKey 
+   * @return {Boolean} - true if the account was found and removed, false if not
+   */
+  removeAccount(accountKey) {
+    let isAccountRemoved = false;
+    for (let i = this.accounts.length - 1; i >= 0; i--) {
+      if (this.accounts[i].key === accountKey) {
+        this.accounts = [
+          ...this.accounts.slice(0, i),
+          ...this.accounts.slice(i + 1)
+        ];
+
+        isAccountRemoved = true;
+      }
+    }
+
+    return isAccountRemoved;
   }
 
   /**
