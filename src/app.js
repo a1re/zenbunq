@@ -6,17 +6,21 @@ import {mockData} from './mock-data';
 const composer = new NodeComposer;
 const records = new Records(composer);
 
-
-
 const showTransactions = (evt) => {
   evt.preventDefault();
+
+  composer.composeNode({
+    wrapper: Selector.PAGE_CONTENT,
+    template: Selector.TEMPLATE.RESULT.RESULT
+  });
 
   records.addCounterparties(mockData.counterparts);
   records.addCategories(mockData.categories);
   records.addAccounts(mockData.accounts);
 
   records.rawData = mockData.transactionsCsv;
-  records.insertTable(Id.TRANSACTIONS_TABLE, Selector.PAGE_CONTENT);
+  records.insertNewCounterparties(Id.COUNTERPARTIES_LIST, Selector.WRAPPER.RESULT.RESULT);
+  records.insertTable(Id.TRANSACTIONS_TABLE, Selector.WRAPPER.RESULT.RESULT);
 };
 
 const uploadButton = document.querySelector(Selector.UPLOAD_BUTTON);

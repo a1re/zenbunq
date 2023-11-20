@@ -33,24 +33,29 @@ export default class Records {
    * Selectors for wrappers
    */
   _container = {
-    ROW: Selector.WRAPPER.TRANSACTION.ROW,
-    TRANSACTIONS: Selector.WRAPPER.TRANSACTION.LIST,
+    TRANSACTION_LIST: Selector.WRAPPER.TRANSACTION.LIST,
+    COUNTERPARTY_LIST: Selector.WRAPPER.RESULT.CARD_LIST,
+    RESULT_RECORDS: Selector.WRAPPER.RESULT.RECORDS,
     DATE: Selector.WRAPPER.TRANSACTION.DATE,
     CATEGORY: Selector.WRAPPER.TRANSACTION.CATEGORY,
     COUNTERPARTY: Selector.WRAPPER.TRANSACTION.COUNTERPARTY,
     PAYER: Selector.WRAPPER.TRANSACTION.PAYER,
     PAYEE: Selector.WRAPPER.TRANSACTION.PAYEE,
     SUM: Selector.WRAPPER.TRANSACTION.SUM,
-    COMMENT: Selector.WRAPPER.TRANSACTION.COMMENT
+    COMMENT: Selector.WRAPPER.TRANSACTION.COMMENT,
+    COUNTERPARTY_ID: Selector.WRAPPER.COUNTERPARTY.ID,
+    COUNTERPARTY_AMOUNT: Selector.WRAPPER.COUNTERPARTY.AMOUNT
   }
 
   /**
    * Selectors for templates
    */
   _template = {
-    TRANSACTIONS: Selector.TEMPLATE.RESULT.RECORDS,
-    TABLE: Selector.TEMPLATE.TRANSACTION.LIST,
-    ROW: Selector.TEMPLATE.TRANSACTION.ROW,
+    RESULT_RECORDS: Selector.TEMPLATE.RESULT.RECORDS,
+    COUNTERPARTY_LIST: Selector.TEMPLATE.RESULT.COUNTERPARTY_LIST,
+    COUNTERPARTY_ITEM: Selector.TEMPLATE.RESULT.COUNTERPARTY_ITEM,
+    TRANSACTION_LIST: Selector.TEMPLATE.TRANSACTION.LIST,
+    TRANSACTION_ROW: Selector.TEMPLATE.TRANSACTION.ROW,
     EMPTY_STRING: Value.TRANSACTION_EMPTY_STRING
   }
 
@@ -63,6 +68,11 @@ export default class Records {
    * Prefix for transaction rows
    */
   _transactionIdPrefix = "transaction-";
+
+  /**
+   * Prefix for counterparty rows
+   */
+  _counterpartyIdPrefix = "counterparty-";
 
   /**
    * Private value with error messages to make the code cleaner and get rid of
@@ -271,10 +281,11 @@ export default class Records {
 
   /**
    * Insert table with data to container node. Template is set by
-   * this._template.TRANSACTIONS for wrapper, this._template.TABLE
-   * for table tag and this._template.ROW for a row.
+   * this._template.RESULT_RECORDS for wrapper, this._template.TRANSACTION_LIST
+   * for table tag and this._template.TRANSACTION_ROW for a row.
    *
-   * @param {String} wrapper  - Selector of wrapper node to place the table
+   * @param   {String} id        - Id of the table node
+   * @param   {String} container - Element where table will be inserted
    * @returns void
    */
   insertTable(id, container) {
@@ -293,15 +304,14 @@ export default class Records {
 
     this._composer.composeNode({
       wrapper: container,
-      template: this._template.TRANSACTIONS,
+      template: this._template.RESULT_RECORDS,
       children: [{
         id,
-        wrapper: this._container.TRANSACTIONS,
-        template: this._template.TABLE,
+        wrapper: this._container.RESULT_RECORDS,
+        template: this._template.TRANSACTION_LIST,
         children: rows
-      }],
-      incremental: false
-    })
+      }]
+    });
   }
 
   /**
@@ -353,8 +363,8 @@ export default class Records {
 
     return {
       id,
-      wrapper: this._container.ROW,
-      template: this._template.ROW,
+      wrapper: this._container.TRANSACTION_LIST,
+      template: this._template.TRANSACTION_ROW,
       values: [
         {
           wrapper: this._container.DATE,
@@ -452,6 +462,61 @@ export default class Records {
         });
       }
     }
+  }
+
+  /**
+   * Inserts a list of new counterparties to container node. Template is set by
+   * this._template.COUNTERPARTY_LIST for wrapper, this._template.COUNTERPARTY_ITEM
+   * for a card.
+   *
+   * @param   {String} id        - Id of the element with the counterpartoes
+   * @param   {String} container - Wrapper where the list will be inserted
+   * @returns void
+   */
+  insertNewCounterparties(id, container) {
+    const counterpartyList = [];
+
+    for (let i = 0; i < this.rawData.length; i++) {
+      if (i === 0 && this._isSkipHeader) {
+        continue;
+      }
+
+      const isUnknown = !this.counterparties.some((counterparty) => {
+        return counterparty.key === this.rawData[i][5];
+      });
+
+      const isUnique = !counterpartyList.some((counterparty) => {
+        return counterparty.values[0].innerText === this.rawData[i][5]
+      });
+
+      if (isUnknown && isUnique) {
+        counterpartyList.push({
+          id: this._counterpartyIdPrefix + counterpartyList.length,
+          wrapper: this._container.COUNTERPARTY_LIST,
+          template: this._template.COUNTERPARTY_ITEM,
+          values: [
+            {
+              wrapper: this._container.COUNTERPARTY_ID,
+              innerText: this.rawData[i][5]
+            }
+          ]
+        });
+      }
+    }
+
+    this._composer.composeNode({
+      id,
+      wrapper: container,
+      template: this._template.COUNTERPARTY_LIST,
+      children: counterpartyList,
+      values: [
+        {
+          wrapper: this._container.COUNTERPARTY_AMOUNT,
+          innerText: counterpartyList.length
+        }
+      ]
+    });
+
   }
 
   // transactions.getUnknownCounterparties()

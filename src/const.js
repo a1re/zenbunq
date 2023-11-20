@@ -3,8 +3,7 @@ export const Selector = {
   UPLOAD_BUTTON: '.panel__file-submit',
   WRAPPER: {
     TRANSACTION: {
-      ROW: '.transactions',
-      LIST: '.result__records',
+      LIST: '.transactions',
       DATE: '.transactions__date',
       CATEGORY: '.transactions__category',
       COUNTERPARTY: '.transactions__counterpart',
@@ -13,18 +12,27 @@ export const Selector = {
       SUM: '.transactions__sum',
       COMMENT: '.transactions__comment'
     },
-    RESULT : {
-      RECORDS: '.result'
+    RESULT: {
+      RESULT: '.result',
+      RECORDS: '.result__records',
+      COUNTERPARTIES: '.result__counterparties',
+      CARD_LIST: '.result__card-list'
+    },
+    COUNTERPARTY: {
+      AMOUNT: '.result__counterparties .header__badge',
+      ID: '.card__description-definition'
     }
   },
   TEMPLATE: {
     RESULT: {
       RECORDS: '#result-records',
-      CONTENT: '#result'
+      COUNTERPARTY_LIST: '#result-counterparty-list',
+      COUNTERPARTY_ITEM: '#result-counterparty-item',
+      RESULT: '#result'
     },
     TRANSACTION: {
       LIST: '#transactions',
-      ROW: '#transactions-row'
+      ROW: '#transaction-row'
     }
   },
   BUTTON: {
@@ -37,7 +45,8 @@ export const Selector = {
 };
 
 export const Id = {
-  TRANSACTIONS_TABLE: 'transactions-table'
+  TRANSACTIONS_TABLE: 'transactions-table',
+  COUNTERPARTIES_LIST: 'counterparties-list'
 }
 
 export const Value = {
