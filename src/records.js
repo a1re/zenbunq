@@ -102,7 +102,7 @@ export default class Records {
    * @param {String} str  Original string with {0}, {1} and etc. values which
    *                      will be replaced by further passed arguments.
    * @param {String} arguments...
-   * @returns
+   * @returns void
    */
   _error(message, ...args) {
     if (!this._showErrors) {
@@ -121,6 +121,7 @@ export default class Records {
    * export. After uploading it is processed and added to this.records
    *
    * @param {Array} data  Transactions from CSV
+   * @returns void
    */
   uploadData(data) {
     if (!Array.isArray(data)) {
@@ -133,8 +134,9 @@ export default class Records {
 
   /**
    * Counterparties setter
-   * @param {Array} counterparties
-   * @return void
+   *
+   * @param  {Array} counterparties
+   * @returns void
    */
   addCounterparties(counterparties) {
     if (!Array.isArray(counterparties)) {
@@ -157,8 +159,9 @@ export default class Records {
 
   /**
    * Removes a counterparty from this.counterparties by its key
-   * @param  {String} counterpartyKey
-   * @return {Boolean} - true if counterparty was found and removed, false if not
+   *
+   * @param   {String} counterpartyKey
+   * @returns {Boolean} - true if counterparty was found and removed, false if not
    */
   removeCounterparty(counterpartyKey) {
     let isCounterpartyRemoved = false;
@@ -178,8 +181,9 @@ export default class Records {
 
   /**
    * Catagories setter
-   * @param {Array} categories
-   * @return void
+   *
+   * @param  {Array} categories
+   * @returns void
    */
   addCategories(categories) {
     if (!Array.isArray(categories)) {
@@ -198,8 +202,9 @@ export default class Records {
 
   /**
    * Removes a category from this.categories
-   * @param  {String} category
-   * @return {Boolean} - true if the category was found and removed, false if not
+   *
+   * @param   {String} category
+   * @returns {Boolean} - true if the category was found and removed, false if not
    */
   removeCategory(category) {
     let isCategoryRemoved = false;
@@ -219,8 +224,9 @@ export default class Records {
 
   /**
    * Accounts setter
-   * @param {Array} accounts
-   * @return void
+   *
+   * @param  {Array} accounts
+   * @returns void
    */
   addAccounts(accounts) {
     if (!Array.isArray(accounts)) {
@@ -243,8 +249,9 @@ export default class Records {
 
   /**
    * Removes an account from this.accounts by its key
-   * @param  {String} accountKey
-   * @return {Boolean} - true if the account was found and removed, false if not
+   *
+   * @param   {String} accountKey
+   * @returns {Boolean} - true if the account was found and removed, false if not
    */
   removeAccount(accountKey) {
     let isAccountRemoved = false;
@@ -267,7 +274,8 @@ export default class Records {
    * this._template.TRANSACTIONS for wrapper, this._template.TABLE
    * for table tag and this._template.ROW for a row.
    *
-   * @param {String} wrapper  Selector of wrapper node to place the table.
+   * @param {String} wrapper  - Selector of wrapper node to place the table
+   * @returns void
    */
   insertTable(id, container) {
     const rows = [];
@@ -296,6 +304,12 @@ export default class Records {
     })
   }
 
+  /**
+   * Converts transaction from CSV to Object suitable for page integraion
+   *
+   * @param   {Array} bunqCsvRecord - Raw transaction record from bunq CSV export
+   * @returns {Object} - Transaction object or undefined if an error occures
+   */
   prepareTransaction (bunqCsvRecord) {
     try {
       const transaction = adaptBunqCsv(bunqCsvRecord);
@@ -323,7 +337,13 @@ export default class Records {
     }
   }
 
-
+  /**
+   * Converts transaction from CSV to Object suitable for page integraion
+   *
+   * @param   {String} id           - Id of the record
+   * @param   {Array} bunqCsvRecord - Raw transaction record from bunq CSV export
+   * @returns {Object} - Object with node values for NodeComposer
+   */
   composeRow(id, bunqCsvRecord) {
     const transaction = this.prepareTransaction(bunqCsvRecord);
 
@@ -433,8 +453,6 @@ export default class Records {
       }
     }
   }
-
-
 
   // transactions.getUnknownCounterparties()
   // transactions.saveCounterpart()
