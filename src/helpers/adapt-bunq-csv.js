@@ -3,7 +3,7 @@ const errorMessage = {
   TRANSACTION_DATE_NOT_FOUND: "Transaction date not found",
   INVALID_TRANSACTION_DATE: "Invalid transaction date",
   TRANSACTION_SUM_NOT_FOUND: "Transaction sum not found",
-  INVALID_TRANSACTION_SUM: "Invalid transaction sum"
+  INVALID_TRANSACTION_AMOUNT: "Invalid transaction sum"
 }
 
 export default function (data) {
@@ -25,24 +25,22 @@ export default function (data) {
     throw new Error(errorMessage.TRANSACTION_SUM_NOT_FOUND);
   }
 
-  const transactionSum = parseFloat(data[2].replace(".", "").replace(",", "."));
+  const amount = parseFloat(data[2].replace(".", "").replace(",", "."));
 
-  if (isNaN(transactionSum)) {
-    throw new Error(errorMessage.INVALID_TRANSACTION_SUM);
+  if (isNaN(amount)) {
+    throw new Error(errorMessage.INVALID_TRANSACTION_AMOUNT);
   }
 
   const transaction = {
     date: transactionDate[2] + '.' + transactionDate[1] + '.' + transactionDate[0],
-    counterpart: data[5],
-    sum: Math.abs(transactionSum),
+    category: undefined,
+    counterparty: data[5],
+    outcomeAccount: (amount < 0) ? data[3] : undefined,
+    outcome: (amount < 0) ? Math.abs(amount) : undefined,
+    incomeAccount: (amount >= 0) ? data[3] : undefined,
+    income: (amount >= 0) ? Math.abs(amount) : undefined,
     comment: data[6]
   };
-
-  if (transactionSum < 0) {
-    transaction.payer = data[3];
-  } else {
-    transaction.payee = data[3];
-  }
 
   return transaction;
 }

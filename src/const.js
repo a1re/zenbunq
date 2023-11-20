@@ -7,7 +7,7 @@ export const Selector = {
       LIST: '.result__records',
       DATE: '.transactions__date',
       CATEGORY: '.transactions__category',
-      COUNTERPART: '.transactions__counterpart',
+      COUNTERPARTY: '.transactions__counterpart',
       PAYER: '.transactions__payer',
       PAYEE: '.transactions__payee',
       SUM: '.transactions__sum',

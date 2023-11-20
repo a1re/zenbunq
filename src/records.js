@@ -5,14 +5,14 @@ import adaptBunqCsv from './helpers/adapt-bunq-csv';
 export default class Records {
 
   /**
-   * Array for transaction objects
+   * Array for imported raw transactions data
    */
-  transactions = [];
+  rawData = [];
 
   /**
-   * Array for counterparts objects
+   * Array for counterparties objects
    */
-  counterparts = [];
+  counterparties = [];
 
   /**
    * Array for categories objects
@@ -37,7 +37,7 @@ export default class Records {
     TRANSACTIONS: Selector.WRAPPER.TRANSACTION.LIST,
     DATE: Selector.WRAPPER.TRANSACTION.DATE,
     CATEGORY: Selector.WRAPPER.TRANSACTION.CATEGORY,
-    COUNTERPART: Selector.WRAPPER.TRANSACTION.COUNTERPART,
+    COUNTERPARTY: Selector.WRAPPER.TRANSACTION.COUNTERPARTY,
     PAYER: Selector.WRAPPER.TRANSACTION.PAYER,
     PAYEE: Selector.WRAPPER.TRANSACTION.PAYEE,
     SUM: Selector.WRAPPER.TRANSACTION.SUM,
@@ -76,8 +76,8 @@ export default class Records {
     INVALID_CATEGORIES: "Invalid categories data",
     INVALID_ACCOUNTS: "Invalid accounts data",
     INVALID_ACCOUNT_OBJECT: "Invalid account object",
-    INVALID_COUNTERPARTS: "Invalid counterparts data",
-    INVALID_COUNTERPART_OBJECT: "Invalid counterpart object",
+    INVALID_COUNTERPARTS: "Invalid counterparties data",
+    INVALID_COUNTERPART_OBJECT: "Invalid counterparty object",
     EXISTING_COUNTERPART: "Counterpart with a key '{0}' is already existing and cannot be added",
     EXISTING_CATEGORY: "Category '{0}' is already existing and cannot be added",
     EXISTING_ACCOUNT: "Account a key '{0}' is already existing and cannot be added"
@@ -128,57 +128,45 @@ export default class Records {
       return;
     }
 
-    this.transactions = [];
-
-    for (let i=0; i<data.length; i++) {
-      if (i === 0 && this._isSkipHeader) {
-        continue;
-      }
-
-      try {
-        this.transactions.push(adaptBunqCsv(data[i]));
-      } catch ({message}) {
-        this._error(message);
-      }
-    }
+    this.rawData = data
   }
 
   /**
-   * Counterparts setter
-   * @param {Array} counterparts 
+   * Counterparties setter
+   * @param {Array} counterparties
    * @return void
    */
-  addCounterparts(counterparts) {
-    if (!Array.isArray(counterparts)) {
+  addCounterparties(counterparties) {
+    if (!Array.isArray(counterparties)) {
       this._error(this._errorMessage.INVALID_COUNTERPARTS);
       return;
     }
 
-    counterparts.forEach((counterpart) => {
-      if (!counterpart.key || !counterpart.label || !counterpart.category) {
+    counterparties.forEach((counterparty) => {
+      if (!counterparty.key || !counterparty.label || !counterparty.category) {
         this._error(this._errorMessage.INVALID_COUNTERPART_OBJECT);
         return;
       }
-      if (this.counterparts.find((c) => c.key === counterpart.key)) {
-        this._error(this._errorMessage.EXISTING_COUNTERPART, counterpart.key);
+      if (this.counterparties.some((c) => c.key === counterparty.key)) {
+        this._error(this._errorMessage.EXISTING_COUNTERPART, counterparty.key);
         return;
       }
-      this.counterparts.push(counterpart);
+      this.counterparties.push(counterparty);
     });
   }
 
   /**
-   * Removes a counterparty from this.counterparts by its key
-   * @param  {String} counterpartyKey 
+   * Removes a counterparty from this.counterparties by its key
+   * @param  {String} counterpartyKey
    * @return {Boolean} - true if counterparty was found and removed, false if not
    */
   removeCounterparty(counterpartyKey) {
     let isCounterpartyRemoved = false;
-    for (let i = this.counterparts.length - 1; i >= 0; i--) {
-      if (this.counterparts[i].key === counterpartyKey) {
-        this.counterparts = [
-          ...this.counterparts.slice(0, i),
-          ...this.counterparts.slice(i + 1)
+    for (let i = this.counterparties.length - 1; i >= 0; i--) {
+      if (this.counterparties[i].key === counterpartyKey) {
+        this.counterparties = [
+          ...this.counterparties.slice(0, i),
+          ...this.counterparties.slice(i + 1)
         ];
 
         isCounterpartyRemoved = true;
@@ -200,7 +188,7 @@ export default class Records {
     }
 
     categories.forEach((category) => {
-      if (this.categories.find((c) => c === category)) {
+      if (this.categories.includes(category)) {
         this._error(this._errorMessage.EXISTING_CATEGORY, category);
         return;
       }
@@ -210,7 +198,7 @@ export default class Records {
 
   /**
    * Removes a category from this.categories
-   * @param  {String} category 
+   * @param  {String} category
    * @return {Boolean} - true if the category was found and removed, false if not
    */
   removeCategory(category) {
@@ -231,7 +219,7 @@ export default class Records {
 
   /**
    * Accounts setter
-   * @param {Array} accounts 
+   * @param {Array} accounts
    * @return void
    */
   addAccounts(accounts) {
@@ -245,7 +233,7 @@ export default class Records {
         this._error(this._errorMessage.INVALID_ACCOUNT_OBJECT);
         return;
       }
-      if (this.accounts.find((a) => a.key === account.key)) {
+      if (this.accounts.some((a) => a.key === account.key)) {
         this._error(this._errorMessage.EXISTING_ACCOUNT, account.key);
         return;
       }
@@ -255,7 +243,7 @@ export default class Records {
 
   /**
    * Removes an account from this.accounts by its key
-   * @param  {String} accountKey 
+   * @param  {String} accountKey
    * @return {Boolean} - true if the account was found and removed, false if not
    */
   removeAccount(accountKey) {
@@ -284,8 +272,12 @@ export default class Records {
   insertTable(id, container) {
     const rows = [];
 
-    for (let i = 0; i < this.transactions.length; i++) {
-      const rowObject = this.prepareRow({id: this._transactionIdPrefix + i, ...this.transactions[i]});
+    for (let i = 0; i < this.rawData.length; i++) {
+      if (i === 0 && this._isSkipHeader) {
+        continue;
+      }
+
+      const rowObject = this.composeRow(this._transactionIdPrefix + i, this.rawData[i]);
       if (rowObject) {
         rows.push(rowObject);
       }
@@ -304,30 +296,38 @@ export default class Records {
     })
   }
 
-  /**
-   * Prepares row object for insertion via NodeComposer based on transaction data
-   *
-   * @param {String} options.id         Transaction id
-   * @param {Number} options.sum        Transaction sum
-   * @param {String} options.date       Transaction date
-   * @param {String} options.category   Transaction category (optional)
-   * @param {String} options.payer      Transaction payer (optional)
-   * @param {String} options.payee      Transaction date (optional)
-   * @param {String} options.comment    Transaction date (optional)
-   */
-  prepareRow({id, date, category, counterpart, payer, payee, sum, comment}) {
-    if (!id) {
-      this._error(this._errorMessage.MISSING_VALUE, 'id');
+  prepareTransaction (bunqCsvRecord) {
+    try {
+      const transaction = adaptBunqCsv(bunqCsvRecord);
+      const counterparty = this.counterparties.find((c) => c.key === transaction.counterparty);
+      const outcomeAccount = this.accounts.find((a) => a.key === transaction.outcomeAccount);
+      const incomeAccount = this.accounts.find((a) => a.key === transaction.incomeAccount);
+
+      if (counterparty) {
+        transaction.category = counterparty.category;
+        transaction.counterparty = counterparty.label;
+      }
+
+      if (outcomeAccount) {
+        transaction.outcomeAccount = outcomeAccount.label
+      }
+
+      if (incomeAccount) {
+        transaction.incomeAccount = incomeAccount.label
+      }
+
+      return transaction;
+    } catch ({message}) {
+      this._error(message);
       return;
     }
+  }
 
-    if (!date) {
-      this._error(this._errorMessage.MISSING_VALUE, 'date');
-      return;
-    }
 
-    if (!sum) {
-      this._error(this._errorMessage.MISSING_VALUE, 'sum');
+  composeRow(id, bunqCsvRecord) {
+    const transaction = this.prepareTransaction(bunqCsvRecord);
+
+    if (!transaction) {
       return;
     }
 
@@ -338,31 +338,33 @@ export default class Records {
       values: [
         {
           wrapper: this._container.DATE,
-          innerHTML: date || Value.TRANSACTION_EMPTY_STRING
+          innerHTML: transaction.date || Value.TRANSACTION_EMPTY_STRING
         },
         {
           wrapper: this._container.CATEGORY,
-          innerHTML: category || this._template.EMPTY_STRING
+          innerHTML: transaction.category || this._template.EMPTY_STRING
         },
         {
-          wrapper: this._container.COUNTERPART,
-          innerHTML: counterpart || this._template.EMPTY_STRING
+          wrapper: this._container.COUNTERPARTY,
+          innerHTML: transaction.counterparty || this._template.EMPTY_STRING
         },
         {
           wrapper: this._container.PAYER,
-          innerHTML: payer || this._template.EMPTY_STRING
+          innerHTML: transaction.outcomeAccount || this._template.EMPTY_STRING
         },
         {
           wrapper: this._container.PAYEE,
-          innerHTML: payee || this._template.EMPTY_STRING
+          innerHTML: transaction.incomeAccount || this._template.EMPTY_STRING
         },
         {
           wrapper: this._container.SUM,
-          innerHTML: sum
+          innerHTML: (transaction.income !== undefined)
+            ? transaction.income.toFixed(2)
+            : transaction.outcome.toFixed(2)
         },
         {
           wrapper: this._container.COMMENT,
-          innerHTML: comment || ''
+          innerHTML: transaction.comment || ''
         }
       ],
       afterInsert: (element) => {
@@ -432,11 +434,13 @@ export default class Records {
     }
   }
 
-  // transactions.getUnknownCounterparts()
+
+
+  // transactions.getUnknownCounterparties()
   // transactions.saveCounterpart()
   // transactions.addRecordItem()
   // transactions.records
-  // transactions.counterparts
+  // transactions.counterparties
   // transactions.removeRecordItem(id)
   // transactions.showRecordEdit()
   // transactions.saveRecordItem(id, {})

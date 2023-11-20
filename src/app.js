@@ -11,11 +11,11 @@ const records = new Records(composer);
 const showTransactions = (evt) => {
   evt.preventDefault();
 
-  records.addCounterparts(mockData.counterparts);
+  records.addCounterparties(mockData.counterparts);
   records.addCategories(mockData.categories);
   records.addAccounts(mockData.accounts);
 
-  records.uploadData(mockData.transactionsCsvShort);
+  records.rawData = mockData.transactionsCsv;
   records.insertTable(Id.TRANSACTIONS_TABLE, Selector.PAGE_CONTENT);
 };
 
