@@ -172,7 +172,7 @@ export const mockData = {
   categories: [
     "Продукты", "Зарплата", "Переезд", "Еда вне дома", "Банковские услуги", "Семья", "Разное", "Подписки"
   ],
-  counterparts: [
+  counterparties: [
     { key: "Hilversum City Apartme", label: "Hilversum City Apartments", category: "Разное" },
     { key: "Wundermart", label: "Wundermart", category: "Продукты" },
     { key: "APPLE.COM/BILL", label: "Apple", category: "Подписки" },

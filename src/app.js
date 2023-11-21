@@ -2,6 +2,7 @@ import {Selector, Id} from './const';
 import NodeComposer from './node-composer';
 import Records from './records';
 import {mockData} from './mock-data';
+import adaptTransactions from './helpers/adapt-transactions';
 
 const composer = new NodeComposer;
 const records = new Records(composer);
@@ -9,16 +10,19 @@ const records = new Records(composer);
 const showTransactions = (evt) => {
   evt.preventDefault();
 
+
   composer.composeNode({
     wrapper: Selector.PAGE_CONTENT,
     template: Selector.TEMPLATE.RESULT.RESULT
   });
 
-  records.addCounterparties(mockData.counterparts);
-  records.addCategories(mockData.categories);
-  records.addAccounts(mockData.accounts);
+  const transactions = adaptTransactions(
+    mockData.transactionsCsv,
+    mockData.counterparties,
+    mockData.accounts
+  );
 
-  records.rawData = mockData.transactionsCsv;
+  records.transactions = transactions;
   records.insertNewCounterparties(Id.COUNTERPARTIES_LIST, Selector.WRAPPER.RESULT.RESULT);
   records.insertTable(Id.TRANSACTIONS_TABLE, Selector.WRAPPER.RESULT.RESULT);
 };

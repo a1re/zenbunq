@@ -1,15 +1,13 @@
 import {Selector, Value} from './const';
 import NodeComposer from './node-composer';
-import adaptBunqCsv from './helpers/adapt-bunq-csv';
 import error from './helpers/error';
-import { CSV_SKIP_HEADER } from './config';
 
 export default class Records {
 
   /**
    * Array for imported raw transactions data
    */
-  rawData = [];
+  transactions = [];
 
   /**
    * Array for counterparties objects
@@ -96,22 +94,6 @@ export default class Records {
     }
 
     this._composer = composer;
-  }
-
-  /**
-   * Add raw transaction data to model. Data should be taken from bunq CSV
-   * export. After uploading it is processed and added to this.records
-   *
-   * @param {Array} data  Transactions from CSV
-   * @returns void
-   */
-  uploadData(data) {
-    if (!Array.isArray(data)) {
-      error(this._errorMessage.INVALID_UPLOADED_DATA);
-      return;
-    }
-
-    this.rawData = data
   }
 
   /**
@@ -261,18 +243,9 @@ export default class Records {
    * @returns void
    */
   insertTable(id, container) {
-    const rows = [];
-
-    for (let i = 0; i < this.rawData.length; i++) {
-      if (i === 0 && CSV_SKIP_HEADER) {
-        continue;
-      }
-
-      const rowObject = this.composeRow(this._transactionIdPrefix + i, this.rawData[i]);
-      if (rowObject) {
-        rows.push(rowObject);
-      }
-    }
+    const rows = this.transactions.map((transaction, i) => {
+      return this.composeRow(this._transactionIdPrefix + i, transaction);
+    });
 
     this._composer.composeNode({
       wrapper: container,
@@ -289,50 +262,11 @@ export default class Records {
   /**
    * Converts transaction from CSV to Object suitable for page integraion
    *
-   * @param   {Array} bunqCsvRecord - Raw transaction record from bunq CSV export
-   * @returns {Object} - Transaction object or undefined if an error occures
-   */
-  prepareTransaction (bunqCsvRecord) {
-    try {
-      const transaction = adaptBunqCsv(bunqCsvRecord);
-      const counterparty = this.counterparties.find((c) => c.key === transaction.counterparty);
-      const outcomeAccount = this.accounts.find((a) => a.key === transaction.outcomeAccount);
-      const incomeAccount = this.accounts.find((a) => a.key === transaction.incomeAccount);
-
-      if (counterparty) {
-        transaction.category = counterparty.category;
-        transaction.counterparty = counterparty.label;
-      }
-
-      if (outcomeAccount) {
-        transaction.outcomeAccount = outcomeAccount.label
-      }
-
-      if (incomeAccount) {
-        transaction.incomeAccount = incomeAccount.label
-      }
-
-      return transaction;
-    } catch ({message}) {
-      error(message);
-      return;
-    }
-  }
-
-  /**
-   * Converts transaction from CSV to Object suitable for page integraion
-   *
    * @param   {String} id           - Id of the record
    * @param   {Array} bunqCsvRecord - Raw transaction record from bunq CSV export
    * @returns {Object} - Object with node values for NodeComposer
    */
-  composeRow(id, bunqCsvRecord) {
-    const transaction = this.prepareTransaction(bunqCsvRecord);
-
-    if (!transaction) {
-      return;
-    }
-
+  composeRow(id, transaction) {
     return {
       id,
       wrapper: this._container.TRANSACTION_LIST,
@@ -348,15 +282,15 @@ export default class Records {
         },
         {
           wrapper: this._container.COUNTERPARTY,
-          innerHTML: transaction.counterparty || this._template.EMPTY_STRING
+          innerHTML: transaction.counterpartyLabel || transaction.counterparty || this._template.EMPTY_STRING
         },
         {
           wrapper: this._container.PAYER,
-          innerHTML: transaction.outcomeAccount || this._template.EMPTY_STRING
+          innerHTML: transaction.outcomeAccountLabel || transaction.outcomeAccount || this._template.EMPTY_STRING
         },
         {
           wrapper: this._container.PAYEE,
-          innerHTML: transaction.incomeAccount || this._template.EMPTY_STRING
+          innerHTML: transaction.incomeAccountLabel || transaction.incomeAccount || this._template.EMPTY_STRING
         },
         {
           wrapper: this._container.SUM,
@@ -448,17 +382,10 @@ export default class Records {
   insertNewCounterparties(id, container) {
     const counterpartyList = [];
 
-    for (let i = 0; i < this.rawData.length; i++) {
-      if (i === 0 && this._isSkipHeader) {
-        continue;
-      }
-
-      const isUnknown = !this.counterparties.some((counterparty) => {
-        return counterparty.key === this.rawData[i][5];
-      });
-
+    for (let i = 0; i < this.transactions.length; i++) {
+      const isUnknown = !this.transactions[i]["counterpartyLabel"];
       const isUnique = !counterpartyList.some((counterparty) => {
-        return counterparty.values[0].innerText === this.rawData[i][5]
+        return counterparty.values[0].innerText === this.transactions[i]["counterparty"]
       });
 
       if (isUnknown && isUnique) {
@@ -469,7 +396,7 @@ export default class Records {
           values: [
             {
               wrapper: this._container.COUNTERPARTY_ID,
-              innerText: this.rawData[i][5]
+              innerText: this.transactions[i]["counterparty"]
             }
           ]
         });
