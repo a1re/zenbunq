@@ -304,6 +304,8 @@ export default class Records {
         }
       ],
       afterInsert: (element) => {
+        console.log('added #' + element.id);
+
         const expandButton = element.querySelector(Selector.BUTTON.TRANSACTION.EXPAND);
         if (!expandButton) {
           error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EXPAND, id);
@@ -339,6 +341,8 @@ export default class Records {
         });
       },
       beforeUnset: (element) => {
+        console.log('removed #' + element.id);
+
         const expandButton = element.querySelectorAll(Selector.BUTTON.TRANSACTION.EXPAND);
         if (!expandButton) {
           error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EXPAND, id);

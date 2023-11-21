@@ -10,8 +10,12 @@ const records = new Records(composer);
 const showTransactions = (evt) => {
   evt.preventDefault();
 
+  if (document.querySelector('#' + Id.RECORDS)) {
+    composer.removeNode(Id.RECORDS);
+  }
 
   composer.composeNode({
+    id: Id.RECORDS,
     wrapper: Selector.PAGE_CONTENT,
     template: Selector.TEMPLATE.RESULT.RESULT
   });

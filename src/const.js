@@ -45,6 +45,7 @@ export const Selector = {
 };
 
 export const Id = {
+  RECORDS: 'records',
   TRANSACTIONS_TABLE: 'transactions-table',
   COUNTERPARTIES_LIST: 'counterparties-list'
 }
