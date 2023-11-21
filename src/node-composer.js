@@ -1,13 +1,10 @@
+import error from './helpers/error';
+
 export default class NodeComposer {
 
   /**
-   * Setting for raising error messages in console
-   */
-  _showErrors = true;
-
-  /**
    * Private value with error messages to make the code cleaner and get rid of
-   * hefty code lines. Used with this._error().
+   * hefty code lines. Used with error().
    */
   _errorMessage = {
     INVALID_NODE: "Passed scope parameter for query '{0}' is not a valid DOM node",
@@ -20,7 +17,7 @@ export default class NodeComposer {
     INVALID_CHILDREN: "Invalid children for template '{0}'",
     NODE_ID_REQUIRED: "Id is required if `beforeUnset` is set",
     NOT_A_FUNCTION: "'{0}' is not a valid function"
-  }
+  };
 
   /**
    * Node types accepted for template insertion.
@@ -28,36 +25,12 @@ export default class NodeComposer {
   _acceptedNodeTypes = [
     Node.ELEMENT_NODE,
     Node.DOCUMENT_FRAGMENT_NODE
-  ]
+  ];
 
   /**
    * Array for functions to be triggered while unsetting the element
    */
-  _beforeUnsets = []
-
-  /**
-   * Error reporting with a formatted message. Based on this._showErrors, raises
-   * error in the console or remains silent. Used for cleaner code  with values
-   * from this._errorMessage.
-   *
-   * Example: this._error(this._errorMessage.INVALID_NODE, '.wrong-selector');
-   *
-   * @param {String} str  Original string with {0}, {1} and etc. values which
-   *                      will be replaced by further passed arguments.
-   * @param {String} arguments...
-   * @returns
-   */
-  _error(message, ...args) {
-    if (!this._showErrors) {
-      return;
-    }
-
-    const formattedMessage = message.replace(/{(\d+)}/g, (match, number) => {
-      return typeof args[number] != 'undefined' ? args[number] : match;
-    });
-
-    console.error(formattedMessage);
-  }
+  _beforeUnsets = [];
 
   /**
    * Shortcut for _acceptedNodeTypes.includes() to keep the code self-explaining.
@@ -85,14 +58,14 @@ export default class NodeComposer {
     if (typeof domain === 'undefined') {
       domain = document;
     } else if (!this._isCorrectNode(domain)) {
-      this._error(this._errorMessage.INVALID_NODE, selector);
+      error(this._errorMessage.INVALID_NODE, selector);
       return;
     }
 
     const node = domain.querySelector(selector);
 
     if (!node) {
-      this._error(this._errorMessage.NODE_NOT_FOUND, selector);
+      error(this._errorMessage.NODE_NOT_FOUND, selector);
     }
 
     return node;
@@ -110,7 +83,7 @@ export default class NodeComposer {
     const template = document.querySelector(selector);
 
     if (!template) {
-      this._error(this._errorMessage.TEMPLATE_NOT_FOUND, selector);
+      error(this._errorMessage.TEMPLATE_NOT_FOUND, selector);
       return;
     }
 
@@ -173,11 +146,11 @@ export default class NodeComposer {
     incremental
   }) {
     if (!wrapperSelector) {
-      this._error(wrapperSelector)
+      error(wrapperSelector)
     }
 
     if (domain && !this._isCorrectNode(domain)) {
-      this._error(this._errorMessage.INVALID_NODE, wrapperSelector);
+      error(this._errorMessage.INVALID_NODE, wrapperSelector);
       return;
     } else {
       const domain = document;
@@ -185,23 +158,23 @@ export default class NodeComposer {
     const wrapper = this._getNode(wrapperSelector, domain);
 
     if (!templateSelector) {
-      this._error(wrapperSelector)
+      error(wrapperSelector)
     }
     const template = this._getNodeFromTemplate(templateSelector);
 
     if (afterInsert && typeof afterInsert !== 'function') {
-      this._error(this._errorMessage.NOT_A_FUNCTION, 'afterInsert()');
+      error(this._errorMessage.NOT_A_FUNCTION, 'afterInsert()');
       return;
     }
 
     if (beforeUnset) {
       if (typeof beforeUnset !== 'function') {
-        this._error(this._errorMessage.NOT_A_FUNCTION, 'beforeUnset()');
+        error(this._errorMessage.NOT_A_FUNCTION, 'beforeUnset()');
         return;
       }
 
       if (!id) {
-        this._error(this._errorMessage.NODE_ID_REQUIRED);
+        error(this._errorMessage.NODE_ID_REQUIRED);
         return;
       }
     }
@@ -234,13 +207,13 @@ export default class NodeComposer {
 
     if (values) {
       if (!Array.isArray(values)) {
-        this._error(this._errorMessage.INVALID_VALUES, templateSelector);
+        error(this._errorMessage.INVALID_VALUES, templateSelector);
         return;
       }
 
       values.forEach((value) => {
         if (!value.wrapper) {
-          this._error(this._errorMessage.INVALID_WRAPPER);
+          error(this._errorMessage.INVALID_WRAPPER);
           return;
         }
 
@@ -256,7 +229,7 @@ export default class NodeComposer {
 
     if (children) {
       if (!Array.isArray(children)) {
-        this._error(this._errorMessage.INVALID_CHILDREN, templateSelector);
+        error(this._errorMessage.INVALID_CHILDREN, templateSelector);
         return;
       }
 
@@ -295,7 +268,7 @@ export default class NodeComposer {
     const element = document.querySelector('#' + id);
 
     if (!element) {
-      this._error(this._errorMessage.NODE_NOT_FOUND, '#' + id);
+      error(this._errorMessage.NODE_NOT_FOUND, '#' + id);
       return;
     }
 

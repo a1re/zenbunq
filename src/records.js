@@ -1,6 +1,8 @@
 import {Selector, Value} from './const';
 import NodeComposer from './node-composer';
 import adaptBunqCsv from './helpers/adapt-bunq-csv';
+import error from './helpers/error';
+import { CSV_SKIP_HEADER } from './config';
 
 export default class Records {
 
@@ -23,12 +25,6 @@ export default class Records {
    * Array for accounts
    */
   accounts = [];
-
-  /**
-   * Flag for skipping header in raw data
-   */
-  _isSkipHeader = true;
-
   /**
    * Selectors for wrappers
    */
@@ -76,7 +72,7 @@ export default class Records {
 
   /**
    * Private value with error messages to make the code cleaner and get rid of
-   * hefty code lines. Used with this._error().
+   * hefty code lines. Used with error().
    */
   _errorMessage = {
     INVALID_COMPOSER: "Invalid composer object",
@@ -95,35 +91,11 @@ export default class Records {
 
   constructor(composer) {
     if (!(composer instanceof NodeComposer)) {
-      this._error(this._errorMessage.INVALID_COMPOSER);
+      error(this._errorMessage.INVALID_COMPOSER);
       return;
     }
 
     this._composer = composer;
-  }
-
-  /**
-   * Error reporting with a formatted message. Based on this._showErrors, raises
-   * error in the console or remains silent. Used for cleaner code  with values
-   * from this._errorMessage.
-   *
-   * Example: this._error(this._errorMessage.INVALID_NODE, '.wrong-selector');
-   *
-   * @param {String} str  Original string with {0}, {1} and etc. values which
-   *                      will be replaced by further passed arguments.
-   * @param {String} arguments...
-   * @returns void
-   */
-  _error(message, ...args) {
-    if (!this._showErrors) {
-      return;
-    }
-
-    const formattedMessage = message.replace(/{(\d+)}/g, (match, number) => {
-      return typeof args[number] != 'undefined' ? args[number] : match;
-    });
-
-    console.error(formattedMessage);
   }
 
   /**
@@ -135,7 +107,7 @@ export default class Records {
    */
   uploadData(data) {
     if (!Array.isArray(data)) {
-      this._error(this._errorMessage.INVALID_UPLOADED_DATA);
+      error(this._errorMessage.INVALID_UPLOADED_DATA);
       return;
     }
 
@@ -150,17 +122,17 @@ export default class Records {
    */
   addCounterparties(counterparties) {
     if (!Array.isArray(counterparties)) {
-      this._error(this._errorMessage.INVALID_COUNTERPARTS);
+      error(this._errorMessage.INVALID_COUNTERPARTS);
       return;
     }
 
     counterparties.forEach((counterparty) => {
       if (!counterparty.key || !counterparty.label || !counterparty.category) {
-        this._error(this._errorMessage.INVALID_COUNTERPART_OBJECT);
+        error(this._errorMessage.INVALID_COUNTERPART_OBJECT);
         return;
       }
       if (this.counterparties.some((c) => c.key === counterparty.key)) {
-        this._error(this._errorMessage.EXISTING_COUNTERPART, counterparty.key);
+        error(this._errorMessage.EXISTING_COUNTERPART, counterparty.key);
         return;
       }
       this.counterparties.push(counterparty);
@@ -197,13 +169,13 @@ export default class Records {
    */
   addCategories(categories) {
     if (!Array.isArray(categories)) {
-      this._error(this._errorMessage.INVALID_CATEGORIES);
+      error(this._errorMessage.INVALID_CATEGORIES);
       return;
     }
 
     categories.forEach((category) => {
       if (this.categories.includes(category)) {
-        this._error(this._errorMessage.EXISTING_CATEGORY, category);
+        error(this._errorMessage.EXISTING_CATEGORY, category);
         return;
       }
       this.categories.push(category);
@@ -240,17 +212,17 @@ export default class Records {
    */
   addAccounts(accounts) {
     if (!Array.isArray(accounts)) {
-      this._error(this._errorMessage.INVALID_ACCOUNTS);
+      error(this._errorMessage.INVALID_ACCOUNTS);
       return;
     }
 
     accounts.forEach((account) => {
       if (!account.key || !account.label) {
-        this._error(this._errorMessage.INVALID_ACCOUNT_OBJECT);
+        error(this._errorMessage.INVALID_ACCOUNT_OBJECT);
         return;
       }
       if (this.accounts.some((a) => a.key === account.key)) {
-        this._error(this._errorMessage.EXISTING_ACCOUNT, account.key);
+        error(this._errorMessage.EXISTING_ACCOUNT, account.key);
         return;
       }
       this.accounts.push(account);
@@ -292,7 +264,7 @@ export default class Records {
     const rows = [];
 
     for (let i = 0; i < this.rawData.length; i++) {
-      if (i === 0 && this._isSkipHeader) {
+      if (i === 0 && CSV_SKIP_HEADER) {
         continue;
       }
 
@@ -342,7 +314,7 @@ export default class Records {
 
       return transaction;
     } catch ({message}) {
-      this._error(message);
+      error(message);
       return;
     }
   }
@@ -400,7 +372,7 @@ export default class Records {
       afterInsert: (element) => {
         const expandButton = element.querySelector(Selector.BUTTON.TRANSACTION.EXPAND);
         if (!expandButton) {
-          this._error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EXPAND, id);
+          error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EXPAND, id);
           return;
         }
 
@@ -410,7 +382,7 @@ export default class Records {
 
         const deleteButtonList = element.querySelectorAll(Selector.BUTTON.TRANSACTION.DELETE);
         if (deleteButtonList.length === 0) {
-          this._error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.DELETE, id);
+          error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.DELETE, id);
           return;
         }
 
@@ -422,7 +394,7 @@ export default class Records {
 
         const editButtonList = element.querySelectorAll(Selector.BUTTON.TRANSACTION.EDIT);
         if (deleteButtonList.length === 0) {
-          this._error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EDIT, id);
+          error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EDIT, id);
           return;
         }
 
@@ -435,7 +407,7 @@ export default class Records {
       beforeUnset: (element) => {
         const expandButton = element.querySelectorAll(Selector.BUTTON.TRANSACTION.EXPAND);
         if (!expandButton) {
-          this._error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EXPAND, id);
+          error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EXPAND, id);
           return;
         }
 
@@ -443,7 +415,7 @@ export default class Records {
 
         const deleteButtonList = element.querySelectorAll(Selector.BUTTON.TRANSACTION.DELETE);
         if (deleteButtonList.length === 0) {
-          this._error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.DELETE, id);
+          error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.DELETE, id);
           return;
         }
 
@@ -453,7 +425,7 @@ export default class Records {
 
         const editButtonList = element.querySelectorAll(Selector.BUTTON.TRANSACTION.EDIT);
         if (deleteButtonList.length === 0) {
-          this._error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EDIT, id);
+          error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EDIT, id);
           return;
         }
 
