@@ -13,8 +13,12 @@
         line-height: 12px;
         vertical-align: middle;
 
-        background-color: blue;
-        border-radius: 45%;
+        background-color: $blue;
+        border-radius: 10pt;
+
+        &--red {
+          background-color: $red;
+        }
     }
 
     &__button {
