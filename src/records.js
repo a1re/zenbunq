@@ -1,28 +1,13 @@
-import {Selector, Value} from './const';
+import {Selector, Value, Id} from './const';
 import NodeComposer from './node-composer';
 import error from './helpers/error';
 
 export default class Records {
-
   /**
    * Array for imported raw transactions data
    */
   transactions = [];
 
-  /**
-   * Array for counterparties objects
-   */
-  counterparties = [];
-
-  /**
-   * Array for categories objects
-   */
-  categories = [];
-
-  /**
-   * Array for accounts
-   */
-  accounts = [];
   /**
    * Selectors for wrappers
    */
@@ -54,21 +39,6 @@ export default class Records {
   }
 
   /**
-   * Setting for raising error messages in console
-   */
-  _showErrors = true;
-
-  /**
-   * Prefix for transaction rows
-   */
-  _transactionIdPrefix = "transaction-";
-
-  /**
-   * Prefix for counterparty rows
-   */
-  _counterpartyIdPrefix = "counterparty-";
-
-  /**
    * Private value with error messages to make the code cleaner and get rid of
    * hefty code lines. Used with error().
    */
@@ -95,144 +65,6 @@ export default class Records {
 
     this._composer = composer;
   }
-
-  /**
-   * Counterparties setter
-   *
-   * @param  {Array} counterparties
-   * @returns void
-   */
-  addCounterparties(counterparties) {
-    if (!Array.isArray(counterparties)) {
-      error(this._errorMessage.INVALID_COUNTERPARTS);
-      return;
-    }
-
-    counterparties.forEach((counterparty) => {
-      if (!counterparty.key || !counterparty.label || !counterparty.category) {
-        error(this._errorMessage.INVALID_COUNTERPART_OBJECT);
-        return;
-      }
-      if (this.counterparties.some((c) => c.key === counterparty.key)) {
-        error(this._errorMessage.EXISTING_COUNTERPART, counterparty.key);
-        return;
-      }
-      this.counterparties.push(counterparty);
-    });
-  }
-
-  /**
-   * Removes a counterparty from this.counterparties by its key
-   *
-   * @param   {String} counterpartyKey
-   * @returns {Boolean} - true if counterparty was found and removed, false if not
-   */
-  removeCounterparty(counterpartyKey) {
-    let isCounterpartyRemoved = false;
-    for (let i = this.counterparties.length - 1; i >= 0; i--) {
-      if (this.counterparties[i].key === counterpartyKey) {
-        this.counterparties = [
-          ...this.counterparties.slice(0, i),
-          ...this.counterparties.slice(i + 1)
-        ];
-
-        isCounterpartyRemoved = true;
-      }
-    }
-
-    return isCounterpartyRemoved;
-  }
-
-  /**
-   * Catagories setter
-   *
-   * @param  {Array} categories
-   * @returns void
-   */
-  addCategories(categories) {
-    if (!Array.isArray(categories)) {
-      error(this._errorMessage.INVALID_CATEGORIES);
-      return;
-    }
-
-    categories.forEach((category) => {
-      if (this.categories.includes(category)) {
-        error(this._errorMessage.EXISTING_CATEGORY, category);
-        return;
-      }
-      this.categories.push(category);
-    });
-  }
-
-  /**
-   * Removes a category from this.categories
-   *
-   * @param   {String} category
-   * @returns {Boolean} - true if the category was found and removed, false if not
-   */
-  removeCategory(category) {
-    let isCategoryRemoved = false;
-    for (let i = this.categories.length - 1; i >= 0; i--) {
-      if (this.categories[i] === category) {
-        this.categories = [
-          ...this.categories.slice(0, i),
-          ...this.categories.slice(i + 1)
-        ];
-
-        isCategoryRemoved = true;
-      }
-    }
-
-    return isCategoryRemoved;
-  }
-
-  /**
-   * Accounts setter
-   *
-   * @param  {Array} accounts
-   * @returns void
-   */
-  addAccounts(accounts) {
-    if (!Array.isArray(accounts)) {
-      error(this._errorMessage.INVALID_ACCOUNTS);
-      return;
-    }
-
-    accounts.forEach((account) => {
-      if (!account.key || !account.label) {
-        error(this._errorMessage.INVALID_ACCOUNT_OBJECT);
-        return;
-      }
-      if (this.accounts.some((a) => a.key === account.key)) {
-        error(this._errorMessage.EXISTING_ACCOUNT, account.key);
-        return;
-      }
-      this.accounts.push(account);
-    });
-  }
-
-  /**
-   * Removes an account from this.accounts by its key
-   *
-   * @param   {String} accountKey
-   * @returns {Boolean} - true if the account was found and removed, false if not
-   */
-  removeAccount(accountKey) {
-    let isAccountRemoved = false;
-    for (let i = this.accounts.length - 1; i >= 0; i--) {
-      if (this.accounts[i].key === accountKey) {
-        this.accounts = [
-          ...this.accounts.slice(0, i),
-          ...this.accounts.slice(i + 1)
-        ];
-
-        isAccountRemoved = true;
-      }
-    }
-
-    return isAccountRemoved;
-  }
-
   /**
    * Insert table with data to container node. Template is set by
    * this._template.RESULT_RECORDS for wrapper, this._template.TRANSACTION_LIST
@@ -243,8 +75,8 @@ export default class Records {
    * @returns void
    */
   insertTable(id, container) {
-    const rows = this.transactions.map((transaction, i) => {
-      return this.composeRow(this._transactionIdPrefix + i, transaction);
+    const rows = this.transactions.map((transaction) => {
+      return this.composeRow(transaction.id, transaction.value);
     });
 
     this._composer.composeNode({
@@ -386,26 +218,26 @@ export default class Records {
   insertNewCounterparties(id, container) {
     const counterpartyList = [];
 
-    for (let i = 0; i < this.transactions.length; i++) {
-      const isUnknown = !this.transactions[i]["counterpartyLabel"];
+    this.transactions.forEach((transaction) => {
+      const isUnknown = !transaction.value["counterpartyLabel"];
       const isUnique = !counterpartyList.some((counterparty) => {
-        return counterparty.values[0].innerText === this.transactions[i]["counterparty"]
+        return counterparty.values[0].innerText === transaction.value["counterparty"]
       });
 
       if (isUnknown && isUnique) {
         counterpartyList.push({
-          id: this._counterpartyIdPrefix + counterpartyList.length,
+          id: Id.NEW_COUNTERPARTY + counterpartyList.length,
           wrapper: this._container.COUNTERPARTY_LIST,
           template: this._template.COUNTERPARTY_ITEM,
           values: [
             {
               wrapper: this._container.COUNTERPARTY_ID,
-              innerText: this.transactions[i]["counterparty"]
+              innerText: transaction.value["counterparty"]
             }
           ]
         });
       }
-    }
+    });
 
     this._composer.composeNode({
       id,

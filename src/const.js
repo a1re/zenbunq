@@ -47,7 +47,12 @@ export const Selector = {
 export const Id = {
   RECORDS: 'records',
   TRANSACTIONS_TABLE: 'transactions-table',
-  COUNTERPARTIES_LIST: 'counterparties-list'
+  COUNTERPARTIES_LIST: 'counterparties-list',
+  NEW_COUNTERPARTY: 'new-counterparty',
+  COUNTERPARTY: 'counterparty',
+  TRANSACTION: 'transaction',
+  CATEGORY: 'category',
+  ACCOUNT: 'account'
 }
 
 export const Value = {
