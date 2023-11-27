@@ -1,13 +1,9 @@
 import {Selector, Value, Id} from './const';
 import NodeComposer from './node-composer';
 import error from './helpers/error';
+import Data from './data';
 
 export default class Records {
-  /**
-   * Array for imported raw transactions data
-   */
-  transactions = [];
-
   /**
    * Selectors for wrappers
    */
@@ -44,19 +40,16 @@ export default class Records {
    */
   _errorMessage = {
     INVALID_COMPOSER: "Invalid composer object",
-    INVALID_UPLOADED_DATA: "Uploaded data has invalid format",
-    MISSING_VALUE: "Missing {0} for transaction row",
-    TRANSACTION_BUTTON_NOT_FOUND: "Button '{0}' for transaction row '{1}' not found",
-    INVALID_CATEGORIES: "Invalid categories data",
-    INVALID_ACCOUNTS: "Invalid accounts data",
-    INVALID_ACCOUNT_OBJECT: "Invalid account object",
-    INVALID_COUNTERPARTS: "Invalid counterparties data",
-    INVALID_COUNTERPART_OBJECT: "Invalid counterparty object",
-    EXISTING_COUNTERPART: "Counterpart with a key '{0}' is already existing and cannot be added",
-    EXISTING_CATEGORY: "Category '{0}' is already existing and cannot be added",
-    EXISTING_ACCOUNT: "Account a key '{0}' is already existing and cannot be added"
+    INVALID_DATA: "Invalid data connection: '{0}' should be an instance of Data",
+    TRANSACTION_BUTTON_NOT_FOUND: "Button '{0}' for transaction row '{1}' not found"
   }
 
+  /**
+   * Class constructor. Needs an instance of NodeComposer to be initialized.
+   *
+   * @param   {NodeComposer} composer  - Instance of NodeComposer for the page
+   * @returns void
+   */
   constructor(composer) {
     if (!(composer instanceof NodeComposer)) {
       error(this._errorMessage.INVALID_COMPOSER);
@@ -65,6 +58,99 @@ export default class Records {
 
     this._composer = composer;
   }
+
+  /**
+   * Setter for this._counterparties
+   */
+  set counterparties(counterparties) {
+    if (!(counterparties instanceof Data)) {
+      error(this._errorMessage.INVALID_DATA, Id.COUNTERPARTY);
+      return;
+    }
+
+    this._counterparties = counterparties;
+  }
+
+  /**
+   * Getter for this._counterparties
+   */
+  get counterparties() {
+    if (!(this._counterparties instanceof Data)) {
+      return [];
+    }
+
+    return this._counterparties.get();
+  }
+
+  /**
+   * Setter for this._categories
+   */
+  set categories(categories) {
+    if (!(categories instanceof Data)) {
+      error(this._errorMessage.INVALID_DATA, Id.CATEGORY);
+      return;
+    }
+
+    this._categories = categories;
+  }
+
+  /**
+   * Getter for this._categories
+   */
+  get categories() {
+    if (!(this._categories instanceof Data)) {
+      return [];
+    }
+
+    return this._categories.get();
+  }
+
+  /**
+   * Setter for this._accounts
+   */
+  set accounts(accounts) {
+    if (!(accounts instanceof Data)) {
+      error(this._errorMessage.INVALID_DATA, Id.ACCOUNT);
+      return;
+    }
+
+    this._accounts = accounts;
+  }
+
+  /**
+   * Getter for this._accounts
+   */
+  get accounts() {
+    if (!(this._accounts instanceof Data)) {
+      return [];
+    }
+
+    return this._accounts.get();
+  }
+
+  /**
+   * Setter for this._transactions
+   */
+  set transactions(transactions) {
+    if (!(transactions instanceof Data)) {
+      error(this._errorMessage.INVALID_DATA, Id.TRANSACTION);
+      return;
+    }
+
+    this._transactions = transactions;
+  }
+
+  /**
+   * Getter for this._transactions
+   */
+  get transactions() {
+    if (!(this._transactions instanceof Data)) {
+      return [];
+    }
+
+    return this._transactions.get();
+  }
+
   /**
    * Insert table with data to container node. Template is set by
    * this._template.RESULT_RECORDS for wrapper, this._template.TRANSACTION_LIST
@@ -75,7 +161,7 @@ export default class Records {
    * @returns void
    */
   insertTable(id, container) {
-    const rows = this.transactions.map((transaction) => {
+    const rows = this._transactions.get(true).map((transaction) => {
       return this.composeRow(transaction.id, transaction.value);
     });
 
@@ -136,7 +222,7 @@ export default class Records {
         }
       ],
       afterInsert: (element) => {
-        console.log('added #' + element.id);
+        //console.log('added #' + element.id);
 
         const expandButton = element.querySelector(Selector.BUTTON.TRANSACTION.EXPAND);
         if (!expandButton) {
@@ -173,7 +259,7 @@ export default class Records {
         });
       },
       beforeUnset: (element) => {
-        console.log('removed #' + element.id);
+        //console.log('removed #' + element.id);
 
         const expandButton = element.querySelectorAll(Selector.BUTTON.TRANSACTION.EXPAND);
         if (!expandButton) {
@@ -219,9 +305,9 @@ export default class Records {
     const counterpartyList = [];
 
     this.transactions.forEach((transaction) => {
-      const isUnknown = !transaction.value["counterpartyLabel"];
+      const isUnknown = !transaction.counterpartyLabel;
       const isUnique = !counterpartyList.some((counterparty) => {
-        return counterparty.values[0].innerText === transaction.value["counterparty"]
+        return counterparty.values[0].innerText === transaction.counterparty;
       });
 
       if (isUnknown && isUnique) {
@@ -232,7 +318,7 @@ export default class Records {
           values: [
             {
               wrapper: this._container.COUNTERPARTY_ID,
-              innerText: transaction.value["counterparty"]
+              innerText: transaction.counterparty
             }
           ]
         });

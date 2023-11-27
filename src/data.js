@@ -99,6 +99,17 @@ export default class Data {
   }
 
   /**
+   * Searches the this._entries for the value with a callback.
+   *
+   * @param   {Function} callback - Callback that should be applied to each entry
+   * @returns {*} - 'value' attribute of the found entry or 'undefined'
+   */
+  find(callback) {
+    const foundEntry = this._entries.find((entry) => callback(entry.value));
+    return (foundEntry) ? foundEntry.value : undefined;
+  }
+
+  /**
    * Searches the this._entries for the value with entryId.
    *
    * @param   {String} entryId - Id of the searched entry

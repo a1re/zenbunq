@@ -32,8 +32,10 @@ const showTransactions = (evt) => {
     template: Selector.TEMPLATE.RESULT.RESULT
   });
 
-
-  records.transactions = transactions.get(true);
+  records.counterparties = counterparties;
+  records.categories = categories;
+  records.accounts = accounts;
+  records.transactions = transactions;
   records.insertNewCounterparties(Id.COUNTERPARTIES_LIST, Selector.WRAPPER.RESULT.RESULT);
   records.insertTable(Id.TRANSACTIONS_TABLE, Selector.WRAPPER.RESULT.RESULT);
 };
