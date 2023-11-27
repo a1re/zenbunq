@@ -72,17 +72,6 @@ export default class Records {
   }
 
   /**
-   * Getter for this._counterparties
-   */
-  get counterparties() {
-    if (!(this._counterparties instanceof Data)) {
-      return [];
-    }
-
-    return this._counterparties.get();
-  }
-
-  /**
    * Setter for this._categories
    */
   set categories(categories) {
@@ -92,17 +81,6 @@ export default class Records {
     }
 
     this._categories = categories;
-  }
-
-  /**
-   * Getter for this._categories
-   */
-  get categories() {
-    if (!(this._categories instanceof Data)) {
-      return [];
-    }
-
-    return this._categories.get();
   }
 
   /**
@@ -118,17 +96,6 @@ export default class Records {
   }
 
   /**
-   * Getter for this._accounts
-   */
-  get accounts() {
-    if (!(this._accounts instanceof Data)) {
-      return [];
-    }
-
-    return this._accounts.get();
-  }
-
-  /**
    * Setter for this._transactions
    */
   set transactions(transactions) {
@@ -138,17 +105,6 @@ export default class Records {
     }
 
     this._transactions = transactions;
-  }
-
-  /**
-   * Getter for this._transactions
-   */
-  get transactions() {
-    if (!(this._transactions instanceof Data)) {
-      return [];
-    }
-
-    return this._transactions.get();
   }
 
   /**
@@ -304,7 +260,7 @@ export default class Records {
   insertNewCounterparties(id, container) {
     const counterpartyList = [];
 
-    this.transactions.forEach((transaction) => {
+    this._transactions.get().forEach((transaction) => {
       const isUnknown = !transaction.counterpartyLabel;
       const isUnique = !counterpartyList.some((counterparty) => {
         return counterparty.values[0].innerText === transaction.counterparty;
