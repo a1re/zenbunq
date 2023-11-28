@@ -1,4 +1,4 @@
-import {Selector, Value, Id} from './const';
+import {Selector, Value, Id, Copy} from './const';
 import NodeComposer from './node-composer';
 import error from './helpers/error';
 import Data from './data';
@@ -19,7 +19,11 @@ export default class Records {
     SUM: Selector.WRAPPER.TRANSACTION.SUM,
     COMMENT: Selector.WRAPPER.TRANSACTION.COMMENT,
     COUNTERPARTY_ID: Selector.WRAPPER.COUNTERPARTY.ID,
-    COUNTERPARTY_AMOUNT: Selector.WRAPPER.COUNTERPARTY.AMOUNT
+    COUNTERPARTY_AMOUNT: Selector.WRAPPER.COUNTERPARTY.AMOUNT,
+    MODAL: Selector.WRAPPER.MODAL.MODAL,
+    MODAL_HEADER: Selector.WRAPPER.MODAL.HEADER,
+    MODAL_ACCEPT_BUTTON: Selector.WRAPPER.MODAL.ACCEPT_BUTTON,
+    MODAL_DECLINE_BUTTON: Selector.WRAPPER.MODAL.DECLINE_BUTTON
   }
 
   /**
@@ -31,7 +35,8 @@ export default class Records {
     COUNTERPARTY_ITEM: Selector.TEMPLATE.RESULT.COUNTERPARTY_ITEM,
     TRANSACTION_LIST: Selector.TEMPLATE.TRANSACTION.LIST,
     TRANSACTION_ROW: Selector.TEMPLATE.TRANSACTION.ROW,
-    EMPTY_STRING: Value.TRANSACTION_EMPTY_STRING
+    EMPTY_STRING: Value.TRANSACTION_EMPTY_STRING,
+    MODAL_DIALOG: Selector.TEMPLATE.MODAL_DIALOG
   }
 
   /**
@@ -198,7 +203,17 @@ export default class Records {
 
         deleteButtonList.forEach((deleteButton) => {
           deleteButton.onclick = () => {
-            console.log(`Delete '${id}'`);
+            this.showConfirmationDialog(
+              Id.MODAL_DIALOG,
+              () => {
+                this._composer.removeNode(id);
+                this._transactions.remove(id);
+                this.hideConfirmationDialog(Id.MODAL_DIALOG);
+              },
+              () => {
+                this.hideConfirmationDialog(Id.MODAL_DIALOG);
+              }
+            );
           }
         });
 
@@ -294,6 +309,77 @@ export default class Records {
       ]
     });
 
+  }
+
+  /**
+   * Shows a confirmation dialog with callbacks for "Submit" and "Decline" buttons.
+   *
+   * @param   {String} id                - Id of the modal window
+   * @param   {Function} acceptCallback  - Callback to be called on pressing "Submit" button
+   * @param   {Function} declineCallback - Callback to be called on pressing "Decline" button
+   * @returns void
+   */
+  showConfirmationDialog(id, acceptCallback, declineCallback) {
+    const page = document.querySelector(Selector.PAGE);
+    page.classList.add(Value.PAGE_NOSCROLL_MODIFIER);
+
+    this._composer.composeNode({
+      id,
+      wrapper: this._container.MODAL,
+      template: this._template.MODAL_DIALOG,
+      values: [
+        {
+          wrapper: this._container.MODAL_HEADER,
+          innerText: Copy.MODAL_DIALOG_REMOVE_TRANSACTION_HEADER
+        },
+        {
+          wrapper: this._container.MODAL_ACCEPT_BUTTON,
+          innerText: Copy.MODAL_DIALOG_ACCEPT_BUTTON
+        },
+        {
+          wrapper: this._container.MODAL_DECLINE_BUTTON,
+          innerText: Copy.MODAL_DIALOG_DECLINE_BUTTON
+        }
+      ],
+      afterInsert: (element) => {
+        element.style.top = window.scrollY + 'px';
+
+        const closeButton = element.querySelector(Selector.BUTTON.MODAL.CLOSE);
+        const acceptButton = element.querySelector(Selector.BUTTON.MODAL.ACCEPT);
+        const declineButton = element.querySelector(Selector.BUTTON.MODAL.DECLINE);
+
+        acceptButton.onclick = acceptCallback;
+        declineButton.onclick = declineCallback;
+
+        closeButton.onclick = () => {
+          this.hideConfirmationDialog(id);
+        };
+
+        document.onkeyup = (evt) => {
+          if (evt.key === 'Escape') {
+            this.hideConfirmationDialog(id);
+          }
+        }
+      },
+      beforeUnset: (element) => {
+        const closeButton = element.querySelector(Selector.BUTTON.MODAL.CLOSE);
+        closeButton.onclick = null;
+        document.onkeyup = null;
+      }
+    });
+  }
+
+  /**
+   * Hides confirmation dialog.
+   *
+   * @param   {String} id - Id of the window to hide
+   * @returns void
+   */
+  hideConfirmationDialog(id) {
+    const page = document.querySelector(Selector.PAGE);
+    page.classList.remove(Value.PAGE_NOSCROLL_MODIFIER);
+
+    this._composer.removeNode(id);
   }
 
   // transactions.getUnknownCounterparties()

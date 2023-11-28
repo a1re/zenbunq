@@ -1,4 +1,4 @@
-import { Selector, Id } from './const';
+import { Selector, Id, Value } from './const';
 import NodeComposer from './node-composer';
 import Records from './records';
 import { mockData } from './mock-data';

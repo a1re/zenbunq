@@ -127,7 +127,11 @@ export default class Data {
    * @returns void
    */
   add(entry) {
-    const id = this._name + this._entries.length;
+    const lastIndex = parseInt(
+      this._entries[this._entries.length-1].id.substr(this._name.length),
+      10
+    );
+    const id = this._name + lastIndex + 1;
     this._entries.push({id, value:entry});
   }
 
