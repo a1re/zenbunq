@@ -167,14 +167,13 @@ export default class Records {
         deleteButtonList.forEach((deleteButton) => {
           deleteButton.onclick = () => {
             this.showConfirmationDialog(
-              Id.MODAL_DIALOG,
               () => {
                 this._composer.removeNode(id);
                 this._transactions.remove(id);
-                this.hideConfirmationDialog(Id.MODAL_DIALOG);
+                this.hideConfirmationDialog();
               },
               () => {
-                this.hideConfirmationDialog(Id.MODAL_DIALOG);
+                this.hideConfirmationDialog();
               }
             );
           }
@@ -269,7 +268,6 @@ export default class Records {
         }
       ]
     });
-
   }
 
   /**
@@ -280,16 +278,15 @@ export default class Records {
    * @param   {Function} declineCallback - Callback to be called on pressing "Decline" button
    * @returns void
    */
-  showConfirmationDialog(id, acceptCallback, declineCallback) {
+  showConfirmationDialog(acceptCallback, declineCallback) {
     const page = document.querySelector(Selector.PAGE);
     page.classList.add(Value.PAGE_NOSCROLL_MODIFIER);
 
     this._composer.composeNode({
-      id,
+      id: Id.MODAL_DIALOG,
       wrapper: Selector.WRAPPER.MODAL.MODAL,
       template: Selector.TEMPLATE.MODAL.WINDOW,
       children: [{
-        id: 'aaa',
         wrapper: Selector.WRAPPER.MODAL.CONTENT,
         template: Selector.TEMPLATE.MODAL.CONFIRMATION_DIALOG,
         values: [
@@ -318,12 +315,12 @@ export default class Records {
         declineButton.onclick = declineCallback;
 
         closeButton.onclick = () => {
-          this.hideConfirmationDialog(id);
+          this.hideConfirmationDialog();
         };
 
         document.onkeyup = (evt) => {
           if (evt.key === 'Escape') {
-            this.hideConfirmationDialog(id);
+            this.hideConfirmationDialog();
           }
         }
       },
@@ -341,11 +338,11 @@ export default class Records {
    * @param   {String} id - Id of the window to hide
    * @returns void
    */
-  hideConfirmationDialog(id) {
+  hideConfirmationDialog() {
     const page = document.querySelector(Selector.PAGE);
     page.classList.remove(Value.PAGE_NOSCROLL_MODIFIER);
 
-    this._composer.removeNode(id);
+    this._composer.removeNode(Id.MODAL_DIALOG);
   }
 
   // transactions.getUnknownCounterparties()
