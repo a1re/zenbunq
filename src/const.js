@@ -27,8 +27,9 @@ export const Selector = {
     MODAL: {
       MODAL: '.page__modal',
       HEADER: '.modal__header',
-      ACCEPT_BUTTON: '.modal button[type=submit]',
-      DECLINE_BUTTON: '.modal button[type=reset]'
+      CONTENT: '.modal__content',
+      ACCEPT_BUTTON: 'button[type=submit]',
+      DECLINE_BUTTON: 'button[type=reset]'
     }
   },
   TEMPLATE: {
@@ -42,7 +43,10 @@ export const Selector = {
       LIST: '#transactions',
       ROW: '#transaction-row'
     },
-    MODAL_DIALOG: '#modal-dialog'
+    MODAL: {
+      WINDOW: '#modal',
+      CONFIRMATION_DIALOG: '#modal-confirmation-dialog'
+    }
   },
   BUTTON: {
     TRANSACTION: {

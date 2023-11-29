@@ -22,6 +22,7 @@ export default class Records {
     COUNTERPARTY_AMOUNT: Selector.WRAPPER.COUNTERPARTY.AMOUNT,
     MODAL: Selector.WRAPPER.MODAL.MODAL,
     MODAL_HEADER: Selector.WRAPPER.MODAL.HEADER,
+    MODAL_CONTENT: Selector.WRAPPER.MODAL.CONTENT,
     MODAL_ACCEPT_BUTTON: Selector.WRAPPER.MODAL.ACCEPT_BUTTON,
     MODAL_DECLINE_BUTTON: Selector.WRAPPER.MODAL.DECLINE_BUTTON
   }
@@ -36,7 +37,8 @@ export default class Records {
     TRANSACTION_LIST: Selector.TEMPLATE.TRANSACTION.LIST,
     TRANSACTION_ROW: Selector.TEMPLATE.TRANSACTION.ROW,
     EMPTY_STRING: Value.TRANSACTION_EMPTY_STRING,
-    MODAL_DIALOG: Selector.TEMPLATE.MODAL_DIALOG
+    MODAL: Selector.TEMPLATE.MODAL.WINDOW,
+    MODAL_CONFIRMATION_DIALOG: Selector.TEMPLATE.MODAL.CONFIRMATION_DIALOG
   }
 
   /**
@@ -326,21 +328,26 @@ export default class Records {
     this._composer.composeNode({
       id,
       wrapper: this._container.MODAL,
-      template: this._template.MODAL_DIALOG,
-      values: [
-        {
-          wrapper: this._container.MODAL_HEADER,
-          innerText: Copy.MODAL_DIALOG_REMOVE_TRANSACTION_HEADER
-        },
-        {
-          wrapper: this._container.MODAL_ACCEPT_BUTTON,
-          innerText: Copy.MODAL_DIALOG_ACCEPT_BUTTON
-        },
-        {
-          wrapper: this._container.MODAL_DECLINE_BUTTON,
-          innerText: Copy.MODAL_DIALOG_DECLINE_BUTTON
-        }
-      ],
+      template: this._template.MODAL,
+      children: [{
+        id: 'aaa',
+        wrapper: this._container.MODAL_CONTENT,
+        template: this._template.MODAL_CONFIRMATION_DIALOG,
+        values: [
+          {
+            wrapper: this._container.MODAL_ACCEPT_BUTTON,
+            innerText: Copy.MODAL_DIALOG_ACCEPT_BUTTON
+          },
+          {
+            wrapper: this._container.MODAL_DECLINE_BUTTON,
+            innerText: Copy.MODAL_DIALOG_DECLINE_BUTTON
+          }
+        ]
+      }],
+      values: [{
+        wrapper: this._container.MODAL_HEADER,
+        innerText: Copy.MODAL_DIALOG_REMOVE_TRANSACTION_HEADER
+      }],
       afterInsert: (element) => {
         element.style.top = window.scrollY + 'px';
 
