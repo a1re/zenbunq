@@ -2,7 +2,6 @@ export const Selector = {
   PAGE: '.page',
   PAGE_CONTENT: '.page__content',
   UPLOAD_BUTTON: '.panel__file-submit',
-
   WRAPPER: {
     TRANSACTION: {
       LIST: '.transactions',
@@ -45,7 +44,8 @@ export const Selector = {
     },
     MODAL: {
       WINDOW: '#modal',
-      CONFIRMATION_DIALOG: '#modal-confirmation-dialog'
+      CONFIRMATION_DIALOG: '#modal-confirmation-dialog',
+      TRANSACTION_EDIT_FORM: '#transaction-edit-form'
     }
   },
   BUTTON: {
@@ -58,6 +58,16 @@ export const Selector = {
       ACCEPT: '.modal button[type=submit]',
       DECLINE: '.modal button[type=reset]',
       CLOSE: '.modal__close'
+    }
+  },
+  FORM: {
+    TRANSACTION_EDIT: {
+      FIELD: {
+        DATE: '#field--date'
+      },
+      VALIDATION_CONTAINER: {
+        DATE: '#field--date ~ .form__validation-container:first-of-type'
+      }
     }
   }
 };
@@ -84,4 +94,5 @@ export const Copy = {
   MODAL_DIALOG_REMOVE_TRANSACTION_HEADER: 'Удалить транзакцию?',
   MODAL_DIALOG_ACCEPT_BUTTON: 'Удалить',
   MODAL_DIALOG_DECLINE_BUTTON: 'Отмена',
+  MODAL_TRANSACTION_EDIT_FORM_HEADER: 'Редактирование транзакции',
 };

@@ -11,7 +11,7 @@ export default class Records {
   _errorMessage = {
     INVALID_COMPOSER: "Invalid composer object",
     INVALID_DATA: "Invalid data connection: '{0}' should be an instance of Data",
-    TRANSACTION_BUTTON_NOT_FOUND: "Button '{0}' for transaction row '{1}' not found"
+    TRANSACTION_BUTTON_NOT_FOUND: "Button '{0}' for transaction row '{1}' not found",
   }
 
   /**
@@ -150,7 +150,7 @@ export default class Records {
 
         const expandButton = element.querySelector(Selector.BUTTON.TRANSACTION.EXPAND);
         if (!expandButton) {
-          error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EXPAND, id);
+          error(this._errorMessage.TRANSACTION_BUTTON_NOT_FOUND, Selector.BUTTON.TRANSACTION.EXPAND, id);
           return;
         }
 
@@ -160,7 +160,7 @@ export default class Records {
 
         const deleteButtonList = element.querySelectorAll(Selector.BUTTON.TRANSACTION.DELETE);
         if (deleteButtonList.length === 0) {
-          error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.DELETE, id);
+          error(this._errorMessage.TRANSACTION_BUTTON_NOT_FOUND, Selector.BUTTON.TRANSACTION.DELETE, id);
           return;
         }
 
@@ -184,13 +184,21 @@ export default class Records {
 
         const editButtonList = element.querySelectorAll(Selector.BUTTON.TRANSACTION.EDIT);
         if (deleteButtonList.length === 0) {
-          error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EDIT, id);
+          error(this._errorMessage.TRANSACTION_BUTTON_NOT_FOUND, Selector.BUTTON.TRANSACTION.EDIT, id);
           return;
         }
 
         editButtonList.forEach((editButton) => {
           editButton.onclick = () => {
-            console.log(`Edit '${id}'`);
+            this.showTransactionEditModal(
+              transaction,
+              () => {
+                console.log(`Edit form ${id}`);
+              },
+              () => {
+                this.hideModal();
+              }
+            )
           }
         });
       },
@@ -311,6 +319,63 @@ export default class Records {
       }],
       afterInsert: (element) => {
         element.style.top = window.scrollY + 'px';
+
+        const closeButton = element.querySelector(Selector.BUTTON.MODAL.CLOSE);
+        const acceptButton = element.querySelector(Selector.BUTTON.MODAL.ACCEPT);
+        const declineButton = element.querySelector(Selector.BUTTON.MODAL.DECLINE);
+
+        acceptButton.onclick = acceptCallback;
+        declineButton.onclick = declineCallback;
+
+        closeButton.onclick = () => {
+          this.hideModal();
+        };
+
+        document.onkeyup = (evt) => {
+          if (evt.key === 'Escape') {
+            this.hideModal();
+          }
+        }
+      },
+      beforeUnset: (element) => {
+        const closeButton = element.querySelector(Selector.BUTTON.MODAL.CLOSE);
+        closeButton.onclick = null;
+        document.onkeyup = null;
+      }
+    });
+  }
+
+  /**
+   * Shows a confirmation dialog with callbacks for "Submit" and "Decline" buttons.
+   *
+   * @param   {Function} acceptCallback  - Callback to be called on pressing "Submit" button
+   * @param   {Function} declineCallback - Callback to be called on pressing "Decline" button
+   * @returns void
+   */
+  showTransactionEditModal(transacton, acceptCallback, declineCallback) {
+    const page = document.querySelector(Selector.PAGE);
+    page.classList.add(Value.PAGE_NOSCROLL_MODIFIER);
+
+    this._composer.composeNode({
+      id: Id.MODAL_DIALOG,
+      wrapper: Selector.WRAPPER.MODAL.MODAL,
+      template: Selector.TEMPLATE.MODAL.WINDOW,
+      children: [{
+        wrapper: Selector.WRAPPER.MODAL.CONTENT,
+        template: Selector.TEMPLATE.MODAL.TRANSACTION_EDIT_FORM
+      }],
+      values: [{
+        wrapper: Selector.WRAPPER.MODAL.HEADER,
+        innerText: Copy.MODAL_TRANSACTION_EDIT_FORM_HEADER
+      }],
+      afterInsert: (element) => {
+        element.style.top = window.scrollY + 'px';
+
+        const dateField = element.querySelector(Selector.FORM.TRANSACTION_EDIT.FIELD.DATE);
+        dateField.value = transacton.date;
+
+        const dateValidation = element.querySelector(Selector.FORM.TRANSACTION_EDIT.VALIDATION_CONTAINER.DATE);
+        dateValidation.innerHTML = transacton.date;
 
         const closeButton = element.querySelector(Selector.BUTTON.MODAL.CLOSE);
         const acceptButton = element.querySelector(Selector.BUTTON.MODAL.ACCEPT);
