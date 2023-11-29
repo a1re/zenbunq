@@ -5,43 +5,6 @@ import Data from './data';
 
 export default class Records {
   /**
-   * Selectors for wrappers
-   */
-  _container = {
-    TRANSACTION_LIST: Selector.WRAPPER.TRANSACTION.LIST,
-    COUNTERPARTY_LIST: Selector.WRAPPER.RESULT.CARD_LIST,
-    RESULT_RECORDS: Selector.WRAPPER.RESULT.RECORDS,
-    DATE: Selector.WRAPPER.TRANSACTION.DATE,
-    CATEGORY: Selector.WRAPPER.TRANSACTION.CATEGORY,
-    COUNTERPARTY: Selector.WRAPPER.TRANSACTION.COUNTERPARTY,
-    PAYER: Selector.WRAPPER.TRANSACTION.PAYER,
-    PAYEE: Selector.WRAPPER.TRANSACTION.PAYEE,
-    SUM: Selector.WRAPPER.TRANSACTION.SUM,
-    COMMENT: Selector.WRAPPER.TRANSACTION.COMMENT,
-    COUNTERPARTY_ID: Selector.WRAPPER.COUNTERPARTY.ID,
-    COUNTERPARTY_AMOUNT: Selector.WRAPPER.COUNTERPARTY.AMOUNT,
-    MODAL: Selector.WRAPPER.MODAL.MODAL,
-    MODAL_HEADER: Selector.WRAPPER.MODAL.HEADER,
-    MODAL_CONTENT: Selector.WRAPPER.MODAL.CONTENT,
-    MODAL_ACCEPT_BUTTON: Selector.WRAPPER.MODAL.ACCEPT_BUTTON,
-    MODAL_DECLINE_BUTTON: Selector.WRAPPER.MODAL.DECLINE_BUTTON
-  }
-
-  /**
-   * Selectors for templates
-   */
-  _template = {
-    RESULT_RECORDS: Selector.TEMPLATE.RESULT.RECORDS,
-    COUNTERPARTY_LIST: Selector.TEMPLATE.RESULT.COUNTERPARTY_LIST,
-    COUNTERPARTY_ITEM: Selector.TEMPLATE.RESULT.COUNTERPARTY_ITEM,
-    TRANSACTION_LIST: Selector.TEMPLATE.TRANSACTION.LIST,
-    TRANSACTION_ROW: Selector.TEMPLATE.TRANSACTION.ROW,
-    EMPTY_STRING: Value.TRANSACTION_EMPTY_STRING,
-    MODAL: Selector.TEMPLATE.MODAL.WINDOW,
-    MODAL_CONFIRMATION_DIALOG: Selector.TEMPLATE.MODAL.CONFIRMATION_DIALOG
-  }
-
-  /**
    * Private value with error messages to make the code cleaner and get rid of
    * hefty code lines. Used with error().
    */
@@ -115,9 +78,7 @@ export default class Records {
   }
 
   /**
-   * Insert table with data to container node. Template is set by
-   * this._template.RESULT_RECORDS for wrapper, this._template.TRANSACTION_LIST
-   * for table tag and this._template.TRANSACTION_ROW for a row.
+   * Insert table with data to container node.
    *
    * @param   {String} id        - Id of the table node
    * @param   {String} container - Element where table will be inserted
@@ -130,11 +91,11 @@ export default class Records {
 
     this._composer.composeNode({
       wrapper: container,
-      template: this._template.RESULT_RECORDS,
+      template: Selector.TEMPLATE.RESULT.RECORDS,
       children: [{
         id,
-        wrapper: this._container.RESULT_RECORDS,
-        template: this._template.TRANSACTION_LIST,
+        wrapper: Selector.WRAPPER.RESULT.RECORDS,
+        template: Selector.TEMPLATE.TRANSACTION.LIST,
         children: rows
       }]
     });
@@ -150,37 +111,37 @@ export default class Records {
   composeRow(id, transaction) {
     return {
       id,
-      wrapper: this._container.TRANSACTION_LIST,
-      template: this._template.TRANSACTION_ROW,
+      wrapper: Selector.WRAPPER.TRANSACTION.LIST,
+      template: Selector.TEMPLATE.TRANSACTION.ROW,
       values: [
         {
-          wrapper: this._container.DATE,
+          wrapper: Selector.WRAPPER.TRANSACTION.DATE,
           innerHTML: transaction.date || Value.TRANSACTION_EMPTY_STRING
         },
         {
-          wrapper: this._container.CATEGORY,
-          innerHTML: transaction.category || this._template.EMPTY_STRING
+          wrapper: Selector.WRAPPER.TRANSACTION.CATEGORY,
+          innerHTML: transaction.category || Value.TRANSACTION_EMPTY_STRING
         },
         {
-          wrapper: this._container.COUNTERPARTY,
-          innerHTML: transaction.counterpartyLabel || transaction.counterparty || this._template.EMPTY_STRING
+          wrapper: Selector.WRAPPER.TRANSACTION.COUNTERPARTY,
+          innerHTML: transaction.counterpartyLabel || transaction.counterparty || Value.TRANSACTION_EMPTY_STRING
         },
         {
-          wrapper: this._container.PAYER,
-          innerHTML: transaction.outcomeAccountLabel || transaction.outcomeAccount || this._template.EMPTY_STRING
+          wrapper: Selector.WRAPPER.TRANSACTION.PAYER,
+          innerHTML: transaction.outcomeAccountLabel || transaction.outcomeAccount || Value.TRANSACTION_EMPTY_STRING
         },
         {
-          wrapper: this._container.PAYEE,
-          innerHTML: transaction.incomeAccountLabel || transaction.incomeAccount || this._template.EMPTY_STRING
+          wrapper: Selector.WRAPPER.TRANSACTION.PAYEE,
+          innerHTML: transaction.incomeAccountLabel || transaction.incomeAccount || Value.TRANSACTION_EMPTY_STRING
         },
         {
-          wrapper: this._container.SUM,
+          wrapper: Selector.WRAPPER.TRANSACTION.SUM,
           innerHTML: (transaction.income !== undefined)
             ? transaction.income.toFixed(2)
             : transaction.outcome.toFixed(2)
         },
         {
-          wrapper: this._container.COMMENT,
+          wrapper: Selector.WRAPPER.TRANSACTION.COMMENT,
           innerHTML: transaction.comment || ''
         }
       ],
@@ -266,9 +227,7 @@ export default class Records {
   }
 
   /**
-   * Inserts a list of new counterparties to container node. Template is set by
-   * this._template.COUNTERPARTY_LIST for wrapper, this._template.COUNTERPARTY_ITEM
-   * for a card.
+   * Inserts a list of new counterparties to container node.
    *
    * @param   {String} id        - Id of the element with the counterpartoes
    * @param   {String} container - Wrapper where the list will be inserted
@@ -286,11 +245,11 @@ export default class Records {
       if (isUnknown && isUnique) {
         counterpartyList.push({
           id: Id.NEW_COUNTERPARTY + counterpartyList.length,
-          wrapper: this._container.COUNTERPARTY_LIST,
-          template: this._template.COUNTERPARTY_ITEM,
+          wrapper: Selector.WRAPPER.RESULT.CARD_LIST,
+          template: Selector.TEMPLATE.RESULT.COUNTERPARTY_ITEM,
           values: [
             {
-              wrapper: this._container.COUNTERPARTY_ID,
+              wrapper: Selector.WRAPPER.COUNTERPARTY.ID,
               innerText: transaction.counterparty
             }
           ]
@@ -301,11 +260,11 @@ export default class Records {
     this._composer.composeNode({
       id,
       wrapper: container,
-      template: this._template.COUNTERPARTY_LIST,
+      template: Selector.TEMPLATE.RESULT.COUNTERPARTY_LIST,
       children: counterpartyList,
       values: [
         {
-          wrapper: this._container.COUNTERPARTY_AMOUNT,
+          wrapper: Selector.WRAPPER.COUNTERPARTY.AMOUNT,
           innerText: counterpartyList.length
         }
       ]
@@ -327,25 +286,25 @@ export default class Records {
 
     this._composer.composeNode({
       id,
-      wrapper: this._container.MODAL,
-      template: this._template.MODAL,
+      wrapper: Selector.WRAPPER.MODAL.MODAL,
+      template: Selector.TEMPLATE.MODAL.WINDOW,
       children: [{
         id: 'aaa',
-        wrapper: this._container.MODAL_CONTENT,
-        template: this._template.MODAL_CONFIRMATION_DIALOG,
+        wrapper: Selector.WRAPPER.MODAL.CONTENT,
+        template: Selector.TEMPLATE.MODAL.CONFIRMATION_DIALOG,
         values: [
           {
-            wrapper: this._container.MODAL_ACCEPT_BUTTON,
+            wrapper: Selector.WRAPPER.MODAL.ACCEPT_BUTTON,
             innerText: Copy.MODAL_DIALOG_ACCEPT_BUTTON
           },
           {
-            wrapper: this._container.MODAL_DECLINE_BUTTON,
+            wrapper: Selector.WRAPPER.MODAL.DECLINE_BUTTON,
             innerText: Copy.MODAL_DIALOG_DECLINE_BUTTON
           }
         ]
       }],
       values: [{
-        wrapper: this._container.MODAL_HEADER,
+        wrapper: Selector.WRAPPER.MODAL.HEADER,
         innerText: Copy.MODAL_DIALOG_REMOVE_TRANSACTION_HEADER
       }],
       afterInsert: (element) => {
