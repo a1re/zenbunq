@@ -167,6 +167,9 @@ export default class Records {
         deleteButtonList.forEach((deleteButton) => {
           deleteButton.onclick = () => {
             this.showConfirmationModal(
+              Copy.MODAL_DIALOG_REMOVE_TRANSACTION_HEADER,
+              Copy.MODAL_DIALOG_ACCEPT_BUTTON,
+              Copy.MODAL_DIALOG_DECLINE_BUTTON,
               () => {
                 this._composer.removeNode(id);
                 this._transactions.remove(id);
@@ -273,12 +276,14 @@ export default class Records {
   /**
    * Shows a confirmation dialog with callbacks for "Submit" and "Decline" buttons.
    *
-   * @param   {String} id                - Id of the modal window
+   * @param   {String} promptCopy        - Copy of the prompt to show
+   * @param   {String} acceptButtonCopy  - Copy of the prompt to show
+   * @param   {String} declineButtonCopy - Copy of the prompt to show
    * @param   {Function} acceptCallback  - Callback to be called on pressing "Submit" button
    * @param   {Function} declineCallback - Callback to be called on pressing "Decline" button
    * @returns void
    */
-  showConfirmationModal(acceptCallback, declineCallback) {
+  showConfirmationModal(promptCopy, acceptButtonCopy, declineButtonCopy, acceptCallback, declineCallback) {
     const page = document.querySelector(Selector.PAGE);
     page.classList.add(Value.PAGE_NOSCROLL_MODIFIER);
 
@@ -292,17 +297,17 @@ export default class Records {
         values: [
           {
             wrapper: Selector.WRAPPER.MODAL.ACCEPT_BUTTON,
-            innerText: Copy.MODAL_DIALOG_ACCEPT_BUTTON
+            innerText: acceptButtonCopy
           },
           {
             wrapper: Selector.WRAPPER.MODAL.DECLINE_BUTTON,
-            innerText: Copy.MODAL_DIALOG_DECLINE_BUTTON
+            innerText: declineButtonCopy
           }
         ]
       }],
       values: [{
         wrapper: Selector.WRAPPER.MODAL.HEADER,
-        innerText: Copy.MODAL_DIALOG_REMOVE_TRANSACTION_HEADER
+        innerText: promptCopy
       }],
       afterInsert: (element) => {
         element.style.top = window.scrollY + 'px';
