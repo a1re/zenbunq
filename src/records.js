@@ -166,14 +166,14 @@ export default class Records {
 
         deleteButtonList.forEach((deleteButton) => {
           deleteButton.onclick = () => {
-            this.showConfirmationDialog(
+            this.showConfirmationModal(
               () => {
                 this._composer.removeNode(id);
                 this._transactions.remove(id);
-                this.hideConfirmationDialog();
+                this.hideModal();
               },
               () => {
-                this.hideConfirmationDialog();
+                this.hideModal();
               }
             );
           }
@@ -278,7 +278,7 @@ export default class Records {
    * @param   {Function} declineCallback - Callback to be called on pressing "Decline" button
    * @returns void
    */
-  showConfirmationDialog(acceptCallback, declineCallback) {
+  showConfirmationModal(acceptCallback, declineCallback) {
     const page = document.querySelector(Selector.PAGE);
     page.classList.add(Value.PAGE_NOSCROLL_MODIFIER);
 
@@ -315,12 +315,12 @@ export default class Records {
         declineButton.onclick = declineCallback;
 
         closeButton.onclick = () => {
-          this.hideConfirmationDialog();
+          this.hideModal();
         };
 
         document.onkeyup = (evt) => {
           if (evt.key === 'Escape') {
-            this.hideConfirmationDialog();
+            this.hideModal();
           }
         }
       },
@@ -338,7 +338,7 @@ export default class Records {
    * @param   {String} id - Id of the window to hide
    * @returns void
    */
-  hideConfirmationDialog() {
+  hideModal() {
     const page = document.querySelector(Selector.PAGE);
     page.classList.remove(Value.PAGE_NOSCROLL_MODIFIER);
 
