@@ -28,7 +28,7 @@ export default class NodeComposer {
   ];
 
   /**
-   * Array for functions to be triggered while unsetting the element
+   * Array for functions to be triggered while unsetting the element.
    */
   _beforeUnsets = [];
 
@@ -258,10 +258,10 @@ export default class NodeComposer {
   }
 
   /**
-   * Removes previously inserted node and triggers beforeUnset() function if it
-   * was defined
+   * Removes previously inserted node and runs the beforeUnset() function if it
+   * was defined for the element and it its children.
    *
-   * @param  {String}  id  Id of the node to remove (without '#')
+   * @param  {String}  id  - Id of the node to remove (without '#')
    * @return void
    */
   removeNode(id) {
@@ -272,18 +272,57 @@ export default class NodeComposer {
       return;
     }
 
-    this._beforeUnsets.forEach(({id:objectId, beforeUnset}) => {
-      if (objectId === id) {
-        beforeUnset(element)
-        return;
-      }
-
-      const object = element.querySelector('#' + objectId);
-      if (object) {
-        beforeUnset(object);
+    this._beforeUnsets.find((node, index) => {
+      if (node.id === id) {
+        node.beforeUnset(element);
+        this._beforeUnsets.splice(index, 1);
+        return true;
       }
     });
 
+    this._runChildBeforeUnsets(element);
+
     element.remove();
+  }
+
+  /**
+   * Removes all the element's children and runs attached beforeUnsets() if needed.
+   *
+   * @param   {String/Element} nodeSelector - Element or a selector of node to empty
+   * @returns void
+   */
+  emptyNode(nodeSelector) {
+    const element = (nodeSelector instanceof Element)
+      ? nodeSelector
+      : document.querySelector(nodeSelector);
+
+    if (!element) {
+      error(this._errorMessage.NODE_NOT_FOUND, nodeSelector);
+      return;
+    }
+
+    this._runChildBeforeUnsets(element);
+
+    while (element.lastElementChild) {
+      element.removeChild(element.lastElementChild);
+    }
+  }
+
+  /**
+   * Checks if children of the element have linked beforeUnset() functions
+   * and runs them;
+   *
+   * @param   {Element} element
+   * @returns void
+   */
+  _runChildBeforeUnsets(element) {
+    for (let i = 0; i < this._beforeUnsets.length; i++) {
+      const object = element.querySelector('#' + this._beforeUnsets[i].id);
+      if (object) {
+        this._beforeUnsets[i].beforeUnset(object);
+        this._beforeUnsets.slice(i, 1);
+        i--;
+      }
+    }
   }
 };
