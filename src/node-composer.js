@@ -81,7 +81,6 @@ export default class NodeComposer {
    */
   _getNodeFromTemplate(selector) {
     const template = document.querySelector(selector);
-
     if (!template) {
       error(this._errorMessage.TEMPLATE_NOT_FOUND, selector);
       return;
@@ -146,7 +145,8 @@ export default class NodeComposer {
     incremental
   }) {
     if (!wrapperSelector) {
-      error(wrapperSelector)
+      error(this._errorMessage.UNDEFINED_WRAPPER);
+      return;
     }
 
     if (domain && !this._isCorrectNode(domain)) {
@@ -155,10 +155,12 @@ export default class NodeComposer {
     } else {
       const domain = document;
     }
+
     const wrapper = this._getNode(wrapperSelector, domain);
 
     if (!templateSelector) {
-      error(wrapperSelector)
+      error(this._errorMessage.UNDEFINED_TEMPLATE);
+      return;
     }
     const template = this._getNodeFromTemplate(templateSelector);
 
@@ -183,7 +185,7 @@ export default class NodeComposer {
       const executedBeforeUnsetIndexes = [];
 
       for (let i = this._beforeUnsets.length-1; i >= 0; i--) {
-        const childObject = wrapper.querySelector('#' + this._beforeUnsets[i].id);
+        const childObject = wrapper.querySelector(this._beforeUnsets[i].id);
         if (childObject) {
           this._beforeUnsets[i].beforeUnset(childObject);
 
@@ -243,7 +245,7 @@ export default class NodeComposer {
     }
 
     if (id) {
-      element.id = id;
+      element.id = (id.substr(0, 1) === '#') ? id.substr(1) : id;
 
       if (beforeUnset) {
         this._beforeUnsets.push({id, beforeUnset })
@@ -265,10 +267,10 @@ export default class NodeComposer {
    * @return void
    */
   removeNode(id) {
-    const element = document.querySelector('#' + id);
+    const element = document.querySelector(id);
 
     if (!element) {
-      error(this._errorMessage.NODE_NOT_FOUND, '#' + id);
+      error(this._errorMessage.NODE_NOT_FOUND, id);
       return;
     }
 
@@ -280,7 +282,7 @@ export default class NodeComposer {
       }
     });
 
-    this._runChildBeforeUnsets(element);
+    this.emptyNode(element);
 
     element.remove();
   }
@@ -301,28 +303,17 @@ export default class NodeComposer {
       return;
     }
 
-    this._runChildBeforeUnsets(element);
+    for (let i = 0; i < this._beforeUnsets.length; i++) {
+      const object = element.querySelector(this._beforeUnsets[i].id);
+      if (object) {
+        this._beforeUnsets[i].beforeUnset(object);
+        this._beforeUnsets.splice(i, 1);
+        i--;
+      }
+    }
 
     while (element.lastElementChild) {
       element.removeChild(element.lastElementChild);
-    }
-  }
-
-  /**
-   * Checks if children of the element have linked beforeUnset() functions
-   * and runs them;
-   *
-   * @param   {Element} element
-   * @returns void
-   */
-  _runChildBeforeUnsets(element) {
-    for (let i = 0; i < this._beforeUnsets.length; i++) {
-      const object = element.querySelector('#' + this._beforeUnsets[i].id);
-      if (object) {
-        this._beforeUnsets[i].beforeUnset(object);
-        this._beforeUnsets.slice(i, 1);
-        i--;
-      }
     }
   }
 };
