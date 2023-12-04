@@ -2,7 +2,6 @@ import error from "./error";
 
 const errorMessage = {
   TRANSACTION_DATE_NOT_FOUND: "Transaction date not found",
-  INVALID_TRANSACTION_DATE: "Invalid transaction date",
   TRANSACTION_SUM_NOT_FOUND: "Transaction sum not found",
   INVALID_TRANSACTION_AMOUNT: "Invalid transaction amount"
 }
@@ -11,13 +10,6 @@ export default function (counterparties, accounts) {
   return (rawData) => {
     if (!rawData[0]) {
       error(errorMessage.TRANSACTION_DATE_NOT_FOUND);
-      return;
-    }
-
-    const date = rawData[0].split('-');
-
-    if (date.length !== 3) {
-      error(errorMessage.INVALID_TRANSACTION_DATE);
       return;
     }
 
@@ -37,7 +29,7 @@ export default function (counterparties, accounts) {
     const account = accounts.find((a) => a.key === rawData[3]);
 
     return {
-      date: date[2] + '.' + date[1] + '.' + date[0],
+      date: rawData[0],
       category: (counterparty) ? counterparty.category : undefined,
       counterparty: rawData[5],
       counterpartyLabel: (counterparty) ? counterparty.label : undefined,

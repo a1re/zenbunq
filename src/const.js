@@ -29,7 +29,12 @@ export const Selector = {
       CONTENT: '.modal__content',
       ACCEPT_BUTTON: 'button[type=submit]',
       DECLINE_BUTTON: 'button[type=reset]'
-    }
+    },
+    NOTIFICATION: {
+      NOTIFICATION: '.notification',
+      CONTENT: '.notification__content'
+    },
+    MESSAGE: '.message'
   },
   TEMPLATE: {
     RESULT: {
@@ -46,6 +51,11 @@ export const Selector = {
       WINDOW: '#modal',
       CONFIRMATION_DIALOG: '#modal-confirmation-dialog',
       TRANSACTION_EDIT_FORM: '#transaction-edit-form'
+    },
+    NOTIFICATION: '#notification',
+    MESSAGE: {
+      SUCCESS: '#message-success',
+      ERROR: '#message-error'
     }
   },
   BUTTON: {
@@ -81,13 +91,17 @@ export const Id = {
   COUNTERPARTY: 'counterparty',
   TRANSACTION: 'transaction',
   CATEGORY: 'category',
-  ACCOUNT: 'account'
+  ACCOUNT: 'account',
+  MESSAGE_ERROR: 'message-error',
+  MESSAGE_SUCCESS: 'message-success',
+  NOTIFICATION: 'notification'
 }
 
 export const Value = {
   TRANSACTION_EMPTY_STRING: '<span class="transactions__empty">&mdash;</span>',
   EXPANDED_TRANSACTION_ROW: 'transactions__row--expanded',
-  PAGE_NOSCROLL_MODIFIER: 'page--noscroll'
+  PAGE_NOSCROLL_MODIFIER: 'page--noscroll',
+  FORM_INPUT_ERROR_CLASS: 'form__text-input--error'
 };
 
 export const Copy = {
@@ -95,4 +109,7 @@ export const Copy = {
   MODAL_DIALOG_ACCEPT_BUTTON: 'Удалить',
   MODAL_DIALOG_DECLINE_BUTTON: 'Отмена',
   MODAL_TRANSACTION_EDIT_FORM_HEADER: 'Редактирование транзакции',
+  MODAL_TRANSACTION_EDIT_ERROR: {
+    INCORRECT_DATE: 'Некорректная дата'
+  }
 };

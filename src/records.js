@@ -12,6 +12,8 @@ export default class Records {
     INVALID_COMPOSER: "Invalid composer object",
     INVALID_DATA: "Invalid data connection: '{0}' should be an instance of Data",
     TRANSACTION_BUTTON_NOT_FOUND: "Button '{0}' for transaction row '{1}' not found",
+    FIELD_NOT_FOUND: "Field '{0}' is not found",
+    INCORRECT_SCOPE: "Incorrect scope for querying elemengs"
   }
 
   /**
@@ -371,11 +373,13 @@ export default class Records {
       afterInsert: (element) => {
         element.style.top = window.scrollY + 'px';
 
-        const dateField = element.querySelector(Selector.FORM.TRANSACTION_EDIT.FIELD.DATE);
-        dateField.value = transacton.date;
-
-        const dateValidation = element.querySelector(Selector.FORM.TRANSACTION_EDIT.VALIDATION_CONTAINER.DATE);
-        dateValidation.innerHTML = transacton.date;
+        this.setFormField({
+          scope: element,
+          fieldSelector: Selector.FORM.TRANSACTION_EDIT.FIELD.DATE,
+          validationContainerSelector: Selector.FORM.TRANSACTION_EDIT.VALIDATION_CONTAINER.DATE,
+          fieldValue: transacton.date,
+          validationCallback: this.validateDate.bind(this)
+        });
 
         const closeButton = element.querySelector(Selector.BUTTON.MODAL.CLOSE);
         const acceptButton = element.querySelector(Selector.BUTTON.MODAL.ACCEPT);
@@ -398,6 +402,11 @@ export default class Records {
         const closeButton = element.querySelector(Selector.BUTTON.MODAL.CLOSE);
         closeButton.onclick = null;
         document.onkeyup = null;
+
+        this.unsetFormFields(
+          element,
+          Selector.FORM.TRANSACTION_EDIT.FIELD.DATE
+        );
       }
     });
   }
@@ -413,6 +422,136 @@ export default class Records {
     page.classList.remove(Value.PAGE_NOSCROLL_MODIFIER);
 
     this._composer.removeNode(Id.MODAL_DIALOG);
+  }
+
+  /**
+   * Sets up a form field with a value and validation callback
+   *
+   * @param   {String} options.fieldSelector               - DOM Selector of the field
+   * @param   {*}      options.fieldValue                  - Default value (optional)
+   * @param   {String} options.validationContainerSelector - DOM Selector of the validation container
+   *                                                         (required if validationCallback is set)
+   * @param   {Function} options.validationCallback        - Callback that will be called for validation as
+   *                                                         'onchange' event with evt.target as a first
+   *                                                         parameter, fieldSelector as a second parameter, and
+   *                                                         validationContainerSelector as a third parameter
+   *                                                         (if set, validationContainerSelector is required)
+   * @param   {HTMLNode} options.scope                     - Scope for elements operations (optional)
+   * @returns void
+   */
+  setFormField(options) {
+    const scope = options.scope || document;
+    const field = scope.querySelector(options.fieldSelector);
+
+    if (!field) {
+      error(this._errorMessage.FIELD_NOT_FOUND, options.fieldSelector);
+      return;
+    }
+
+    if (options.fieldValue) {
+      field.value = options.fieldValue;
+    }
+
+    if (options.validationContainerSelector && typeof options.validationCallback === "function") {
+      field.onchange = (evt) => {
+        options.validationCallback(
+          evt.target,
+          options.validationContainerSelector
+        );
+      }
+    }
+  }
+
+  /**
+   * Unnregisters onChange listeners for the field(s).
+   *
+   * @param  {element} scope       - Node in the document tree that is parent
+   *                                 to the elements defined as selectors
+   * @param  {String} ...selectors - Selector(s) of the field(s) to unse
+   */
+  unsetFormFields(scope, ...selectors) {
+    if (!(scope instanceof Element)) {
+      error(this._errorMessage.INCORRECT_SCOPE);
+      return;
+    }
+
+    selectors.forEach((selector) => {
+      const field = scope.querySelector(selector);
+      if (field) {
+        field.onchange = null;
+      }
+    });
+  }
+
+  /**
+   * Shows validation message for the field.
+   *
+   * @param   {Element} field                      - Node with input/select field element
+   * @param   {String} validationContainerSelector - Selector of the validation message containter
+   * @param   {String} message                     - Message to show in the containter
+   * @returns void
+   */
+  showValidationMessage(field, validationContainerSelector, message) {
+    this._composer.composeNode({
+      wrapper: validationContainerSelector,
+      template: Selector.TEMPLATE.MESSAGE.ERROR,
+      values: [{
+        wrapper: Selector.WRAPPER.MESSAGE,
+        innerText: message
+      }],
+      incremental: false
+    });
+
+    field.classList.add(Value.FORM_INPUT_ERROR_CLASS);
+    field.setCustomValidity(Copy.MODAL_TRANSACTION_EDIT_ERROR.INCORRECT_DATE);
+  }
+
+  /**
+   * Hides validation message for the field.
+   *
+   * @param   {Element} field                      - Node with input/select field element
+   * @param   {String} validationContainerSelector - Selector of the validation message containter
+   * @returns void
+   */
+  hideValidationMessage(field, validationContainerSelector) {
+    field.setCustomValidity('');
+    field.classList.remove(Value.FORM_INPUT_ERROR_CLASS);
+    this._composer.emptyNode(validationContainerSelector)
+  }
+
+  /**
+   * Validates the valude of the date input.
+   *
+   * @param   {Element} field                      - Node element of the field to validate
+   * @param   {String} validationContainerSelector - Selector of the container for validation message
+   * @returns void
+   */
+  validateDate(field, validationContainerSelector) {
+    if (!field.valueAsDate || isNaN(field.valueAsDate.getTime())) {
+      this.showValidationMessage(
+        field,
+        validationContainerSelector,
+        Copy.MODAL_TRANSACTION_EDIT_ERROR.INCORRECT_DATE
+      );
+      return;
+    }
+
+    const today = Math.round(Date.now() / 1000);
+    const transactionDate = Math.round(
+      (field.valueAsDate.getTime() + field.valueAsDate.getTimezoneOffset() * 60)
+      / 1000
+    );
+
+    if (today < transactionDate) {
+      this.showValidationMessage(
+        field,
+        validationContainerSelector,
+        Copy.MODAL_TRANSACTION_EDIT_ERROR.INCORRECT_DATE
+      );
+      return;
+    }
+
+    this.hideValidationMessage(field, validationContainerSelector);
   }
 
   // transactions.getUnknownCounterparties()
