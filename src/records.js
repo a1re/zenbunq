@@ -12,6 +12,7 @@ export default class Records {
     INVALID_COMPOSER: "Invalid composer object",
     INVALID_DATA: "Invalid data connection: '{0}' should be an instance of Data",
     TRANSACTION_BUTTON_NOT_FOUND: "Button '{0}' for transaction row '{1}' not found",
+    VALIDATION_CONTAINER_NOT_FOUND: "Validation container for the field is not found",
     FIELD_NOT_FOUND: "Field '{0}' is not found",
     INCORRECT_SCOPE: "Incorrect scope for querying elemengs"
   }
@@ -454,10 +455,15 @@ export default class Records {
 
     if (options.validationContainerSelector && typeof options.validationCallback === "function") {
       field.onchange = (evt) => {
-        options.validationCallback(
-          evt.target,
-          options.validationContainerSelector
-        );
+        const validationContainer = scope.querySelector(options.validationContainerSelector);
+
+        if (validationContainer) {
+          options.validationCallback(evt.target, validationContainer);
+        } else {
+          error(this._errorMessage.VALIDATION_CONTAINER_NOT_FOUND);
+          options.validationCallback(evt.target);
+        }
+
       }
     }
   }
@@ -486,17 +492,17 @@ export default class Records {
   /**
    * Shows validation message for the field.
    *
-   * @param   {Element} field                      - Node with input/select field element
-   * @param   {String} validationContainerSelector - Selector of the validation message containter
-   * @param   {String} message                     - Message to show in the containter
+   * @param   {Element} field              - Node element of the input/select field
+   * @param   {String} validationContainer - Node element of the validation message containter
+   * @param   {String} message             - Message to show in the containter
    * @returns void
    */
-  showValidationMessage(field, validationContainerSelector, message) {
+  showValidationMessage(field, validationContainer, message) {
     this._composer.composeNode({
-      wrapper: validationContainerSelector,
+      wrapper: validationContainer,
       template: Selector.MESSAGE.ERROR.TEMPLATE,
       values: [{
-        wrapper: Selector.WRAPPER.MESSAGE,
+        wrapper: Selector.MESSAGE.CONTENT.WRAPPER,
         innerText: message
       }],
       incremental: false
@@ -509,28 +515,28 @@ export default class Records {
   /**
    * Hides validation message for the field.
    *
-   * @param   {Element} field                      - Node with input/select field element
-   * @param   {String} validationContainerSelector - Selector of the validation message containter
+   * @param   {Element} field              - Node element of the input/select field
+   * @param   {String} validationContainer - Node element of the validation message containter
    * @returns void
    */
-  hideValidationMessage(field, validationContainerSelector) {
+  hideValidationMessage(field, validationContainer) {
     field.setCustomValidity('');
     field.classList.remove(Value.FORM_INPUT_ERROR_CLASS);
-    this._composer.emptyNode(validationContainerSelector)
+    this._composer.emptyNode(validationContainer)
   }
 
   /**
    * Validates the valude of the date input.
    *
-   * @param   {Element} field                      - Node element of the field to validate
-   * @param   {String} validationContainerSelector - Selector of the container for validation message
+   * @param   {Element} field               - Node element of the field to validate
+   * @param   {Element} validationContainer - Node element of the container for validation message
    * @returns void
    */
-  validateDate(field, validationContainerSelector) {
+  validateDate(field, validationContainer) {
     if (!field.valueAsDate || isNaN(field.valueAsDate.getTime())) {
       this.showValidationMessage(
         field,
-        validationContainerSelector,
+        validationContainer,
         Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_DATE
       );
       return;
@@ -545,13 +551,13 @@ export default class Records {
     if (today < transactionDate) {
       this.showValidationMessage(
         field,
-        validationContainerSelector,
+        validationContainer,
         Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_DATE
       );
       return;
     }
 
-    this.hideValidationMessage(field, validationContainerSelector);
+    this.hideValidationMessage(field, validationContainer);
   }
 
   // transactions.getUnknownCounterparties()

@@ -51,18 +51,18 @@ export default class NodeComposer {
    * If not passed, document is used.
    *
    * @param {string}      selector  HTML Selector string
-   * @param {HTMLElement} domain    HTML node for search scope (optional)
+   * @param {HTMLElement} scope    HTML node for search scope (optional)
    * @returns {HTMLElement}
    */
-  _getNode(selector, domain) {
-    if (typeof domain === 'undefined') {
-      domain = document;
-    } else if (!this._isCorrectNode(domain)) {
+  _getNode(selector, scope) {
+    if (typeof scope === 'undefined') {
+      scope = document;
+    } else if (!this._isCorrectNode(scope)) {
       error(this._errorMessage.INVALID_NODE, selector);
       return;
     }
 
-    const node = domain.querySelector(selector);
+    const node = scope.querySelector(selector);
 
     if (!node) {
       error(this._errorMessage.NODE_NOT_FOUND, selector);
@@ -76,7 +76,6 @@ export default class NodeComposer {
    * found, raises an error in the console based on this._showErrors.
    *
    * @param   {string}      selector  HTML Selector string
-   * @param   {HTMLElement} domain    HTML node for search scope (optional)
    * @returns {HTMLElement}
    */
   _getNodeFromTemplate(selector) {
@@ -122,47 +121,45 @@ export default class NodeComposer {
    * @param  {String}      options.template     Template element selector
    * @param  {Array}       options.values       Array of values to insert (optional)
    * @param  {Array}       options.children     Array of children to insert (optional)
-   * @param  {HTMLElement} options.domain       Scope for selecting wrapper element (optional)
+   * @param  {HTMLElement} options.scope        Scope for selecting wrapper element (optional)
    * @param  {Function}    options.afterInsert  Function to be triggered after element
    *                                            is placed (optional)
    * @param  {Function}    options.beforeUnset  Function to be triggered after element
    *                                            is placed (optional)
    * @param  {String}      options.id           Id for the element. Required if beforeUnset
    *                                            is set, otherwise optional
-   * @param  {Boolean}     option.incremental   Default is true. If set to false, wrapper is
+   * @param  {Boolean}     options.incremental   Default is true. If set to false, wrapper is
    *                                            cleared before inserting new nodes
    * @return void
    */
   composeNode({
     id,
-    wrapper: wrapperSelector,
-    template: templateSelector,
+    wrapper,
+    template,
     values,
     children,
-    domain,
+    scope,
     afterInsert,
     beforeUnset,
     incremental
   }) {
-    if (!wrapperSelector) {
+    if (!wrapper) {
       error(this._errorMessage.UNDEFINED_WRAPPER);
       return;
     }
 
-    if (domain && !this._isCorrectNode(domain)) {
-      error(this._errorMessage.INVALID_NODE, wrapperSelector);
-      return;
-    } else {
-      const domain = document;
-    }
+    wrapper = this._isCorrectNode(wrapper)
+      ? wrapper
+      : this._getNode(wrapper, scope);
 
-    const wrapper = this._getNode(wrapperSelector, domain);
-
-    if (!templateSelector) {
+    if (!template) {
       error(this._errorMessage.UNDEFINED_TEMPLATE);
       return;
     }
-    const template = this._getNodeFromTemplate(templateSelector);
+
+    template = this._isCorrectNode(template)
+      ? template
+      : this._getNodeFromTemplate(template);
 
     if (afterInsert && typeof afterInsert !== 'function') {
       error(this._errorMessage.NOT_A_FUNCTION, 'afterInsert()');
@@ -236,8 +233,8 @@ export default class NodeComposer {
       }
 
       children.forEach((child) => {
-        if (!child.domain) {
-          child = {...child, domain: fragment};
+        if (!child.scope) {
+          child = {...child, scope: fragment};
         }
 
         this.composeNode(child);
