@@ -1,4 +1,4 @@
-import {Selector, Value, Id, Copy} from './const';
+import {Selector, Value, Copy} from './const';
 import NodeComposer from './node-composer';
 import error from './helpers/error';
 import Data from './data';
@@ -36,7 +36,7 @@ export default class Records {
    */
   set counterparties(counterparties) {
     if (!(counterparties instanceof Data)) {
-      error(this._errorMessage.INVALID_DATA, Id.COUNTERPARTY);
+      error(this._errorMessage.INVALID_DATA, Selector.COUNTERPARTIES.ITEM.ID);
       return;
     }
 
@@ -48,7 +48,7 @@ export default class Records {
    */
   set categories(categories) {
     if (!(categories instanceof Data)) {
-      error(this._errorMessage.INVALID_DATA, Id.CATEGORY);
+      error(this._errorMessage.INVALID_DATA, Selector.CATEGORIES.ITEM.ID);
       return;
     }
 
@@ -60,7 +60,7 @@ export default class Records {
    */
   set accounts(accounts) {
     if (!(accounts instanceof Data)) {
-      error(this._errorMessage.INVALID_DATA, Id.ACCOUNT);
+      error(this._errorMessage.INVALID_DATA, Selector.ACCOUNTS.ITEM.ID);
       return;
     }
 
@@ -72,7 +72,7 @@ export default class Records {
    */
   set transactions(transactions) {
     if (!(transactions instanceof Data)) {
-      error(this._errorMessage.INVALID_DATA, Id.TRANSACTION);
+      error(this._errorMessage.INVALID_DATA, Selector.TRANSACTIONS.ITEM.ID);
       return;
     }
 
@@ -93,11 +93,11 @@ export default class Records {
 
     this._composer.composeNode({
       wrapper: container,
-      template: Selector.TEMPLATE.RESULT.RECORDS,
+      template: Selector.TRANSACTIONS.TEMPLATE,
       children: [{
         id,
-        wrapper: Selector.WRAPPER.RESULT.RECORDS,
-        template: Selector.TEMPLATE.TRANSACTION.LIST,
+        wrapper: Selector.TRANSACTIONS.WRAPPER,
+        template: Selector.TRANSACTIONS.LIST.TEMPLATE,
         children: rows
       }]
     });
@@ -113,46 +113,46 @@ export default class Records {
   composeRow(id, transaction) {
     return {
       id,
-      wrapper: Selector.WRAPPER.TRANSACTION.LIST,
-      template: Selector.TEMPLATE.TRANSACTION.ROW,
+      wrapper: Selector.TRANSACTIONS.LIST.WRAPPER,
+      template: Selector.TRANSACTIONS.ITEM.TEMPLATE,
       values: [
         {
-          wrapper: Selector.WRAPPER.TRANSACTION.DATE,
-          innerHTML: transaction.date || Value.TRANSACTION_EMPTY_STRING
+          wrapper: Selector.TRANSACTIONS.ITEM.DATE,
+          innerHTML: transaction.date || Selector.TRANSACTIONS.EMPTY_VALUE
         },
         {
-          wrapper: Selector.WRAPPER.TRANSACTION.CATEGORY,
-          innerHTML: transaction.category || Value.TRANSACTION_EMPTY_STRING
+          wrapper: Selector.TRANSACTIONS.ITEM.CATEGORY,
+          innerHTML: transaction.category || Selector.TRANSACTIONS.EMPTY_VALUE
         },
         {
-          wrapper: Selector.WRAPPER.TRANSACTION.COUNTERPARTY,
-          innerHTML: transaction.counterpartyLabel || transaction.counterparty || Value.TRANSACTION_EMPTY_STRING
+          wrapper: Selector.TRANSACTIONS.ITEM.COUNTERPARTY,
+          innerHTML: transaction.counterpartyLabel || transaction.counterparty || Selector.TRANSACTIONS.EMPTY_VALUE
         },
         {
-          wrapper: Selector.WRAPPER.TRANSACTION.PAYER,
-          innerHTML: transaction.outcomeAccountLabel || transaction.outcomeAccount || Value.TRANSACTION_EMPTY_STRING
+          wrapper: Selector.TRANSACTIONS.ITEM.PAYER,
+          innerHTML: transaction.outcomeAccountLabel || transaction.outcomeAccount || Selector.TRANSACTIONS.EMPTY_VALUE
         },
         {
-          wrapper: Selector.WRAPPER.TRANSACTION.PAYEE,
-          innerHTML: transaction.incomeAccountLabel || transaction.incomeAccount || Value.TRANSACTION_EMPTY_STRING
+          wrapper: Selector.TRANSACTIONS.ITEM.PAYEE,
+          innerHTML: transaction.incomeAccountLabel || transaction.incomeAccount || Selector.TRANSACTIONS.EMPTY_VALUE
         },
         {
-          wrapper: Selector.WRAPPER.TRANSACTION.SUM,
+          wrapper: Selector.TRANSACTIONS.ITEM.SUM,
           innerHTML: (transaction.income !== undefined)
             ? transaction.income.toFixed(2)
             : transaction.outcome.toFixed(2)
         },
         {
-          wrapper: Selector.WRAPPER.TRANSACTION.COMMENT,
+          wrapper: Selector.TRANSACTIONS.ITEM.COMMENT,
           innerHTML: transaction.comment || ''
         }
       ],
       afterInsert: (element) => {
-        //console.log('added #' + element.id);
+        console.log('added #' + element.id);
 
-        const expandButton = element.querySelector(Selector.BUTTON.TRANSACTION.EXPAND);
+        const expandButton = element.querySelector(Selector.TRANSACTIONS.ITEM.EXPAND_BUTTON);
         if (!expandButton) {
-          error(this._errorMessage.TRANSACTION_BUTTON_NOT_FOUND, Selector.BUTTON.TRANSACTION.EXPAND, id);
+          error(this._errorMessage.TRANSACTION_BUTTON_NOT_FOUND, Selector.TRANSACTIONS.ITEM.EXPAND_BUTTON, id);
           return;
         }
 
@@ -160,18 +160,18 @@ export default class Records {
           element.classList.toggle(Value.EXPANDED_TRANSACTION_ROW);
         }
 
-        const deleteButtonList = element.querySelectorAll(Selector.BUTTON.TRANSACTION.DELETE);
+        const deleteButtonList = element.querySelectorAll(Selector.TRANSACTIONS.ITEM.DELETE_BUTTON);
         if (deleteButtonList.length === 0) {
-          error(this._errorMessage.TRANSACTION_BUTTON_NOT_FOUND, Selector.BUTTON.TRANSACTION.DELETE, id);
+          error(this._errorMessage.TRANSACTION_BUTTON_NOT_FOUND, Selector.TRANSACTIONS.ITEM.DELETE_BUTTON, id);
           return;
         }
 
         deleteButtonList.forEach((deleteButton) => {
           deleteButton.onclick = () => {
             this.showConfirmationModal(
-              Copy.MODAL_DIALOG_REMOVE_TRANSACTION_HEADER,
-              Copy.MODAL_DIALOG_ACCEPT_BUTTON,
-              Copy.MODAL_DIALOG_DECLINE_BUTTON,
+              Copy.MODAL.REMOVE_TRANSACTION.HEADER,
+              Copy.MODAL.REMOVE_TRANSACTION.ACCEPT_BUTTON,
+              Copy.MODAL.REMOVE_TRANSACTION.DECLINE_BUTTON,
               () => {
                 this._composer.removeNode(id);
                 this._transactions.remove(id);
@@ -184,9 +184,9 @@ export default class Records {
           }
         });
 
-        const editButtonList = element.querySelectorAll(Selector.BUTTON.TRANSACTION.EDIT);
+        const editButtonList = element.querySelectorAll(Selector.TRANSACTIONS.ITEM.EDIT_BUTTON);
         if (deleteButtonList.length === 0) {
-          error(this._errorMessage.TRANSACTION_BUTTON_NOT_FOUND, Selector.BUTTON.TRANSACTION.EDIT, id);
+          error(this._errorMessage.TRANSACTION_BUTTON_NOT_FOUND, Selector.TRANSACTIONS.ITEM.EDIT_BUTTON, id);
           return;
         }
 
@@ -205,19 +205,19 @@ export default class Records {
         });
       },
       beforeUnset: (element) => {
-        //console.log('removed #' + element.id);
+        console.log('removed #' + element.id);
 
-        const expandButton = element.querySelectorAll(Selector.BUTTON.TRANSACTION.EXPAND);
+        const expandButton = element.querySelectorAll(Selector.TRANSACTIONS.ITEM.EXPAND_BUTTON);
         if (!expandButton) {
-          error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EXPAND, id);
+          error(this._errorMessage.TRANSACTION_BUTTON_NOT_FOUND, Selector.TRANSACTIONS.ITEM.EXPAND_BUTTON, id);
           return;
         }
 
         expandButton.onclick = null;
 
-        const deleteButtonList = element.querySelectorAll(Selector.BUTTON.TRANSACTION.DELETE);
+        const deleteButtonList = element.querySelectorAll(Selector.TRANSACTIONS.ITEM.DELETE_BUTTON);
         if (deleteButtonList.length === 0) {
-          error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.DELETE, id);
+          error(this._errorMessage.TRANSACTION_BUTTON_NOT_FOUND, Selector.TRANSACTIONS.ITEM.DELETE_BUTTON, id);
           return;
         }
 
@@ -225,9 +225,9 @@ export default class Records {
           deleteButton.onclick = null;
         });
 
-        const editButtonList = element.querySelectorAll(Selector.BUTTON.TRANSACTION.EDIT);
+        const editButtonList = element.querySelectorAll(Selector.TRANSACTIONS.ITEM.EDIT_BUTTON);
         if (deleteButtonList.length === 0) {
-          error(this._errorMessage.TRANSACTION_ROW_NOT_FOUND, Selector.BUTTON.TRANSACTION.EDIT, id);
+          error(this._errorMessage.TRANSACTION_BUTTON_NOT_FOUND, Selector.TRANSACTIONS.ITEM.EDIT_BUTTON, id);
           return;
         }
 
@@ -256,12 +256,12 @@ export default class Records {
 
       if (isUnknown && isUnique) {
         counterpartyList.push({
-          id: Id.NEW_COUNTERPARTY + counterpartyList.length,
-          wrapper: Selector.WRAPPER.RESULT.CARD_LIST,
-          template: Selector.TEMPLATE.RESULT.COUNTERPARTY_ITEM,
+          id: Selector.COUNTERPARTIES.NEW.ID + counterpartyList.length,
+          wrapper: Selector.COUNTERPARTIES.LIST.WRAPPER,
+          template: Selector.COUNTERPARTIES.ITEM.TEMPLATE,
           values: [
             {
-              wrapper: Selector.WRAPPER.COUNTERPARTY.ID,
+              wrapper: Selector.COUNTERPARTIES.ITEM.KEY,
               innerText: transaction.counterparty
             }
           ]
@@ -272,11 +272,11 @@ export default class Records {
     this._composer.composeNode({
       id,
       wrapper: container,
-      template: Selector.TEMPLATE.RESULT.COUNTERPARTY_LIST,
+      template: Selector.COUNTERPARTIES.LIST.TEMPLATE,
       children: counterpartyList,
       values: [
         {
-          wrapper: Selector.WRAPPER.COUNTERPARTY.AMOUNT,
+          wrapper: Selector.COUNTERPARTIES.AMOUNT,
           innerText: counterpartyList.length
         }
       ]
@@ -298,33 +298,33 @@ export default class Records {
     page.classList.add(Value.PAGE_NOSCROLL_MODIFIER);
 
     this._composer.composeNode({
-      id: Id.MODAL_DIALOG,
-      wrapper: Selector.WRAPPER.MODAL.MODAL,
-      template: Selector.TEMPLATE.MODAL.WINDOW,
+      id: Selector.MODAL.ID,
+      wrapper: Selector.MODAL.WRAPPER,
+      template: Selector.MODAL.TEMPLATE,
       children: [{
-        wrapper: Selector.WRAPPER.MODAL.CONTENT,
-        template: Selector.TEMPLATE.MODAL.CONFIRMATION_DIALOG,
+        wrapper: Selector.MODAL.CONTENT.WRAPPER,
+        template: Selector.MODAL.CONFIRMATION_DIALOG.TEMPLATE,
         values: [
           {
-            wrapper: Selector.WRAPPER.MODAL.ACCEPT_BUTTON,
+            wrapper: Selector.MODAL.BUTTON.ACCEPT,
             innerText: acceptButtonCopy
           },
           {
-            wrapper: Selector.WRAPPER.MODAL.DECLINE_BUTTON,
+            wrapper: Selector.MODAL.BUTTON.DECLINE,
             innerText: declineButtonCopy
           }
         ]
       }],
       values: [{
-        wrapper: Selector.WRAPPER.MODAL.HEADER,
+        wrapper: Selector.MODAL.CONTENT.HEADER,
         innerText: promptCopy
       }],
       afterInsert: (element) => {
         element.style.top = window.scrollY + 'px';
 
-        const closeButton = element.querySelector(Selector.BUTTON.MODAL.CLOSE);
-        const acceptButton = element.querySelector(Selector.BUTTON.MODAL.ACCEPT);
-        const declineButton = element.querySelector(Selector.BUTTON.MODAL.DECLINE);
+        const closeButton = element.querySelector(Selector.MODAL.BUTTON.CLOSE);
+        const acceptButton = element.querySelector(Selector.MODAL.BUTTON.ACCEPT);
+        const declineButton = element.querySelector(Selector.MODAL.BUTTON.DECLINE);
 
         acceptButton.onclick = acceptCallback;
         declineButton.onclick = declineCallback;
@@ -340,7 +340,7 @@ export default class Records {
         }
       },
       beforeUnset: (element) => {
-        const closeButton = element.querySelector(Selector.BUTTON.MODAL.CLOSE);
+        const closeButton = element.querySelector(Selector.MODAL.BUTTON.CLOSE);
         closeButton.onclick = null;
         document.onkeyup = null;
       }
@@ -359,31 +359,31 @@ export default class Records {
     page.classList.add(Value.PAGE_NOSCROLL_MODIFIER);
 
     this._composer.composeNode({
-      id: Id.MODAL_DIALOG,
-      wrapper: Selector.WRAPPER.MODAL.MODAL,
-      template: Selector.TEMPLATE.MODAL.WINDOW,
+      id: Selector.MODAL.ID,
+      wrapper: Selector.MODAL.WRAPPER,
+      template: Selector.MODAL.TEMPLATE,
       children: [{
-        wrapper: Selector.WRAPPER.MODAL.CONTENT,
-        template: Selector.TEMPLATE.MODAL.TRANSACTION_EDIT_FORM
+        wrapper: Selector.MODAL.CONTENT.WRAPPER,
+        template: Selector.TRANSACTION_EDIT_FORM.TEMPLATE
       }],
       values: [{
-        wrapper: Selector.WRAPPER.MODAL.HEADER,
-        innerText: Copy.MODAL_TRANSACTION_EDIT_FORM_HEADER
+        wrapper: Selector.MODAL.CONTENT.HEADER,
+        innerText: Copy.TRANSACTION_EDIT_FORM.HEADER
       }],
       afterInsert: (element) => {
         element.style.top = window.scrollY + 'px';
 
         this.setFormField({
           scope: element,
-          fieldSelector: Selector.FORM.TRANSACTION_EDIT.FIELD.DATE,
-          validationContainerSelector: Selector.FORM.TRANSACTION_EDIT.VALIDATION_CONTAINER.DATE,
+          fieldSelector: Selector.TRANSACTION_EDIT_FORM.DATE.FIELD,
+          validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.DATE.VALIDATION_CONTAINER,
           fieldValue: transacton.date,
           validationCallback: this.validateDate.bind(this)
         });
 
-        const closeButton = element.querySelector(Selector.BUTTON.MODAL.CLOSE);
-        const acceptButton = element.querySelector(Selector.BUTTON.MODAL.ACCEPT);
-        const declineButton = element.querySelector(Selector.BUTTON.MODAL.DECLINE);
+        const closeButton = element.querySelector(Selector.MODAL.BUTTON.CLOSE);
+        const acceptButton = element.querySelector(Selector.MODAL.BUTTON.ACCEPT);
+        const declineButton = element.querySelector(Selector.MODAL.BUTTON.DECLINE);
 
         acceptButton.onclick = acceptCallback;
         declineButton.onclick = declineCallback;
@@ -399,13 +399,13 @@ export default class Records {
         }
       },
       beforeUnset: (element) => {
-        const closeButton = element.querySelector(Selector.BUTTON.MODAL.CLOSE);
+        const closeButton = element.querySelector(Selector.MODAL.BUTTON.CLOSE);
         closeButton.onclick = null;
         document.onkeyup = null;
 
         this.unsetFormFields(
           element,
-          Selector.FORM.TRANSACTION_EDIT.FIELD.DATE
+          Selector.TRANSACTION_EDIT_FORM.DATE.FIELD
         );
       }
     });
@@ -421,7 +421,7 @@ export default class Records {
     const page = document.querySelector(Selector.PAGE);
     page.classList.remove(Value.PAGE_NOSCROLL_MODIFIER);
 
-    this._composer.removeNode(Id.MODAL_DIALOG);
+    this._composer.removeNode(Selector.MODAL.ID);
   }
 
   /**
@@ -494,7 +494,7 @@ export default class Records {
   showValidationMessage(field, validationContainerSelector, message) {
     this._composer.composeNode({
       wrapper: validationContainerSelector,
-      template: Selector.TEMPLATE.MESSAGE.ERROR,
+      template: Selector.MESSAGE.ERROR.TEMPLATE,
       values: [{
         wrapper: Selector.WRAPPER.MESSAGE,
         innerText: message
@@ -503,7 +503,7 @@ export default class Records {
     });
 
     field.classList.add(Value.FORM_INPUT_ERROR_CLASS);
-    field.setCustomValidity(Copy.MODAL_TRANSACTION_EDIT_ERROR.INCORRECT_DATE);
+    field.setCustomValidity(Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_DATE);
   }
 
   /**
@@ -531,7 +531,7 @@ export default class Records {
       this.showValidationMessage(
         field,
         validationContainerSelector,
-        Copy.MODAL_TRANSACTION_EDIT_ERROR.INCORRECT_DATE
+        Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_DATE
       );
       return;
     }
@@ -546,7 +546,7 @@ export default class Records {
       this.showValidationMessage(
         field,
         validationContainerSelector,
-        Copy.MODAL_TRANSACTION_EDIT_ERROR.INCORRECT_DATE
+        Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_DATE
       );
       return;
     }

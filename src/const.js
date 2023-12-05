@@ -2,114 +2,122 @@ export const Selector = {
   PAGE: '.page',
   PAGE_CONTENT: '.page__content',
   UPLOAD_BUTTON: '.panel__file-submit',
-  WRAPPER: {
-    TRANSACTION: {
-      LIST: '.transactions',
+  RESULT: {
+    ID: '#result',
+    TEMPLATE: '#result-template',
+    WRAPPER: '.result',
+  },
+  TRANSACTIONS: {
+    WRAPPER: '.result__transactions',
+    TEMPLATE: '#result-transactions-template',
+    LIST: {
+      ID: '#transactions-table',
+      TEMPLATE: '#transactions-table-template',
+      WRAPPER: '.transactions'
+    },
+    ITEM: {
+      ID: '#transaction',
+      TEMPLATE: '#transaction-row-template',
       DATE: '.transactions__date',
       CATEGORY: '.transactions__category',
       COUNTERPARTY: '.transactions__counterpart',
       PAYER: '.transactions__payer',
       PAYEE: '.transactions__payee',
       SUM: '.transactions__sum',
-      COMMENT: '.transactions__comment'
+      COMMENT: '.transactions__comment',
+      EDIT_BUTTON: '.transactions__edit-button',
+      DELETE_BUTTON: '.transactions__delete-button',
+      EXPAND_BUTTON: '.transactions__expand-button'
     },
-    RESULT: {
-      RESULT: '.result',
-      RECORDS: '.result__records',
-      COUNTERPARTIES: '.result__counterparties',
-      CARD_LIST: '.result__card-list'
-    },
-    COUNTERPARTY: {
-      AMOUNT: '.result__counterparties .header__badge',
-      ID: '.card__description-definition'
-    },
-    MODAL: {
-      MODAL: '.page__modal',
-      HEADER: '.modal__header',
-      CONTENT: '.modal__content',
-      ACCEPT_BUTTON: 'button[type=submit]',
-      DECLINE_BUTTON: 'button[type=reset]'
-    },
-    NOTIFICATION: {
-      NOTIFICATION: '.notification',
-      CONTENT: '.notification__content'
-    },
-    MESSAGE: '.message'
+    EMPTY_VALUE: '<span class="transactions__empty">&mdash;</span>'
   },
-  TEMPLATE: {
-    RESULT: {
-      RECORDS: '#result-records',
-      COUNTERPARTY_LIST: '#result-counterparty-list',
-      COUNTERPARTY_ITEM: '#result-counterparty-item',
-      RESULT: '#result'
+  COUNTERPARTIES: {
+    WRAPPER: '.result__counterparties',
+    AMOUNT: '.result__counterparties .header__badge',
+    LIST: {
+      ID: '#counterparties-list',
+      TEMPLATE: '#result-counterparty-list-template',
+      WRAPPER: '.result__card-list'
     },
-    TRANSACTION: {
-      LIST: '#transactions',
-      ROW: '#transaction-row'
+    ITEM: {
+      ID: '#counterparty',
+      TEMPLATE: '#result-counterparty-item-template',
+      KEY: '.card__description-definition'
     },
-    MODAL: {
-      WINDOW: '#modal',
-      CONFIRMATION_DIALOG: '#modal-confirmation-dialog',
-      TRANSACTION_EDIT_FORM: '#transaction-edit-form'
-    },
-    NOTIFICATION: '#notification',
-    MESSAGE: {
-      SUCCESS: '#message-success',
-      ERROR: '#message-error'
+    NEW: {
+      ID: '#new-counterparty',
+      TEMPLATE: '#result-counterparty-item-template',
+      KEY: '.card__description-definition'
     }
   },
-  BUTTON: {
-    TRANSACTION: {
-      EDIT: '.transactions__edit-button',
-      DELETE: '.transactions__delete-button',
-      EXPAND: '.transactions__expand-button'
+  CATEGORIES: {
+    ITEM: {
+      ID: '#category'
+    }
+  },
+  ACCOUNTS: {
+    ITEM: {
+      ID: '#category'
+    }
+  },
+  MODAL: {
+    ID: '#modal',
+    WRAPPER: '.page__modal',
+    TEMPLATE: '#modal-template',
+    CONTENT: {
+      WRAPPER: '.modal__content',
+      HEADER: '.modal__header'
     },
-    MODAL: {
-      ACCEPT: '.modal button[type=submit]',
-      DECLINE: '.modal button[type=reset]',
+    BUTTON: {
+      ACCEPT: 'button[type=submit]',
+      DECLINE: 'button[type=reset]',
       CLOSE: '.modal__close'
+    },
+    CONFIRMATION_DIALOG: {
+      TEMPLATE: '#modal-confirmation-dialog-template'
     }
   },
-  FORM: {
-    TRANSACTION_EDIT: {
-      FIELD: {
-        DATE: '#field--date'
-      },
-      VALIDATION_CONTAINER: {
-        DATE: '#field--date ~ .form__validation-container:first-of-type'
-      }
+  TRANSACTION_EDIT_FORM: {
+    TEMPLATE: '#transaction-edit-form-template',
+    DATE: {
+      FIELD: '#field--date',
+      VALIDATION_CONTAINER: '#field--date ~ .form__validation-container:first-of-type'
     }
+  },
+  MESSAGE: {
+    WRAPPER: '.message',
+    ERROR: {
+      TEMPLATE: '#message-error-template'
+    },
+    SUCCESS: {
+      TEMPLATE: '#message-success-template'
+    }
+  },
+  NOTIFICATION: {
+    WRAPPER: '.notification',
+    TEMPLATE: '#notification-template',
+    CONTENT: '.notification__content'
   }
 };
 
-export const Id = {
-  RECORDS: 'records',
-  TRANSACTIONS_TABLE: 'transactions-table',
-  COUNTERPARTIES_LIST: 'counterparties-list',
-  MODAL_DIALOG: 'modal-dialog',
-  NEW_COUNTERPARTY: 'new-counterparty',
-  COUNTERPARTY: 'counterparty',
-  TRANSACTION: 'transaction',
-  CATEGORY: 'category',
-  ACCOUNT: 'account',
-  MESSAGE_ERROR: 'message-error',
-  MESSAGE_SUCCESS: 'message-success',
-  NOTIFICATION: 'notification'
-}
-
 export const Value = {
-  TRANSACTION_EMPTY_STRING: '<span class="transactions__empty">&mdash;</span>',
   EXPANDED_TRANSACTION_ROW: 'transactions__row--expanded',
   PAGE_NOSCROLL_MODIFIER: 'page--noscroll',
   FORM_INPUT_ERROR_CLASS: 'form__text-input--error'
 };
 
 export const Copy = {
-  MODAL_DIALOG_REMOVE_TRANSACTION_HEADER: 'Удалить транзакцию?',
-  MODAL_DIALOG_ACCEPT_BUTTON: 'Удалить',
-  MODAL_DIALOG_DECLINE_BUTTON: 'Отмена',
-  MODAL_TRANSACTION_EDIT_FORM_HEADER: 'Редактирование транзакции',
-  MODAL_TRANSACTION_EDIT_ERROR: {
-    INCORRECT_DATE: 'Некорректная дата'
+  MODAL: {
+    REMOVE_TRANSACTION: {
+      HEADER: 'Удалить транзакцию?',
+      ACCEPT_BUTTON: 'Удалить',
+      DECLINE_BUTTON: 'Отмена',
+    }
+  },
+  TRANSACTION_EDIT_FORM: {
+    HEADER: 'Редактирование транзакции',
+    ERROR: {
+      INCORRECT_DATE: 'Некорректная дата'
+    }
   }
 };
