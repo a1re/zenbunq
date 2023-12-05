@@ -263,24 +263,28 @@ export default class NodeComposer {
    * Removes previously inserted node and runs the beforeUnset() function if it
    * was defined for the element and it its children.
    *
-   * @param  {String}  id  - Id of the node to remove (without '#')
+   * @param  {String/Element} nodeSelector - Element or a selector of node to remove
    * @return void
    */
-  removeNode(id) {
-    const element = document.querySelector(id);
+  removeNode(nodeSelector) {
+    const element = (nodeSelector instanceof Element)
+      ? nodeSelector
+      : document.querySelector(nodeSelector);
 
     if (!element) {
-      error(this._errorMessage.NODE_NOT_FOUND, id);
+      error(this._errorMessage.NODE_NOT_FOUND, nodeSelector);
       return;
     }
 
-    this._beforeUnsets.find((node, index) => {
-      if (node.id === id) {
-        node.beforeUnset(element);
-        this._beforeUnsets.splice(index, 1);
-        return true;
-      }
-    });
+    if (element.id && element.id !== '') {
+      this._beforeUnsets.find((node, index) => {
+        if (node.id === element.id) {
+          node.beforeUnset(element);
+          this._beforeUnsets.splice(index, 1);
+          return true;
+        }
+      });
+    }
 
     this.emptyNode(element);
 
