@@ -85,7 +85,9 @@ export const Selector = {
     }
   },
   MESSAGE: {
-    WRAPPER: '.message',
+    CONTENT: {
+      WRAPPER: '.message'
+    },
     ERROR: {
       TEMPLATE: '#message-error-template'
     },

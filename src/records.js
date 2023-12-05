@@ -544,8 +544,7 @@ export default class Records {
 
     const today = Math.round(Date.now() / 1000);
     const transactionDate = Math.round(
-      (field.valueAsDate.getTime() + field.valueAsDate.getTimezoneOffset() * 60)
-      / 1000
+      field.valueAsDate.getTime() / 1000 + field.valueAsDate.getTimezoneOffset() * 60
     );
 
     if (today < transactionDate) {
