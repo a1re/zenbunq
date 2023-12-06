@@ -149,8 +149,6 @@ export default class Records {
         }
       ],
       afterInsert: (element) => {
-        console.log('added #' + element.id);
-
         const expandButton = element.querySelector(Selector.TRANSACTIONS.ITEM.EXPAND_BUTTON);
         if (!expandButton) {
           error(this._errorMessage.TRANSACTION_BUTTON_NOT_FOUND, Selector.TRANSACTIONS.ITEM.EXPAND_BUTTON, id);
@@ -195,7 +193,8 @@ export default class Records {
           editButton.onclick = () => {
             this.showTransactionEditModal(
               transaction,
-              () => {
+              (evt) => {
+                evt.preventDefault();
                 console.log(`Edit form ${id}`);
               },
               () => {
@@ -206,8 +205,6 @@ export default class Records {
         });
       },
       beforeUnset: (element) => {
-        console.log('removed #' + element.id);
-
         const expandButton = element.querySelectorAll(Selector.TRANSACTIONS.ITEM.EXPAND_BUTTON);
         if (!expandButton) {
           error(this._errorMessage.TRANSACTION_BUTTON_NOT_FOUND, Selector.TRANSACTIONS.ITEM.EXPAND_BUTTON, id);
@@ -382,6 +379,72 @@ export default class Records {
           validationCallback: this.validateDate.bind(this)
         });
 
+        this.setFormField({
+          scope: element,
+          fieldSelector: Selector.TRANSACTION_EDIT_FORM.CATEGORY.FIELD,
+          fieldValue: transacton.category,
+          datalistSelector: Selector.TRANSACTION_EDIT_FORM.CATEGORY.LIST,
+          datalist: this._categories.get()
+        });
+
+        this.setFormField({
+          scope: element,
+          fieldSelector: Selector.TRANSACTION_EDIT_FORM.COUNTERPARTY.FIELD,
+          fieldValue: transacton.counterpartyLabel || transacton.counterparty,
+          datalistSelector: Selector.TRANSACTION_EDIT_FORM.COUNTERPARTY.LIST,
+          datalist: this._counterparties.get().map((counterparty) => counterparty.label)
+        });
+
+        this.setFormField({
+          scope: element,
+          fieldSelector: Selector.TRANSACTION_EDIT_FORM.DATE.FIELD,
+          validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.DATE.VALIDATION_CONTAINER,
+          fieldValue: transacton.date,
+          validationCallback: this.validateDate.bind(this)
+        });
+
+        this.setFormField({
+          scope: element,
+          fieldSelector: Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.FIELD,
+          validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.VALIDATION_CONTAINER,
+          fieldValue: transacton.outcomeAccountLabel || transacton.outcomeAccount,
+          validationCallback: this.makeOneNotEmptyValidation(
+            element.querySelector(Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.FIELD),
+            element.querySelector(Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.VALIDATION_CONTAINER),
+            Copy.TRANSACTION_EDIT_FORM.ERROR.EMPTY_ACCOUNT
+          ),
+          datalistSelector: Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.LIST,
+          datalist: this._accounts.get().map((account) => account.label)
+        });
+
+        this.setFormField({
+          scope: element,
+          fieldSelector: Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.FIELD,
+          validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.VALIDATION_CONTAINER,
+          fieldValue: transacton.incomeAccountLabel || transacton.incomeAccount,
+          validationCallback: this.makeOneNotEmptyValidation(
+            element.querySelector(Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.FIELD),
+            element.querySelector(Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.VALIDATION_CONTAINER),
+            Copy.TRANSACTION_EDIT_FORM.ERROR.EMPTY_ACCOUNT
+          ),
+          datalistSelector: Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.LIST,
+          datalist: this._accounts.get().map((account) => account.label)
+        });
+
+        this.setFormField({
+          scope: element,
+          fieldSelector: Selector.TRANSACTION_EDIT_FORM.AMOUNT.FIELD,
+          validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.AMOUNT.VALIDATION_CONTAINER,
+          fieldValue: transacton.outcome || transacton.income,
+          validationCallback: this.validateAmount.bind(this)
+        });
+
+        this.setFormField({
+          scope: element,
+          fieldSelector: Selector.TRANSACTION_EDIT_FORM.COMMENT.FIELD,
+          fieldValue: transacton.comment
+        });
+
         const closeButton = element.querySelector(Selector.MODAL.BUTTON.CLOSE);
         const acceptButton = element.querySelector(Selector.MODAL.BUTTON.ACCEPT);
         const declineButton = element.querySelector(Selector.MODAL.BUTTON.DECLINE);
@@ -406,7 +469,10 @@ export default class Records {
 
         this.unsetFormFields(
           element,
-          Selector.TRANSACTION_EDIT_FORM.DATE.FIELD
+          Selector.TRANSACTION_EDIT_FORM.DATE.FIELD,
+          Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.FIELD,
+          Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.FIELD,
+          Selector.TRANSACTION_EDIT_FORM.AMOUNT.FIELD,
         );
       }
     });
@@ -437,6 +503,9 @@ export default class Records {
    *                                                         parameter, fieldSelector as a second parameter, and
    *                                                         validationContainerSelector as a third parameter
    *                                                         (if set, validationContainerSelector is required)
+   * @param   {Array}    options.datalistSelector          - DOM Selector of the options for the field (optional)
+   * @param   {Array}    options.datalist                  - List of options for the field (if set,
+   *                                                         datalistSelector is required)
    * @param   {HTMLNode} options.scope                     - Scope for elements operations (optional)
    * @returns void
    */
@@ -453,18 +522,29 @@ export default class Records {
       field.value = options.fieldValue;
     }
 
+    if (options.datalistSelector && options.datalist) {
+      options.datalist.forEach((datalistOption) => {
+        this._composer.composeNode({
+          wrapper: options.datalistSelector,
+          template: Selector.TRANSACTION_EDIT_FORM.DATALIST.TEMPLATE,
+          values: [{
+            wrapper: Selector.TRANSACTION_EDIT_FORM.DATALIST.WRAPPER,
+            attributes: [{
+              name: 'value',
+              value: datalistOption
+            }]
+          }]
+        })
+      });
+    }
+
     if (options.validationContainerSelector && typeof options.validationCallback === "function") {
-      field.onchange = (evt) => {
-        const validationContainer = scope.querySelector(options.validationContainerSelector);
-
-        if (validationContainer) {
-          options.validationCallback(evt.target, validationContainer);
-        } else {
-          error(this._errorMessage.VALIDATION_CONTAINER_NOT_FOUND);
-          options.validationCallback(evt.target);
-        }
-
+      const validationContainer = scope.querySelector(options.validationContainerSelector);
+      field.onchange = () => {
+        options.validationCallback(field, validationContainer);
       }
+      field.onkeyup = field.onchange;
+      options.validationCallback(field, validationContainer);
     }
   }
 
@@ -498,6 +578,11 @@ export default class Records {
    * @returns void
    */
   showValidationMessage(field, validationContainer, message) {
+    if (!validationContainer) {
+      error(this._errorMessage.VALIDATION_CONTAINER_NOT_FOUND);
+      return;
+    }
+
     this._composer.composeNode({
       wrapper: validationContainer,
       template: Selector.MESSAGE.ERROR.TEMPLATE,
@@ -557,6 +642,74 @@ export default class Records {
     }
 
     this.hideValidationMessage(field, validationContainer);
+  }
+
+  /**
+   * Validates the valude of the transaction amount input.
+   *
+   * @param   {Element} field               - Node element of the field to validate
+   * @param   {Element} validationContainer - Node element of the container for validation message
+   * @returns void
+   */
+  validateAmount(field, validationContainer) {
+    if (isNaN(field.value) || field.value <= 0) {
+      this.showValidationMessage(
+        field,
+        validationContainer,
+        Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_AMOUNT
+      );
+      return;
+    }
+
+    this.hideValidationMessage(field, validationContainer);
+  }
+
+  /**
+   * Creates "Not empty" validation metod for a field.
+   *
+   * @param   {String} copy    - Validation message copy
+   * @returns void
+   */
+  makeNotEmptyValidation(copy) {
+    return (field, validationContainer) => {
+      if (field.value.length === 0) {
+        this.showValidationMessage(
+          field,
+          validationContainer,
+          copy
+        );
+        return;
+      }
+
+      this.hideValidationMessage(field, validationContainer);
+    }
+  }
+
+  /**
+   * Creates "Not empty" validation metod with a dependancy on another field
+   * (at least one of the fields shouldn't be empty).
+   *
+   * @param   {Element} otherField               - Node element of the dependant field
+   * @param   {Element} otherValidationContainer - Node element of the dependant field's
+   *                                               validation container
+   * @param   {String} copy                      - Validation message copy
+   * @returns void
+   */
+  makeOneNotEmptyValidation(otherField, otherValidationContainer, copy) {
+    return (field, validationContainer) => {
+      const otherFieldLength = (otherField instanceof Element) ? otherField.value.length : 0;
+      if (field.value.length === 0 && otherFieldLength === 0) {
+        this.showValidationMessage(
+          field,
+          validationContainer,
+          copy
+        );
+        return;
+      }
+
+      this.hideValidationMessage(field, validationContainer);
+      this.hideValidationMessage(otherField, otherValidationContainer);
+    }
   }
 
   // transactions.getUnknownCounterparties()

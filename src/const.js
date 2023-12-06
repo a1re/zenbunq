@@ -81,7 +81,39 @@ export const Selector = {
     TEMPLATE: '#transaction-edit-form-template',
     DATE: {
       FIELD: '#field--date',
-      VALIDATION_CONTAINER: '#field--date ~ .form__validation-container:first-of-type'
+      VALIDATION_CONTAINER: '#field--date ~ .form__validation-container'
+    },
+    CATEGORY: {
+      FIELD: '#field--category',
+      LIST: '#list--category',
+      VALIDATION_CONTAINER: '#field--category ~ .form__validation-container'
+    },
+    COUNTERPARTY: {
+      FIELD: '#field--counterparty',
+      LIST: '#list--counterparty',
+      VALIDATION_CONTAINER: '#field--counterparty ~ .form__validation-container'
+    },
+    OUTCOME_ACCOUNT: {
+      FIELD: '#field--outcome-account',
+      LIST: '#list--outcome-account',
+      VALIDATION_CONTAINER: '#field--outcome-account ~ .form__validation-container'
+    },
+    INCOME_ACCOUNT: {
+      FIELD: '#field--income-account',
+      LIST: '#list--income-account',
+      VALIDATION_CONTAINER: '#field--income-account ~ .form__validation-container'
+    },
+    AMOUNT: {
+      FIELD: '#field--amount',
+      VALIDATION_CONTAINER: '#field--amount ~ .form__validation-container'
+    },
+    COMMENT: {
+      FIELD: '#field--comment',
+      VALIDATION_CONTAINER: '#field--comment ~ .form__validation-container'
+    },
+    DATALIST: {
+      WRAPPER: 'option',
+      TEMPLATE: '#form-datalist-option-template'
     }
   },
   MESSAGE: {
@@ -119,7 +151,11 @@ export const Copy = {
   TRANSACTION_EDIT_FORM: {
     HEADER: 'Редактирование транзакции',
     ERROR: {
-      INCORRECT_DATE: 'Некорректная дата'
+      INCORRECT_DATE: 'Некорректная дата',
+      INCORRECT_AMOUNT: 'Некорректная сумма',
+      EMPTY_CATEGORY: 'Укажите категорию',
+      EMPTY_COUNTERPARTY: 'Укажите контрагента',
+      EMPTY_ACCOUNT: 'Укажите один из счетов'
     }
   }
 };
