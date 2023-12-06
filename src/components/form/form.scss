@@ -38,6 +38,9 @@
     border: $grey 1px solid;
     border-radius: 2px;
 
+    font-family: $fontFamily;
+    font-size: $fontBody;
+
     &:focus {
       outline-color: $outlineBlue;
       outline-width: 2px;
@@ -45,6 +48,7 @@
 
     &--error {
       border-color: $errorRed;
+      color: $errorRed;
     }
   }
 }
