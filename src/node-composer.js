@@ -101,6 +101,9 @@ export default class NodeComposer {
    *      {
    *        wrapper: '.value-tag',
    *        innerHTML: 'Example <b>HTML</b>' // OR innerText: 'Example text'
+   *        attributes: [
+   *          { name: 'data-variable', value: 'value' }
+   *        ]
    *      }
    *    ],
    *  children: [
@@ -222,6 +225,14 @@ export default class NodeComposer {
           element.innerHTML = value.innerHTML;
         } else if (value.innerText) {
           element.innerText = value.innerText;
+        }
+
+        if (value.attributes && Array.isArray(value.attributes)) {
+          value.attributes.forEach((attribute) => {
+            if (Object.hasOwn(attribute, 'name') && Object.hasOwn(attribute, 'value')) {
+              element.setAttribute(attribute.name, attribute.value);
+            }
+          })
         }
       });
     }
