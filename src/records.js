@@ -11,6 +11,7 @@ export default class Records {
   _errorMessage = {
     INVALID_COMPOSER: "Invalid composer object",
     INVALID_DATA: "Invalid data connection: '{0}' should be an instance of Data",
+    TRANSACTION_FORM_NOT_FOUND: "Transaction edit form not found",
     TRANSACTION_BUTTON_NOT_FOUND: "Button '{0}' for transaction row '{1}' not found",
     VALIDATION_CONTAINER_NOT_FOUND: "Validation container for the field is not found",
     FIELD_NOT_FOUND: "Field '{0}' is not found",
@@ -195,7 +196,68 @@ export default class Records {
               transaction,
               (evt) => {
                 evt.preventDefault();
-                console.log(`Edit form ${id}`);
+
+                const transactionEditForm = document.querySelector(Selector.TRANSACTION_EDIT_FORM.ID);
+                if (!transactionEditForm) {
+                  error(this._errorMessage.TRANSACTION_FORM_NOT_FOUND);
+                  return;
+                }
+
+                const transactionEditFormData = new FormData(transactionEditForm);
+                const formValues = Object.fromEntries(transactionEditFormData);
+                const originalTransactionValues = this._transactions.findById(id);
+
+                const transaction = {
+                  date: formValues[Selector.TRANSACTION_EDIT_FORM
+                    .DATE.FIELD.replace(/^(\#)/s, '')],
+                  category: formValues[Selector.TRANSACTION_EDIT_FORM
+                    .CATEGORY.FIELD.replace(/^(\#)/s, '')] || undefined,
+                  comment: formValues[Selector.TRANSACTION_EDIT_FORM
+                    .COMMENT.FIELD.replace(/^(\#)/s, '')] || undefined
+                }
+
+                const counterpartyLabel = formValues[Selector.TRANSACTION_EDIT_FORM
+                  .COUNTERPARTY.FIELD.replace(/^(\#)/s, '')];
+
+                if (counterpartyLabel.trim().length > 0) {
+                  transaction.counterpartyLabel = counterpartyLabel;
+                } else {
+                  transaction.counterpartyLabel = undefined;
+                }
+
+                const amount = formValues[Selector.TRANSACTION_EDIT_FORM.AMOUNT.FIELD.replace(/^(\#)/s, '')]
+                  ? parseFloat(formValues[Selector.TRANSACTION_EDIT_FORM.AMOUNT.FIELD.replace(/^(\#)/s, '')], 10)
+                  : undefined;
+
+                const incomeAccount = formValues[Selector.TRANSACTION_EDIT_FORM
+                  .INCOME_ACCOUNT.FIELD.replace(/^(\#)/s, '')];
+
+                if (incomeAccount.trim().length > 0) {
+                  transaction.incomeAccountLabel = incomeAccount;
+                  transaction.income = amount;
+                } else {
+                  transaction.incomeAccountLabel = undefined;
+                  transaction.income = undefined;
+                }
+
+                const outcomeAccount = formValues[Selector.TRANSACTION_EDIT_FORM
+                  .OUTCOME_ACCOUNT.FIELD.replace(/^(\#)/s, '')];
+
+                if (outcomeAccount.trim().length > 0) {
+                  transaction.outcomeAccountLabel = outcomeAccount;
+                  transaction.outcome = amount;
+                } else {
+                  transaction.outcomeAccountLabel = undefined;
+                  transaction.outcome = undefined;
+                }
+
+                transaction.counterparty = originalTransactionValues.counterparty;
+                transaction.outcomeAccount = originalTransactionValues.outcomeAccount;
+                transaction.incomeAccount = originalTransactionValues.incomeAccount;
+
+                this._transactions.update(id, transaction);
+                console.log(this._transactions.get());
+                this.hideModal();
               },
               () => {
                 this.hideModal();
@@ -245,9 +307,10 @@ export default class Records {
    */
   insertNewCounterparties(id, container) {
     const counterpartyList = [];
-
     this._transactions.get().forEach((transaction) => {
-      const isUnknown = !transaction.counterpartyLabel;
+      const isUnknown = !this._counterparties.find((counterparty) => {
+        return counterparty.key === transaction.counterparty;
+      });
       const isUnique = !counterpartyList.some((counterparty) => {
         return counterparty.values[0].innerText === transaction.counterparty;
       });

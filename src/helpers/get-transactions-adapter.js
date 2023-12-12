@@ -27,17 +27,18 @@ export default function (counterparties, accounts) {
 
     const counterparty = counterparties.find((c) => c.key === rawData[5]);
     const account = accounts.find((a) => a.key === rawData[3]);
+    const accountLabel = (account) ? account.label : rawData[3];
 
     return {
       date: rawData[0],
       category: (counterparty) ? counterparty.category : undefined,
       counterparty: rawData[5],
-      counterpartyLabel: (counterparty) ? counterparty.label : undefined,
+      counterpartyLabel: (counterparty) ? counterparty.label : rawData[5],
       outcomeAccount: (amount < 0) ? rawData[3] : undefined,
-      outcomeAccountLabel: (amount < 0) ? account.label : undefined,
+      outcomeAccountLabel: (amount < 0) ? accountLabel : undefined,
       outcome: (amount < 0) ? Math.abs(amount) : undefined,
       incomeAccount: (amount >= 0) ? rawData[3] : undefined,
-      incomeAccountLabel: (amount >= 0) ? account.label : undefined,
+      incomeAccountLabel: (amount >= 0) ? accountLabel  : undefined,
       income: (amount >= 0) ? Math.abs(amount) : undefined,
       comment: rawData[6]
     };

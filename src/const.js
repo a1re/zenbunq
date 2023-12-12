@@ -78,6 +78,7 @@ export const Selector = {
     }
   },
   TRANSACTION_EDIT_FORM: {
+    ID: '#transaction-edit-form',
     TEMPLATE: '#transaction-edit-form-template',
     DATE: {
       FIELD: '#field--date',
