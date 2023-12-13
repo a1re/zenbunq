@@ -94,7 +94,7 @@ export default class NodeComposer {
    * values. Recursive: propery childres is an arrey, where each element is an
    * object of the same structure, e.g.:
    *
-   * compose.Node({
+   * composeNode({
    *  wrapper: 'body',
    *  template: '#template1',
    *  values: [
@@ -120,19 +120,21 @@ export default class NodeComposer {
    *  beforeUnset: () => { ... }
    * })
    *
-   * @param  {String}      options.wrapper      Wrapper element selector
-   * @param  {String}      options.template     Template element selector
-   * @param  {Array}       options.values       Array of values to insert (optional)
-   * @param  {Array}       options.children     Array of children to insert (optional)
-   * @param  {HTMLElement} options.scope        Scope for selecting wrapper element (optional)
-   * @param  {Function}    options.afterInsert  Function to be triggered after element
-   *                                            is placed (optional)
-   * @param  {Function}    options.beforeUnset  Function to be triggered after element
-   *                                            is placed (optional)
-   * @param  {String}      options.id           Id for the element. Required if beforeUnset
-   *                                            is set, otherwise optional
-   * @param  {Boolean}     options.incremental   Default is true. If set to false, wrapper is
-   *                                            cleared before inserting new nodes
+   * @param  {String}      options.wrapper         Wrapper element selector
+   * @param  {String}      options.template        Template element selector
+   * @param  {Array}       options.values          Array of values to insert (optional)
+   * @param  {Array}       options.children        Array of children to insert (optional)
+   * @param  {HTMLElement} options.scope           Scope for selecting wrapper element (optional)
+   * @param  {Function}    options.afterInsert     Function to be triggered after element
+   *                                               is placed (optional)
+   * @param  {Function}    options.beforeUnset     Function to be triggered after element
+   *                                               is placed (optional)
+   * @param  {String}      options.id              Id for the element. Required if beforeUnset
+   *                                               is set, otherwise optional
+   * @param  {Boolean}     options.incremental     Default is true. If set to false, wrapper is
+   *                                               cleared before inserting new nodes (optional)
+   * @param  {Boolean}     options.replaceWrapper  Default is false. If set to true, new node is
+   *                                               replacing wrapper instead of appending to it.
    * @return void
    */
   composeNode({
@@ -144,7 +146,8 @@ export default class NodeComposer {
     scope,
     afterInsert,
     beforeUnset,
-    incremental
+    incremental,
+    replaceWrapper
   }) {
     if (!wrapper) {
       error(this._errorMessage.UNDEFINED_WRAPPER);
@@ -256,16 +259,33 @@ export default class NodeComposer {
       element.id = (id.substr(0, 1) === '#') ? id.substr(1) : id;
 
       if (beforeUnset) {
-        this._beforeUnsets.push({id, beforeUnset })
+        if (replaceWrapper === true) {
+          this._beforeUnsets.every((node, i) => {
+            if (node.id === id) {
+              node.beforeUnset(element);
+              this._beforeUnsets[i].beforeUnset = beforeUnset;
+              return false;
+            }
+            return true;
+          });
+        } else {
+          this._beforeUnsets.push({id, beforeUnset })
+        }
       }
     }
 
-    wrapper.appendChild(fragment);
+    if (replaceWrapper === true) {
+      const parent = wrapper.parentNode;
+      parent.replaceChild(fragment, wrapper);
+    } else {
+      wrapper.appendChild(fragment);
+    }
 
     if (afterInsert) {
       afterInsert(element);
     }
   }
+
 
   /**
    * Removes previously inserted node and runs the beforeUnset() function if it
@@ -285,8 +305,9 @@ export default class NodeComposer {
     }
 
     if (element.id && element.id !== '') {
+
       this._beforeUnsets.find((node, index) => {
-        if (node.id === element.id) {
+        if (node.id === '#' + element.id) {
           node.beforeUnset(element);
           this._beforeUnsets.splice(index, 1);
           return true;
