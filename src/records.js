@@ -203,6 +203,10 @@ export default class Records {
                   return;
                 }
 
+                if (transactionEditForm.reportValidity() === false) {
+                  return;
+                }
+
                 const transactionEditFormData = new FormData(transactionEditForm);
                 const formValues = Object.fromEntries(transactionEditFormData);
                 const originalTransactionValues = this._transactions.findById(id);
@@ -653,7 +657,7 @@ export default class Records {
     });
 
     field.classList.add(Value.FORM_INPUT_ERROR_CLASS);
-    field.setCustomValidity(Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_DATE);
+    field.setCustomValidity(message);
   }
 
   /**
