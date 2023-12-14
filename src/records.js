@@ -457,24 +457,16 @@ export default class Records {
         this.setFormField({
           scope: element,
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.COUNTERPARTY.FIELD,
-          fieldValue: transacton.counterpartyLabel || transacton.counterparty,
+          fieldValue: transacton.counterpartyLabel,
           datalistSelector: Selector.TRANSACTION_EDIT_FORM.COUNTERPARTY.LIST,
           datalist: this._counterparties.get().map((counterparty) => counterparty.label)
         });
 
         this.setFormField({
           scope: element,
-          fieldSelector: Selector.TRANSACTION_EDIT_FORM.DATE.FIELD,
-          validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.DATE.VALIDATION_CONTAINER,
-          fieldValue: transacton.date,
-          validationCallback: this.validateDate.bind(this)
-        });
-
-        this.setFormField({
-          scope: element,
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.FIELD,
           validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.VALIDATION_CONTAINER,
-          fieldValue: transacton.outcomeAccountLabel || transacton.outcomeAccount,
+          fieldValue: transacton.outcomeAccountLabel,
           validationCallback: this.makeOneNotEmptyValidation(
             element.querySelector(Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.FIELD),
             element.querySelector(Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.VALIDATION_CONTAINER),
@@ -488,7 +480,7 @@ export default class Records {
           scope: element,
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.FIELD,
           validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.VALIDATION_CONTAINER,
-          fieldValue: transacton.incomeAccountLabel || transacton.incomeAccount,
+          fieldValue: transacton.incomeAccountLabel,
           validationCallback: this.makeOneNotEmptyValidation(
             element.querySelector(Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.FIELD),
             element.querySelector(Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.VALIDATION_CONTAINER),
