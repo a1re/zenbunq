@@ -128,15 +128,15 @@ export default class Records {
         },
         {
           wrapper: Selector.TRANSACTIONS.ITEM.COUNTERPARTY,
-          innerHTML: transaction.counterpartyLabel || transaction.counterparty || Selector.TRANSACTIONS.EMPTY_VALUE
+          innerHTML: transaction.counterpartyLabel || Selector.TRANSACTIONS.EMPTY_VALUE
         },
         {
           wrapper: Selector.TRANSACTIONS.ITEM.PAYER,
-          innerHTML: transaction.outcomeAccountLabel || transaction.outcomeAccount || Selector.TRANSACTIONS.EMPTY_VALUE
+          innerHTML: transaction.outcomeAccountLabel || Selector.TRANSACTIONS.EMPTY_VALUE
         },
         {
           wrapper: Selector.TRANSACTIONS.ITEM.PAYEE,
-          innerHTML: transaction.incomeAccountLabel || transaction.incomeAccount || Selector.TRANSACTIONS.EMPTY_VALUE
+          innerHTML: transaction.incomeAccountLabel || Selector.TRANSACTIONS.EMPTY_VALUE
         },
         {
           wrapper: Selector.TRANSACTIONS.ITEM.SUM,
@@ -256,8 +256,12 @@ export default class Records {
                 transaction.incomeAccount = originalTransactionValues.incomeAccount;
 
                 this._transactions.update(id, transaction);
-                console.log(this._transactions.get());
                 this.hideModal();
+
+                const updatedTransactionNode = this.composeRow(id, transaction);
+                updatedTransactionNode.wrapper = id;
+                updatedTransactionNode.replaceWrapper = true;
+                this._composer.composeNode(updatedTransactionNode);
               },
               () => {
                 this.hideModal();
