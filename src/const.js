@@ -32,8 +32,6 @@ export const Selector = {
     EMPTY_VALUE: '<span class="transactions__empty">&mdash;</span>'
   },
   COUNTERPARTIES: {
-    WRAPPER: '.result__counterparties',
-    AMOUNT: '.result__counterparties .header__badge',
     LIST: {
       ID: '#counterparties-list',
       TEMPLATE: '#result-counterparty-list-template',
@@ -42,12 +40,15 @@ export const Selector = {
     ITEM: {
       ID: '#counterparty',
       TEMPLATE: '#result-counterparty-item-template',
-      KEY: '.card__description-definition'
+      KEY: '.card__description-definition',
+      DELETE_BUTTON: '.card__delete-button',
+      ADD_BUTTON: '.card__add-button'
     },
     NEW: {
       ID: '#new-counterparty',
       TEMPLATE: '#result-counterparty-item-template',
-      KEY: '.card__description-definition'
+      KEY: '.card__description-definition',
+      AMOUNT: '.result__counterparties .header__badge'
     }
   },
   CATEGORIES: {
@@ -117,6 +118,35 @@ export const Selector = {
       TEMPLATE: '#form-datalist-option-template'
     }
   },
+  COUNTERPARTY_ADD_FORM: {
+    ID: '#counterparty-add-form-with-context',
+    TEMPLATE: '#counterparty-add-form-with-context-template',
+    KEY: {
+      FIELD: '#field--key',
+      VALIDATION_CONTAINER: '#field--key ~ .form__validation-container'
+    },
+    CATEGORY: {
+      FIELD: '#field--category',
+      LIST: '#list--category',
+      VALIDATION_CONTAINER: '#field--category ~ .form__validation-container'
+    },
+    NAME: {
+      FIELD: '#field--name',
+      VALIDATION_CONTAINER: '#field--name ~ .form__validation-container'
+    },
+    TRANSACTIONS_TABLE: {
+      ID: '#counterparty-transactions',
+      TEMPLATE: '#counterparty-transactions-table-template'
+    },
+    TRANSACTIONS_ROW: {
+      TEMPLATE: '#counterparty-transactions-row-template',
+      DATE: '.transactions__date',
+      PAYER: '.transactions__payer',
+      PAYEE: '.transactions__payee',
+      SUM: '.transactions__sum',
+      COMMENT: '.transactions__comment'
+    }
+  },
   MESSAGE: {
     CONTENT: {
       WRAPPER: '.message'
@@ -147,6 +177,11 @@ export const Copy = {
       HEADER: 'Удалить транзакцию?',
       ACCEPT_BUTTON: 'Удалить',
       DECLINE_BUTTON: 'Отмена',
+    },
+    REMOVE_COUNTERPARTY: {
+      HEADER: 'Удалить контрагента?',
+      ACCEPT_BUTTON: 'Удалить',
+      DECLINE_BUTTON: 'Отмена',
     }
   },
   TRANSACTION_EDIT_FORM: {
@@ -157,6 +192,14 @@ export const Copy = {
       EMPTY_CATEGORY: 'Укажите категорию',
       EMPTY_COUNTERPARTY: 'Укажите контрагента',
       EMPTY_ACCOUNT: 'Укажите один из счетов'
+    }
+  },
+  COUNTERPARTY_ADD_FORM: {
+    HEADER: 'Добавление контрагента',
+    ERROR: {
+      EMPTY_KEY: 'Укажите уникальный идентификатор',
+      EMPTY_CATEGORY: 'Укажите категорию',
+      EMPTY_NAME: 'Укажите имя'
     }
   }
 };

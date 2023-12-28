@@ -12,7 +12,9 @@ export default class Records {
     INVALID_COMPOSER: "Invalid composer object",
     INVALID_DATA: "Invalid data connection: '{0}' should be an instance of Data",
     TRANSACTION_FORM_NOT_FOUND: "Transaction edit form not found",
+    COUNTERPARTY_FORM_NOT_FOUND: "Counterparty add form not found",
     TRANSACTION_BUTTON_NOT_FOUND: "Button '{0}' for transaction row '{1}' not found",
+    COUNTERPARTY_BUTTON_NOT_FOUND: "Button '{0}' for counterparty '{1}' not found",
     VALIDATION_CONTAINER_NOT_FOUND: "Validation container for the field is not found",
     FIELD_NOT_FOUND: "Field '{0}' is not found",
     INCORRECT_SCOPE: "Incorrect scope for querying elemengs"
@@ -203,6 +205,23 @@ export default class Records {
                   return;
                 }
 
+                const changeEvent = new Event('change');
+
+                const fields = [
+                  transactionEditForm.querySelector(Selector.TRANSACTION_EDIT_FORM.DATE.FIELD),
+                  transactionEditForm.querySelector(Selector.TRANSACTION_EDIT_FORM.CATEGORY.FIELD),
+                  transactionEditForm.querySelector(Selector.TRANSACTION_EDIT_FORM.COUNTERPARTY.FIELD),
+                  transactionEditForm.querySelector(Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.FIELD),
+                  transactionEditForm.querySelector(Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.FIELD),
+                  transactionEditForm.querySelector(Selector.TRANSACTION_EDIT_FORM.AMOUNT.FIELD),
+                  transactionEditForm.querySelector(Selector.TRANSACTION_EDIT_FORM.COMMENT.FIELD)
+                ];
+
+                fields.forEach((field) => {
+                  field.dispatchEvent(changeEvent);
+                })
+
+
                 if (transactionEditForm.reportValidity() === false) {
                   return;
                 }
@@ -309,7 +328,7 @@ export default class Records {
   /**
    * Inserts a list of new counterparties to container node.
    *
-   * @param   {String} id        - Id of the element with the counterpartoes
+   * @param   {String} id        - Id of the element with the counterparties
    * @param   {String} container - Wrapper where the list will be inserted
    * @returns void
    */
@@ -333,7 +352,128 @@ export default class Records {
               wrapper: Selector.COUNTERPARTIES.ITEM.KEY,
               innerText: transaction.counterparty
             }
-          ]
+          ],
+          afterInsert: (element) => {
+            const id = element.id;
+
+            const deleteButton = element.querySelector(Selector.COUNTERPARTIES.ITEM.DELETE_BUTTON);
+            if (!deleteButton) {
+              error(this._errorMessage.COUNTERPARTY_BUTTON_NOT_FOUND, Selector.COUNTERPARTIES.ITEM.DELETE_BUTTON, id);
+              return;
+            }
+
+            deleteButton.onclick = () => {
+              this.showConfirmationModal(
+                Copy.MODAL.REMOVE_COUNTERPARTY.HEADER,
+                Copy.MODAL.REMOVE_COUNTERPARTY.ACCEPT_BUTTON,
+                Copy.MODAL.REMOVE_COUNTERPARTY.DECLINE_BUTTON,
+                () => {
+                  this._composer.removeNode('#' + id);
+                  
+                  const amountBadge = document.querySelector(Selector.COUNTERPARTIES.NEW.AMOUNT);
+                  if (amountBadge) {
+                    const amount = parseInt(amountBadge.innerText, 10) - 1;
+                    if (amount > 0) {
+                      amountBadge.innerText = amount;
+                    } else {
+                      this._composer.removeNode(Selector.COUNTERPARTIES.LIST.ID);
+                    }
+                  }
+                  this.hideModal();
+                },
+                () => {
+                  this.hideModal();
+                }
+              );
+            }
+
+            const addButton = element.querySelector(Selector.COUNTERPARTIES.ITEM.ADD_BUTTON);
+            if (!addButton) {
+              error(this._errorMessage.COUNTERPARTY_BUTTON_NOT_FOUND, Selector.COUNTERPARTIES.ITEM.ADD_BUTTON, id);
+              return;
+            }
+
+            addButton.onclick = () => {
+              this.showCounterpartyAddModal(
+                transaction.counterparty,
+                (evt) => {
+                  evt.preventDefault();
+  
+                  const counterpartyAddForm = document.querySelector(Selector.COUNTERPARTY_ADD_FORM.ID);
+                  if (!counterpartyAddForm) {
+                    error(this._errorMessage.COUNTERPARTY_FORM_NOT_FOUND);
+                    return;
+                  }
+
+                  const changeEvent = new Event('change');
+
+                  const fields = [
+                    counterpartyAddForm.querySelector(Selector.COUNTERPARTY_ADD_FORM.KEY.FIELD),
+                    counterpartyAddForm.querySelector(Selector.COUNTERPARTY_ADD_FORM.CATEGORY.FIELD),
+                    counterpartyAddForm.querySelector(Selector.COUNTERPARTY_ADD_FORM.NAME.FIELD)
+                  ];
+
+                  fields.forEach((field) => {
+                    field.dispatchEvent(changeEvent);
+                  })
+  
+                  if (counterpartyAddForm.reportValidity() === false) {
+                    return;
+                  }
+  
+                  const counterpartyAddFormData = new FormData(counterpartyAddForm);
+                  const formValues = Object.fromEntries(counterpartyAddFormData);
+  
+                  const counterparty = {
+                    key: formValues[Selector.COUNTERPARTY_ADD_FORM
+                      .KEY.FIELD.replace(/^(\#)/s, '')],
+                    category: formValues[Selector.COUNTERPARTY_ADD_FORM
+                      .CATEGORY.FIELD.replace(/^(\#)/s, '')] || undefined,
+                    name: formValues[Selector.COUNTERPARTY_ADD_FORM
+                      .NAME.FIELD.replace(/^(\#)/s, '')]
+                  };
+
+                  this._counterparties.add(counterparty);
+                  this._composer.removeNode('#' + id);
+
+                  const transactionsToUpdate = this._transactions.filter(
+                    (transaction) => transaction.counterparty == counterparty.key,
+                    true
+                  );
+
+                  transactionsToUpdate.forEach((transaction) => {
+                    const updatedTransaction = {
+                      ...transaction.value,
+                      category: counterparty.category,
+                      counterparty: counterparty.key,
+                      counterpartyLabel: counterparty.name,
+                    };
+
+                    this._transactions.update(transaction.id, updatedTransaction);
+                    
+                    const updatedTransactionNode = this.composeRow(transaction.id, updatedTransaction);
+                    updatedTransactionNode.wrapper = transaction.id;
+                    updatedTransactionNode.replaceWrapper = true;
+                    this._composer.composeNode(updatedTransactionNode);
+                  });
+                  
+                  const amountBadge = document.querySelector(Selector.COUNTERPARTIES.NEW.AMOUNT);
+                  if (amountBadge) {
+                    const amount = parseInt(amountBadge.innerText, 10) - 1;
+                    if (amount > 0) {
+                      amountBadge.innerText = amount;
+                    } else {
+                      this._composer.removeNode(Selector.COUNTERPARTIES.LIST.ID);
+                    }
+                  }
+                  this.hideModal();
+                },
+                () => {
+                  this.hideModal();
+                }
+              )
+            }
+          }
         });
       }
     });
@@ -345,7 +485,7 @@ export default class Records {
       children: counterpartyList,
       values: [
         {
-          wrapper: Selector.COUNTERPARTIES.AMOUNT,
+          wrapper: Selector.COUNTERPARTIES.NEW.AMOUNT,
           innerText: counterpartyList.length
         }
       ]
@@ -417,8 +557,9 @@ export default class Records {
   }
 
   /**
-   * Shows a confirmation dialog with callbacks for "Submit" and "Decline" buttons.
+   * Shows a modal with a transaction edit form.
    *
+   * @param   {Object} transacton        - Values of the transaction to edit
    * @param   {Function} acceptCallback  - Callback to be called on pressing "Submit" button
    * @param   {Function} declineCallback - Callback to be called on pressing "Decline" button
    * @returns void
@@ -542,6 +683,135 @@ export default class Records {
   }
 
   /**
+   * Shows a modal with a counterparty add form.
+   *
+   * @param   {Object} counterpartyKey   - Key value of the counterparty to be added
+   * @param   {Function} acceptCallback  - Callback to be called on pressing "Submit" button
+   * @param   {Function} declineCallback - Callback to be called on pressing "Decline" button
+   * @returns void
+   */
+  showCounterpartyAddModal(counterpartyKey, acceptCallback, declineCallback) {
+    const page = document.querySelector(Selector.PAGE);
+    page.classList.add(Value.PAGE_NOSCROLL_MODIFIER);
+
+    const transactions = this._transactions.filter((transaction) => transaction.counterparty === counterpartyKey);
+    
+    const transactionNodes = transactions.map((transaction) => {
+      return {
+        wrapper: Selector.COUNTERPARTY_ADD_FORM.TRANSACTIONS_TABLE.ID,
+        template: Selector.COUNTERPARTY_ADD_FORM.TRANSACTIONS_ROW.TEMPLATE,
+        values: [
+          {
+            wrapper: Selector.COUNTERPARTY_ADD_FORM.TRANSACTIONS_ROW.DATE,
+            innerText: transaction.date
+          },
+          {
+            wrapper: Selector.COUNTERPARTY_ADD_FORM.TRANSACTIONS_ROW.PAYER,
+            innerHTML: transaction.outcomeAccountLabel || transaction.outcomeAccount || Selector.TRANSACTIONS.EMPTY_VALUE
+          },
+          {
+            wrapper: Selector.COUNTERPARTY_ADD_FORM.TRANSACTIONS_ROW.PAYEE,
+            innerHTML: transaction.incomeAccountLabel || transaction.incomeAccount || Selector.TRANSACTIONS.EMPTY_VALUE
+          },
+          {
+            wrapper: Selector.COUNTERPARTY_ADD_FORM.TRANSACTIONS_ROW.SUM,
+            innerText: parseFloat(transaction.outcome || transaction.income, 10).toFixed(2)
+          },
+          {
+            wrapper: Selector.COUNTERPARTY_ADD_FORM.TRANSACTIONS_ROW.COMMENT,
+            innerText: transaction.comment
+          }
+        ]
+      };
+    });
+
+    this._composer.composeNode({
+      id: Selector.MODAL.ID,
+      wrapper: Selector.MODAL.WRAPPER,
+      template: Selector.MODAL.TEMPLATE,
+      children: [
+        {
+          wrapper: Selector.MODAL.CONTENT.WRAPPER,
+          template: Selector.COUNTERPARTY_ADD_FORM.TEMPLATE
+        },
+        {
+          wrapper: Selector.MODAL.CONTENT.WRAPPER,
+          template: Selector.COUNTERPARTY_ADD_FORM.TRANSACTIONS_TABLE.TEMPLATE,
+          children: transactionNodes
+        }
+      ],
+      values: [{
+        wrapper: Selector.MODAL.CONTENT.HEADER,
+        innerText: Copy.COUNTERPARTY_ADD_FORM.HEADER
+      }],
+      afterInsert: (element) => {
+        element.style.top = window.scrollY + 'px';
+
+        this.setFormField({
+          scope: element,
+          fieldSelector: Selector.COUNTERPARTY_ADD_FORM.KEY.FIELD,
+          validationContainerSelector: Selector.COUNTERPARTY_ADD_FORM.KEY.VALIDATION_CONTAINER,
+          fieldValue: counterpartyKey,
+          validationCallback: this.makeNotInListValidation(
+            this._counterparties.get().map((counterparty) => counterparty.key),
+            Copy.COUNTERPARTY_ADD_FORM.ERROR.EMPTY_KEY
+          )
+        });
+
+        this.setFormField({
+          scope: element,
+          fieldSelector: Selector.COUNTERPARTY_ADD_FORM.CATEGORY.FIELD,
+          datalistSelector: Selector.COUNTERPARTY_ADD_FORM.CATEGORY.LIST,
+          validationContainerSelector: Selector.COUNTERPARTY_ADD_FORM.CATEGORY.VALIDATION_CONTAINER,
+          datalist: this._categories.get(),
+          validationCallback: this.makeNotEmptyValidation(
+            Copy.COUNTERPARTY_ADD_FORM.ERROR.EMPTY_CATEGORY
+          )
+        });
+
+        this.setFormField({
+          scope: element,
+          fieldSelector: Selector.COUNTERPARTY_ADD_FORM.NAME.FIELD,
+          validationContainerSelector: Selector.COUNTERPARTY_ADD_FORM.NAME.VALIDATION_CONTAINER,
+          validationCallback: this.makeNotEmptyValidation(
+            Copy.COUNTERPARTY_ADD_FORM.ERROR.EMPTY_NAME
+          )
+        });
+
+        const closeButton = element.querySelector(Selector.MODAL.BUTTON.CLOSE);
+        const acceptButton = element.querySelector(Selector.MODAL.BUTTON.ACCEPT);
+        const declineButton = element.querySelector(Selector.MODAL.BUTTON.DECLINE);
+
+        acceptButton.onclick = acceptCallback;
+        declineButton.onclick = declineCallback;
+
+        closeButton.onclick = () => {
+          this.hideModal();
+        };
+
+        document.onkeyup = (evt) => {
+          if (evt.key === 'Escape') {
+            this.hideModal();
+          }
+        }
+      },
+      beforeUnset: (element) => {
+        const closeButton = element.querySelector(Selector.MODAL.BUTTON.CLOSE);
+        closeButton.onclick = null;
+        document.onkeyup = null;
+
+        this.unsetFormFields(
+          element,
+          Selector.COUNTERPARTY_ADD_FORM.KEY.FIELD,
+          Selector.COUNTERPARTY_ADD_FORM.CATEGORY.FIELD,
+          Selector.COUNTERPARTY_ADD_FORM.NAME.FIELD
+        );
+      }
+    });
+
+  }
+
+  /**
    * Hides confirmation dialog.
    *
    * @param   {String} id - Id of the window to hide
@@ -607,7 +877,6 @@ export default class Records {
         options.validationCallback(field, validationContainer);
       }
       field.onkeyup = field.onchange;
-      options.validationCallback(field, validationContainer);
     }
   }
 
@@ -708,7 +977,7 @@ export default class Records {
   }
 
   /**
-   * Validates the valude of the transaction amount input.
+   * Validates the value of the transaction amount input.
    *
    * @param   {Element} field               - Node element of the field to validate
    * @param   {Element} validationContainer - Node element of the container for validation message
@@ -736,6 +1005,29 @@ export default class Records {
   makeNotEmptyValidation(copy) {
     return (field, validationContainer) => {
       if (field.value.length === 0) {
+        this.showValidationMessage(
+          field,
+          validationContainer,
+          copy
+        );
+        return;
+      }
+
+      this.hideValidationMessage(field, validationContainer);
+    }
+  }
+
+  /**
+   * Creates "Not empty" validation metod for a field.
+   *
+   * @param   {Array} list    - List of items to check uniqness
+   * @param   {String} copy   - Validation message copy
+   * @returns void
+   */
+  makeNotInListValidation(list, copy) {
+    return (field, validationContainer) => {
+      const inList = list.find((item) => item === field.value);
+      if (field.value.length === 0 || inList) {
         this.showValidationMessage(
           field,
           validationContainer,
