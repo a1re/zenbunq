@@ -103,6 +103,10 @@ export default class Records {
         wrapper: Selector.TRANSACTIONS.WRAPPER,
         template: Selector.TRANSACTIONS.LIST.TEMPLATE,
         children: rows
+      }],
+      values: [{
+        wrapper: Selector.TRANSACTIONS.AMOUNT,
+        innerText: rows.length
       }]
     });
   }
@@ -177,6 +181,19 @@ export default class Records {
               () => {
                 this._composer.removeNode(id);
                 this._transactions.remove(id);
+                  
+                const amountBadge = document.querySelector(Selector.TRANSACTIONS.AMOUNT);
+                console.log(amountBadge);
+                if (amountBadge) {
+                  const amount = parseInt(amountBadge.innerText, 10) - 1;
+                  if (amount > 0) {
+                    amountBadge.innerText = amount;
+                  } else {
+                    const transactions = document.querySelector(Selector.TRANSACTIONS.WRAPPER);
+                    this._composer.removeNode(transactions);
+                  }
+                }
+
                 this.hideModal();
               },
               () => {

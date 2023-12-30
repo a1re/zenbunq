@@ -10,6 +10,7 @@ export const Selector = {
   TRANSACTIONS: {
     WRAPPER: '.result__transactions',
     TEMPLATE: '#result-transactions-template',
+    AMOUNT: '.result__transactions .header__badge',
     LIST: {
       ID: '#transactions-table',
       TEMPLATE: '#transactions-table-template',
