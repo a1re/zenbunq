@@ -120,22 +120,22 @@ export default class NodeComposer {
    *  beforeUnset: () => { ... }
    * })
    *
-   * @param  {String}      options.wrapper         Wrapper element selector
-   * @param  {String}      options.template        Template element selector
-   * @param  {Array}       options.values          Array of values to insert (optional)
-   * @param  {Array}       options.children        Array of children to insert (optional)
-   * @param  {HTMLElement} options.scope           Scope for selecting wrapper element (optional)
-   * @param  {Function}    options.afterInsert     Function to be triggered after element
-   *                                               is placed (optional)
-   * @param  {Function}    options.beforeUnset     Function to be triggered after element
-   *                                               is placed (optional)
-   * @param  {String}      options.id              Id for the element. Required if beforeUnset
-   *                                               is set, otherwise optional
-   * @param  {Boolean}     options.incremental     Default is true. If set to false, wrapper is
-   *                                               cleared before inserting new nodes (optional)
-   * @param  {Boolean}     options.replaceWrapper  Default is false. If set to true, new node is
-   *                                               replacing wrapper instead of appending to it.
-   * @return void
+   * @param  {String}    options.wrapper         Wrapper element selector
+   * @param  {String}    options.template        Template element selector
+   * @param  {Array}     options.values          Array of values to insert (optional)
+   * @param  {Array}     options.children        Array of children to insert (optional)
+   * @param  {Element}   options.scope           Scope for selecting wrapper element (optional)
+   * @param  {Function}  options.afterInsert     Function to be triggered after element
+   *                                             is placed (optional)
+   * @param  {Function}  options.beforeUnset     Function to be triggered after element
+   *                                             is placed (optional)
+   * @param  {String}    options.id              Id for the element. Required if beforeUnset
+   *                                             is set, otherwise optional
+   * @param  {Boolean}   options.incremental     Default is true. If set to false, wrapper is
+   *                                             cleared before inserting new nodes (optional)
+   * @param  {Boolean}   options.replaceWrapper  Default is false. If set to true, new node is
+   *                                             replacing wrapper instead of appending to it.
+   * @return {Element}   Composed node
    */
   composeNode({
     id,
@@ -284,6 +284,8 @@ export default class NodeComposer {
     if (afterInsert) {
       afterInsert(element);
     }
+
+    return element;
   }
 
 
