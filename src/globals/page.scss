@@ -50,7 +50,7 @@
 }
 
 .page__content {
-  padding: 0 $gap;
+  padding: 0 $gap $bottomMargin $gap;
 }
 
 .page--noscroll {
