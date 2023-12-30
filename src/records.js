@@ -17,7 +17,8 @@ export default class Records {
     COUNTERPARTY_BUTTON_NOT_FOUND: "Button '{0}' for counterparty '{1}' not found",
     VALIDATION_CONTAINER_NOT_FOUND: "Validation container for the field is not found",
     FIELD_NOT_FOUND: "Field '{0}' is not found",
-    INCORRECT_SCOPE: "Incorrect scope for querying elemengs"
+    INCORRECT_SCOPE: "Incorrect scope for querying elemengs",
+    DOWNLOAD_BUTTON_NOT_FOUND: "Download CSV button not found"
   }
 
   /**
@@ -109,6 +110,78 @@ export default class Records {
         innerText: rows.length
       }]
     });
+
+    const downloadButton = document.querySelector(Selector.TRANSACTIONS.DOWNLOAD_BUTTON);
+    if (!downloadButton) {
+      error(this._errorMessage.DOWNLOAD_BUTTON_NOT_FOUND);
+      return;
+    }
+
+    downloadButton.onclick = () => {
+      let earlisetTransaction, latestTransaction;
+      const csv = this._transactions.get().map((transaction) => {
+        const transactionDateParts = transaction.date.split('-').map((part) => parseInt(part, 10));
+        const transactionDate = new Date(transactionDateParts[0], transactionDateParts[1]-1, transactionDateParts[2]);
+
+        if (!earlisetTransaction || transactionDate < earlisetTransaction) {
+          earlisetTransaction = transactionDate;
+        }
+
+        if (!latestTransaction || transactionDate > latestTransaction) {
+          latestTransaction = transactionDate;
+        }
+
+        const row = [
+          transactionDateParts.length > 0 ? transaction.date.replace(/(\d{4})-(\d{2})-(\d{2})/g, "$3.$2.$1") : '',
+          transaction.category || '',
+          transaction.counterpartyLabel || transaction.counterparty || '',
+          transaction.outcomeAccountLabel || transaction.outcomeAccount || '',
+          transaction.outcome ? transaction.outcome.toFixed(2).toString().replace('.', ',') : '',
+          transaction.incomeAccountLabel || transaction.incomeAccount || '',
+          transaction.income ? transaction.income.toFixed(2).toString().replace('.', ',') : '',
+          transaction.comment || ''
+        ];
+
+        return row.map((element) => {
+          let v = element.toString();
+
+          if (v.includes('"')) {
+            v = v.replace('"', '""');
+          }
+
+          if (v.includes(Value.CSV_FILENAME.DELIMITER)) {
+            v = '"' + v + '"';
+          }
+
+          return v;
+        }).join(Value.CSV_FILENAME.DELIMITER);
+      });
+
+      const monthsNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+      earlisetTransaction = new Date(earlisetTransaction);
+      latestTransaction = new Date(latestTransaction);
+      const filename = Value.CSV_FILENAME.PREFIX +
+        monthsNames[earlisetTransaction.getMonth()] + earlisetTransaction.getDate() + '-' +
+        monthsNames[latestTransaction.getMonth()] + latestTransaction.getDate() + '.' +
+        Value.CSV_FILENAME.EXTENSION;
+
+      const blob = new Blob([csv.join("\n")], {type: "text/csv;charset=utf-8;"});
+            
+      if (navigator.msSaveBlob) { // IE 10+
+          navigator.msSaveBlob(blob, filename);
+      } else {
+          const link = document.createElement("a");
+          if (link.download !== undefined) {
+              const url = URL.createObjectURL(blob);
+              link.setAttribute("href", url);
+              link.setAttribute("download", filename);
+              link.style.visibility = "hidden";
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+          }
+      }
+    }
   }
 
   /**
@@ -1083,13 +1156,4 @@ export default class Records {
       this.hideValidationMessage(otherField, otherValidationContainer);
     }
   }
-
-  // transactions.getUnknownCounterparties()
-  // transactions.saveCounterpart()
-  // transactions.addRecordItem()
-  // transactions.records
-  // transactions.counterparties
-  // transactions.removeRecordItem(id)
-  // transactions.showRecordEdit()
-  // transactions.saveRecordItem(id, {})
 }

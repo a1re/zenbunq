@@ -30,7 +30,8 @@ export const Selector = {
       DELETE_BUTTON: '.transactions__delete-button',
       EXPAND_BUTTON: '.transactions__expand-button'
     },
-    EMPTY_VALUE: '<span class="transactions__empty">&mdash;</span>'
+    EMPTY_VALUE: '<span class="transactions__empty">&mdash;</span>',
+    DOWNLOAD_BUTTON: '#download-csv'
   },
   COUNTERPARTIES: {
     LIST: {
@@ -169,7 +170,12 @@ export const Selector = {
 export const Value = {
   EXPANDED_TRANSACTION_ROW: 'transactions__row--expanded',
   PAGE_NOSCROLL_MODIFIER: 'page--noscroll',
-  FORM_INPUT_ERROR_CLASS: 'form__text-input--error'
+  FORM_INPUT_ERROR_CLASS: 'form__text-input--error',
+  CSV_FILENAME: {
+    DELIMITER: ';',
+    PREFIX: 'transactions_',
+    EXTENSION: 'csv'
+  }
 };
 
 export const Copy = {
