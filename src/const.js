@@ -1,7 +1,9 @@
 export const Selector = {
   PAGE: '.page',
   PAGE_CONTENT: '.page__content',
-  UPLOAD_BUTTON: '.panel__file-submit',
+  UPLOAD_FORM: '.panel__form',
+  FILE_FORM: '.panel__file-input',
+  FILE_LABEL: '.panel__file-name',
   RESULT: {
     ID: '#result',
     TEMPLATE: '#result-template',
@@ -60,7 +62,7 @@ export const Selector = {
   },
   ACCOUNTS: {
     ITEM: {
-      ID: '#category'
+      ID: '#account'
     }
   },
   MODAL: {
@@ -161,9 +163,11 @@ export const Selector = {
     }
   },
   NOTIFICATION: {
-    WRAPPER: '.notification',
+    WRAPPER: '.page__notification',
     TEMPLATE: '#notification-template',
-    CONTENT: '.notification__content'
+    ID: '#notificaion',
+    CONTENT: '.notification__content',
+    CLOSE_BUTTON: '.notification__close'
   }
 };
 
@@ -175,7 +179,12 @@ export const Value = {
     DELIMITER: ';',
     PREFIX: 'transactions_',
     EXTENSION: 'csv'
-  }
+  },
+  EMPTY_UPLOADED_FILE: 'panel__file-name--empty',
+  VISIBLE_NOTIFICATION: 'notification--visible',
+  ERROR_NOTIFICATION: 'notification--error',
+  NOTIFICATION_REVEAL_TIMEOUT: 500,
+  FILE_UPLOAD_LIMIT: 1024 * 1024 * 2.1
 };
 
 export const Copy = {
@@ -208,5 +217,12 @@ export const Copy = {
       EMPTY_CATEGORY: 'Укажите категорию',
       EMPTY_NAME: 'Укажите имя'
     }
+  },
+  FILE_UPLOAD: {
+    INCORRECT_FILE_TYPE: 'Файл выгрузки должен иметь формат CSV',
+    INCORRECT_FILE_SIZE: 'Файл выгрузки не должен быть тяжелее 2MB',
+    INCORRECT_FILE_STRUCT: 'Некорректная структура выгрузки',
+    FILE_NOT_LOADED: 'Ошибка загрузки файла',
+    SUCCESS: 'Файл успешно загружен (импортировано строк: {0} из {1})'
   }
 };
