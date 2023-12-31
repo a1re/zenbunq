@@ -64,16 +64,14 @@ export default class Data {
     data.forEach((entry, i) => {
       const id = this._name + i;
 
-      if (skipFirstEntry && i ===0) {
+      if (skipFirstEntry && i === 0) {
         return
       }
 
       if (typeof adapterCallback === 'function') {
-        try {
-          this._entries.push({id, value:adapterCallback(entry)});
-        } catch ({message}) {
-          error(message);
-          return;
+        const adaptedEntry = adapterCallback(entry);
+        if (adaptedEntry) {
+          this._entries.push({id, value: adaptedEntry});
         }
       } else {
         this._entries.push({id, value: entry});
@@ -211,5 +209,14 @@ export default class Data {
    */
   sort(sortCallback) {
     this._entries.sort((entry) => sortCallback(entry.value))
+  }
+
+  /** 
+   * Dynamic attribute, representing the amount of entries in data entity.
+   * 
+   * @returns {Number} - amount of rows
+   */
+  get length() {
+    return this._entries.length;
   }
 }
