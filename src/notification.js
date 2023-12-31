@@ -29,17 +29,23 @@ export default class Records {
   /**
    * Shows success notification.
    * 
-   * @param  {String} Copy - Text of the notification
+   * @param {String} message      - String with {0}, {1} and etc. values which
+   *                                will be replaced by further passed arguments
+   * @param {String} arguments...
    * @returns void
    */
-  showSuccess(Copy) {
+  showSuccess(message, ...args) {
+    const formattedMessage = message.replace(/{(\d+)}/g, (match, number) => {
+      return typeof args[number] != 'undefined' ? args[number] : match;
+    });
+
     const notificationNode = this._composer.composeNode({
       id: Selector.NOTIFICATION.ID,
       wrapper: Selector.NOTIFICATION.WRAPPER,
       template: Selector.NOTIFICATION.TEMPLATE,
       values: [{
         wrapper: Selector.NOTIFICATION.CONTENT,
-        innerText: Copy
+        innerText: formattedMessage
       }],
       incremental: false
     });
@@ -50,17 +56,23 @@ export default class Records {
   /**
    * Shows error notification.
    * 
-   * @param  {String} Copy - Text of the notification
+   * @param {String} message      - String with {0}, {1} and etc. values which
+   *                                will be replaced by further passed arguments
+   * @param {String} arguments...
    * @returns void
    */
-  showError(Copy) {
+  showError(message, ...args) {
+    const formattedMessage = message.replace(/{(\d+)}/g, (match, number) => {
+      return typeof args[number] != 'undefined' ? args[number] : match;
+    });
+
     const notificationNode = this._composer.composeNode({
       id: Selector.NOTIFICATION.ID,
       wrapper: Selector.NOTIFICATION.WRAPPER,
       template: Selector.NOTIFICATION.TEMPLATE,
       values: [{
         wrapper: Selector.NOTIFICATION.CONTENT,
-        innerText: Copy
+        innerText: formattedMessage
       }],
       incremental: false
     });
