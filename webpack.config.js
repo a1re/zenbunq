@@ -4,6 +4,7 @@ const SOURCE_PATH = 'src';
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
     mode: 'development',
@@ -30,7 +31,14 @@ module.exports = {
       }),
       new MiniCssExtractPlugin({
         filename: "style.css",
-      })
+      }),
+      new CopyPlugin({
+        patterns: [
+          path.resolve(__dirname, SOURCE_PATH, "counterparties.json"),
+          path.resolve(__dirname, SOURCE_PATH, "accounts.json"),
+          path.resolve(__dirname, SOURCE_PATH, "categories.json")
+        ]
+      }),
     ],
     module: {
       rules: [

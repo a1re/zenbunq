@@ -224,5 +224,8 @@ export const Copy = {
     INCORRECT_FILE_STRUCT: 'Некорректная структура выгрузки',
     FILE_NOT_LOADED: 'Ошибка загрузки файла',
     SUCCESS: 'Файл успешно загружен (импортировано строк: {0} из {1})'
-  }
+  },
+  COUNTERPARTIES_NOT_LOADED: 'Ошибка загрузки контрагентов',
+  CATEGORIES_NOT_LOADED: 'Ошибка загрузки категорий',
+  ACCOUNTS_NOT_LOADED: 'Ошибка загрузки счетов'
 };

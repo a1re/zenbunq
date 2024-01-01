@@ -1,8 +1,7 @@
 import { Copy, Selector, Value } from './const';
 import NodeComposer from './node-composer';
 import Records from './records';
-import { mockData } from './mock-data';
-import { CSV } from './config';
+import { CSV, RESOURCE } from './config';
 import getTransactionsAdapter from './helpers/get-transactions-adapter';
 import Data from './data';
 import Notification from './notification';
@@ -18,55 +17,70 @@ const composer = new NodeComposer;
 const records = new Records(composer);
 const notification = new Notification(composer);
 
-const counterparties = new Data({ name: Selector.COUNTERPARTIES.ITEM.ID, data: mockData.counterparties });
-const categories = new Data({ name: Selector.CATEGORIES.ITEM.ID, data: mockData.categories });
-const accounts = new Data({ name: Selector.ACCOUNTS.ITEM.ID, data: mockData.accounts });
-
 const showTransactions = (evt) => {
   if (!evt.target.result) {
     notification.showError(Copy.FILE_UPLOAD.FILE_NOT_LOADED);
     return;
   }
 
-  const parsedCSV = Papa.parse(evt.target.result);
+  Promise.all(
+    [RESOURCE.ACCOUNTS, RESOURCE.CATEGORIES, RESOURCE.COUNTERPARTIES]
+    .map((url) => fetch(url, { headers: { "Content-Type": "application/json" } }))
+  ).then((responses) => {
+    const responseErrors = [Copy.ACCOUNTS_NOT_LOADED, Copy.CATEGORIES_NOT_LOADED, Copy.COUNTERPARTIES_NOT_LOADED];
+    responses.forEach((response, i) => {
+      if (!response.ok) {
+        throw new Error(responseErrors[i]);
+      }
+    });
+    
+    return Promise.all(responses.map(response => response.json()));
+  }).then((responses) => {
+    const accounts = new Data({ name: Selector.ACCOUNTS.ITEM.ID, data: responses[0] });
+    const categories = new Data({ name: Selector.CATEGORIES.ITEM.ID, data: responses[1] });
+    const counterparties = new Data({ name: Selector.COUNTERPARTIES.ITEM.ID, data: responses[2] });
 
-  if (parsedCSV.errors.length > 0) {
-    notification.showError(Copy.FILE_UPLOAD.FILE_NOT_LOADED);
-    return;
-  }
+    const parsedCSV = Papa.parse(evt.target.result);
 
-  const transactions = new Data({
-    name: Selector.TRANSACTIONS.ITEM.ID,
-    data: parsedCSV.data,
-    adapterCallback: getTransactionsAdapter(counterparties.get(), accounts.get()),
-    skipFirstEntry: CSV.HAS_HEADER
+    if (parsedCSV.errors.length > 0) {
+      notification.showError(Copy.FILE_UPLOAD.FILE_NOT_LOADED);
+      return;
+    }
+  
+    const transactions = new Data({
+      name: Selector.TRANSACTIONS.ITEM.ID,
+      data: parsedCSV.data,
+      adapterCallback: getTransactionsAdapter(counterparties.get(), accounts.get()),
+      skipFirstEntry: CSV.HAS_HEADER
+    });
+  
+    if (transactions.length === 0) {
+      notification.showError(Copy.FILE_UPLOAD.FILE_NOT_LOADED);
+      return;
+    }
+  
+    notification.showSuccess(Copy.FILE_UPLOAD.SUCCESS, transactions.length, parsedCSV.data.length);
+  
+    if (document.querySelector(Selector.RESULT.ID)) {
+      composer.removeNode(Selector.RESULT.ID);
+    }
+  
+    composer.composeNode({
+      id: Selector.RESULT.ID,
+      wrapper: Selector.PAGE_CONTENT,
+      template: Selector.RESULT.TEMPLATE
+    });
+  
+    records.counterparties = counterparties;
+    records.categories = categories;
+    records.accounts = accounts;
+    records.transactions = transactions;
+    records.insertNewCounterparties(Selector.COUNTERPARTIES.LIST.ID, Selector.RESULT.WRAPPER);
+    records.insertTable(Selector.TRANSACTIONS.LIST.ID, Selector.RESULT.WRAPPER);
+  }).catch(({message}) => {
+    notification.showError(message);
   });
-
-  if (transactions.length === 0) {
-    notification.showError(Copy.FILE_UPLOAD.FILE_NOT_LOADED);
-    return;
-  }
-
-  notification.showSuccess(Copy.FILE_UPLOAD.SUCCESS, transactions.length, parsedCSV.data.length);
-
-  if (document.querySelector(Selector.RESULT.ID)) {
-    composer.removeNode(Selector.RESULT.ID);
-  }
-
-  composer.composeNode({
-    id: Selector.RESULT.ID,
-    wrapper: Selector.PAGE_CONTENT,
-    template: Selector.RESULT.TEMPLATE
-  });
-
-  records.counterparties = counterparties;
-  records.categories = categories;
-  records.accounts = accounts;
-  records.transactions = transactions;
-  records.insertNewCounterparties(Selector.COUNTERPARTIES.LIST.ID, Selector.RESULT.WRAPPER);
-  records.insertTable(Selector.TRANSACTIONS.LIST.ID, Selector.RESULT.WRAPPER);
 };
-
 
 const selectFileButton = document.querySelector(Selector.FILE_FORM);
 const fileLabel = document.querySelector(Selector.FILE_LABEL);
