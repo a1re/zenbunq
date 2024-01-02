@@ -168,6 +168,45 @@ export const Selector = {
     ID: '#notificaion',
     CONTENT: '.notification__content',
     CLOSE_BUTTON: '.notification__close'
+  },
+  SETTINGS: {
+    ID: '#settings',
+    TEMPLATE: '#settings-template',
+    BUTTON: '.panel__settings-link',
+    LIST: {
+      WRAPPER: '.settings__card-list',
+      TEMPLATE: '#settings-card-list-template'
+    },
+    CATEGORIES: {
+      ID: '#settings-categories-list',
+      ADD_BUTTON: '#settings-add-category-button',
+      WRAPPER: '.settings__categories',
+      TEMPLATE: '#settings-category-card-template',
+      CARD: {
+        NAME: '.card__name'
+      }
+    },
+    ACCOUNTS: {
+      ID: '#settings-accounts-list',
+      ADD_BUTTON: '#settings-add-account-button',
+      WRAPPER: '.settings__accounts',
+      TEMPLATE: '#settings-account-card-template',
+      CARD: {
+        KEY: '.card__key',
+        NAME: '.card__name'
+      }
+    },
+    COUNTERPARTIES: {
+      ID: '#settings-counterparties-list',
+      ADD_BUTTON: '#settings-add-counterparty-button',
+      WRAPPER: '.settings__counterparties',
+      TEMPLATE: '#settings-counterparty-card-template',
+      CARD: {
+        KEY: '.card__key',
+        NAME: '.card__name',
+        CATEGORY: '.card__category'
+      }
+    }
   }
 };
 
@@ -223,6 +262,7 @@ export const Copy = {
     INCORRECT_FILE_SIZE: 'Файл выгрузки не должен быть тяжелее 2MB',
     INCORRECT_FILE_STRUCT: 'Некорректная структура выгрузки',
     FILE_NOT_LOADED: 'Ошибка загрузки файла',
+    FILE_NOT_SELECTED: 'Файл не выбран',
     SUCCESS: 'Файл успешно загружен (импортировано строк: {0} из {1})'
   },
   COUNTERPARTIES_NOT_LOADED: 'Ошибка загрузки контрагентов',

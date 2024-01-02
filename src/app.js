@@ -7,6 +7,7 @@ import Data from './data';
 import Notification from './notification';
 import error from './helpers/error';
 import Papa from 'papaparse';
+import Settings from './settings';
 
 const _errorMessage = {
   FILE_NOT_FOUND: "Uploaded file not defined",
@@ -14,8 +15,21 @@ const _errorMessage = {
 };
 
 const composer = new NodeComposer;
-const records = new Records(composer);
 const notification = new Notification(composer);
+
+const loadResources = () => Promise.all(
+    [RESOURCE.ACCOUNTS, RESOURCE.CATEGORIES, RESOURCE.COUNTERPARTIES]
+    .map((url) => fetch(url, { headers: { "Content-Type": "application/json" } }))
+  ).then((responses) => {
+  const responseErrors = [Copy.ACCOUNTS_NOT_LOADED, Copy.CATEGORIES_NOT_LOADED, Copy.COUNTERPARTIES_NOT_LOADED];
+  responses.forEach((response, i) => {
+    if (!response.ok) {
+      throw new Error(responseErrors[i]);
+    }
+  });
+  
+  return Promise.all(responses.map(response => response.json()));
+});
 
 const showTransactions = (evt) => {
   if (!evt.target.result) {
@@ -23,19 +37,7 @@ const showTransactions = (evt) => {
     return;
   }
 
-  Promise.all(
-    [RESOURCE.ACCOUNTS, RESOURCE.CATEGORIES, RESOURCE.COUNTERPARTIES]
-    .map((url) => fetch(url, { headers: { "Content-Type": "application/json" } }))
-  ).then((responses) => {
-    const responseErrors = [Copy.ACCOUNTS_NOT_LOADED, Copy.CATEGORIES_NOT_LOADED, Copy.COUNTERPARTIES_NOT_LOADED];
-    responses.forEach((response, i) => {
-      if (!response.ok) {
-        throw new Error(responseErrors[i]);
-      }
-    });
-    
-    return Promise.all(responses.map(response => response.json()));
-  }).then((responses) => {
+  loadResources().then((responses) => {
     const accounts = new Data({ name: Selector.ACCOUNTS.ITEM.ID, data: responses[0] });
     const categories = new Data({ name: Selector.CATEGORIES.ITEM.ID, data: responses[1] });
     const counterparties = new Data({ name: Selector.COUNTERPARTIES.ITEM.ID, data: responses[2] });
@@ -64,6 +66,10 @@ const showTransactions = (evt) => {
     if (document.querySelector(Selector.RESULT.ID)) {
       composer.removeNode(Selector.RESULT.ID);
     }
+
+    if (document.querySelector(Selector.SETTINGS.ID)) {
+      composer.removeNode(Selector.SETTINGS.ID);
+    }
   
     composer.composeNode({
       id: Selector.RESULT.ID,
@@ -71,6 +77,7 @@ const showTransactions = (evt) => {
       template: Selector.RESULT.TEMPLATE
     });
   
+    const records = new Records(composer);
     records.counterparties = counterparties;
     records.categories = categories;
     records.accounts = accounts;
@@ -112,4 +119,33 @@ selectFileButton.onchange = (evt) => {
   const fileReader = new FileReader();
   fileReader.onload = showTransactions
   fileReader.readAsText(selectedFile);
+}
+
+const settingsButton = document.querySelector(Selector.SETTINGS.BUTTON);
+settingsButton.onclick = (evt) => {
+  evt.preventDefault();
+
+  fileLabel.innerText = Copy.FILE_UPLOAD.FILE_NOT_SELECTED;
+  fileLabel.classList.add(Value.EMPTY_UPLOADED_FILE);
+  loadResources().then((data) => {
+    const settings = new Settings(composer);
+
+    settings.accounts = new Data({ name: Selector.ACCOUNTS.ITEM.ID, data: data[0] });
+    settings.categories = new Data({ name: Selector.CATEGORIES.ITEM.ID, data: data[1] });
+    settings.counterparties = new Data({ name: Selector.COUNTERPARTIES.ITEM.ID, data: data[2] });
+
+    composer.composeNode({
+      id: Selector.SETTINGS.ID,
+      wrapper: Selector.PAGE_CONTENT,
+      template: Selector.SETTINGS.TEMPLATE,
+      incremental: false
+    });
+  
+    settings.insertAccounts(Selector.SETTINGS.ACCOUNTS.WRAPPER);
+    settings.insertCategories(Selector.SETTINGS.CATEGORIES.WRAPPER);
+    settings.insertCounterparties(Selector.SETTINGS.COUNTERPARTIES.WRAPPER);
+
+  }).catch(({message}) => {
+    notification.showError(message);
+  });
 }
