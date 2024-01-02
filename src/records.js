@@ -2,6 +2,7 @@ import {Selector, Value, Copy} from './const';
 import NodeComposer from './node-composer';
 import error from './helpers/error';
 import Data from './data';
+import FormField from './helpers/form-field';
 
 export default class Records {
   /**
@@ -15,9 +16,6 @@ export default class Records {
     COUNTERPARTY_FORM_NOT_FOUND: "Counterparty add form not found",
     TRANSACTION_BUTTON_NOT_FOUND: "Button '{0}' for transaction row '{1}' not found",
     COUNTERPARTY_BUTTON_NOT_FOUND: "Button '{0}' for counterparty '{1}' not found",
-    VALIDATION_CONTAINER_NOT_FOUND: "Validation container for the field is not found",
-    FIELD_NOT_FOUND: "Field '{0}' is not found",
-    INCORRECT_SCOPE: "Incorrect scope for querying elemengs",
     DOWNLOAD_BUTTON_NOT_FOUND: "Download CSV button not found"
   }
 
@@ -657,6 +655,8 @@ export default class Records {
     const page = document.querySelector(Selector.PAGE);
     page.classList.add(Value.PAGE_NOSCROLL_MODIFIER);
 
+    const formField = new FormField(this._composer);
+
     this._composer.composeNode({
       id: Selector.MODAL.ID,
       wrapper: Selector.MODAL.WRAPPER,
@@ -672,15 +672,15 @@ export default class Records {
       afterInsert: (element) => {
         element.style.top = window.scrollY + 'px';
 
-        this.setFormField({
+        formField.set({
           scope: element,
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.DATE.FIELD,
           validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.DATE.VALIDATION_CONTAINER,
           fieldValue: transacton.date,
-          validationCallback: this.validateDate.bind(this)
+          validationCallback: formField.validateDate(Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_DATE)
         });
 
-        this.setFormField({
+        formField.set({
           scope: element,
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.CATEGORY.FIELD,
           fieldValue: transacton.category,
@@ -688,7 +688,7 @@ export default class Records {
           datalist: this._categories.get()
         });
 
-        this.setFormField({
+        formField.set({
           scope: element,
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.COUNTERPARTY.FIELD,
           fieldValue: transacton.counterpartyLabel,
@@ -696,12 +696,12 @@ export default class Records {
           datalist: this._counterparties.get().map((counterparty) => counterparty.label)
         });
 
-        this.setFormField({
+        formField.set({
           scope: element,
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.FIELD,
           validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.VALIDATION_CONTAINER,
           fieldValue: transacton.outcomeAccountLabel,
-          validationCallback: this.makeOneNotEmptyValidation(
+          validationCallback: formField.validateOneNotEmpty(
             element.querySelector(Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.FIELD),
             element.querySelector(Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.VALIDATION_CONTAINER),
             Copy.TRANSACTION_EDIT_FORM.ERROR.EMPTY_ACCOUNT
@@ -710,12 +710,12 @@ export default class Records {
           datalist: this._accounts.get().map((account) => account.label)
         });
 
-        this.setFormField({
+        formField.set({
           scope: element,
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.FIELD,
           validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.VALIDATION_CONTAINER,
           fieldValue: transacton.incomeAccountLabel,
-          validationCallback: this.makeOneNotEmptyValidation(
+          validationCallback: formField.validateOneNotEmpty(
             element.querySelector(Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.FIELD),
             element.querySelector(Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.VALIDATION_CONTAINER),
             Copy.TRANSACTION_EDIT_FORM.ERROR.EMPTY_ACCOUNT
@@ -724,15 +724,15 @@ export default class Records {
           datalist: this._accounts.get().map((account) => account.label)
         });
 
-        this.setFormField({
+        formField.set({
           scope: element,
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.AMOUNT.FIELD,
           validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.AMOUNT.VALIDATION_CONTAINER,
           fieldValue: transacton.outcome || transacton.income,
-          validationCallback: this.validateAmount.bind(this)
+          validationCallback: formField.validateAmount(Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_AMOUNT)
         });
 
-        this.setFormField({
+        formField.set({
           scope: element,
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.COMMENT.FIELD,
           fieldValue: transacton.comment
@@ -760,7 +760,7 @@ export default class Records {
         closeButton.onclick = null;
         document.onkeyup = null;
 
-        this.unsetFormFields(
+        formField.unset(
           element,
           Selector.TRANSACTION_EDIT_FORM.DATE.FIELD,
           Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.FIELD,
@@ -782,6 +782,8 @@ export default class Records {
   showCounterpartyAddModal(counterpartyKey, acceptCallback, declineCallback) {
     const page = document.querySelector(Selector.PAGE);
     page.classList.add(Value.PAGE_NOSCROLL_MODIFIER);
+
+    const formField = new FormField(this._composer);
 
     const transactions = this._transactions.filter((transaction) => transaction.counterparty === counterpartyKey);
     
@@ -836,33 +838,33 @@ export default class Records {
       afterInsert: (element) => {
         element.style.top = window.scrollY + 'px';
 
-        this.setFormField({
+        formField.set({
           scope: element,
           fieldSelector: Selector.COUNTERPARTY_ADD_FORM.KEY.FIELD,
           validationContainerSelector: Selector.COUNTERPARTY_ADD_FORM.KEY.VALIDATION_CONTAINER,
           fieldValue: counterpartyKey,
-          validationCallback: this.makeNotInListValidation(
+          validationCallback: formField.validateNotInList(
             this._counterparties.get().map((counterparty) => counterparty.key),
             Copy.COUNTERPARTY_ADD_FORM.ERROR.EMPTY_KEY
           )
         });
 
-        this.setFormField({
+        formField.set({
           scope: element,
           fieldSelector: Selector.COUNTERPARTY_ADD_FORM.CATEGORY.FIELD,
           datalistSelector: Selector.COUNTERPARTY_ADD_FORM.CATEGORY.LIST,
           validationContainerSelector: Selector.COUNTERPARTY_ADD_FORM.CATEGORY.VALIDATION_CONTAINER,
           datalist: this._categories.get(),
-          validationCallback: this.makeNotEmptyValidation(
+          validationCallback: formField.validateNotEmpty(
             Copy.COUNTERPARTY_ADD_FORM.ERROR.EMPTY_CATEGORY
           )
         });
 
-        this.setFormField({
+        formField.set({
           scope: element,
           fieldSelector: Selector.COUNTERPARTY_ADD_FORM.NAME.FIELD,
           validationContainerSelector: Selector.COUNTERPARTY_ADD_FORM.NAME.VALIDATION_CONTAINER,
-          validationCallback: this.makeNotEmptyValidation(
+          validationCallback: formField.validateNotEmpty(
             Copy.COUNTERPARTY_ADD_FORM.ERROR.EMPTY_NAME
           )
         });
@@ -889,7 +891,7 @@ export default class Records {
         closeButton.onclick = null;
         document.onkeyup = null;
 
-        this.unsetFormFields(
+        formField.unset(
           element,
           Selector.COUNTERPARTY_ADD_FORM.KEY.FIELD,
           Selector.COUNTERPARTY_ADD_FORM.CATEGORY.FIELD,
@@ -911,249 +913,5 @@ export default class Records {
     page.classList.remove(Value.PAGE_NOSCROLL_MODIFIER);
 
     this._composer.removeNode(Selector.MODAL.ID);
-  }
-
-  /**
-   * Sets up a form field with a value and validation callback
-   *
-   * @param   {String} options.fieldSelector               - DOM Selector of the field
-   * @param   {*}      options.fieldValue                  - Default value (optional)
-   * @param   {String} options.validationContainerSelector - DOM Selector of the validation container
-   *                                                         (required if validationCallback is set)
-   * @param   {Function} options.validationCallback        - Callback that will be called for validation as
-   *                                                         'onchange' event with evt.target as a first
-   *                                                         parameter, fieldSelector as a second parameter, and
-   *                                                         validationContainerSelector as a third parameter
-   *                                                         (if set, validationContainerSelector is required)
-   * @param   {Array}    options.datalistSelector          - DOM Selector of the options for the field (optional)
-   * @param   {Array}    options.datalist                  - List of options for the field (if set,
-   *                                                         datalistSelector is required)
-   * @param   {HTMLNode} options.scope                     - Scope for elements operations (optional)
-   * @returns void
-   */
-  setFormField(options) {
-    const scope = options.scope || document;
-    const field = scope.querySelector(options.fieldSelector);
-
-    if (!field) {
-      error(this._errorMessage.FIELD_NOT_FOUND, options.fieldSelector);
-      return;
-    }
-
-    if (options.fieldValue) {
-      field.value = options.fieldValue;
-    }
-
-    if (options.datalistSelector && options.datalist) {
-      options.datalist.forEach((datalistOption) => {
-        this._composer.composeNode({
-          wrapper: options.datalistSelector,
-          template: Selector.TRANSACTION_EDIT_FORM.DATALIST.TEMPLATE,
-          values: [{
-            wrapper: Selector.TRANSACTION_EDIT_FORM.DATALIST.WRAPPER,
-            attributes: [{
-              name: 'value',
-              value: datalistOption
-            }]
-          }]
-        })
-      });
-    }
-
-    if (options.validationContainerSelector && typeof options.validationCallback === "function") {
-      const validationContainer = scope.querySelector(options.validationContainerSelector);
-      field.onchange = () => {
-        options.validationCallback(field, validationContainer);
-      }
-      field.onkeyup = field.onchange;
-    }
-  }
-
-  /**
-   * Unnregisters onChange listeners for the field(s).
-   *
-   * @param   {element} scope       - Node in the document tree that is parent
-   *                                  to the elements defined as selectors
-   * @param   {String} ...selectors - Selector(s) of the field(s) to unset
-   * @returns void
-   */
-  unsetFormFields(scope, ...selectors) {
-    if (!(scope instanceof Element)) {
-      error(this._errorMessage.INCORRECT_SCOPE);
-      return;
-    }
-
-    selectors.forEach((selector) => {
-      const field = scope.querySelector(selector);
-      if (field) {
-        field.onchange = null;
-      }
-    });
-  }
-
-  /**
-   * Shows validation message for the field.
-   *
-   * @param   {Element} field              - Node element of the input/select field
-   * @param   {String} validationContainer - Node element of the validation message containter
-   * @param   {String} message             - Message to show in the containter
-   * @returns void
-   */
-  showValidationMessage(field, validationContainer, message) {
-    if (!validationContainer) {
-      error(this._errorMessage.VALIDATION_CONTAINER_NOT_FOUND);
-      return;
-    }
-
-    this._composer.composeNode({
-      wrapper: validationContainer,
-      template: Selector.MESSAGE.ERROR.TEMPLATE,
-      values: [{
-        wrapper: Selector.MESSAGE.CONTENT.WRAPPER,
-        innerText: message
-      }],
-      incremental: false
-    });
-
-    field.classList.add(Value.FORM_INPUT_ERROR_CLASS);
-    field.setCustomValidity(message);
-  }
-
-  /**
-   * Hides validation message for the field.
-   *
-   * @param   {Element} field              - Node element of the input/select field
-   * @param   {String} validationContainer - Node element of the validation message containter
-   * @returns void
-   */
-  hideValidationMessage(field, validationContainer) {
-    field.setCustomValidity('');
-    field.classList.remove(Value.FORM_INPUT_ERROR_CLASS);
-    this._composer.emptyNode(validationContainer)
-  }
-
-  /**
-   * Validates the valude of the date input.
-   *
-   * @param   {Element} field               - Node element of the field to validate
-   * @param   {Element} validationContainer - Node element of the container for validation message
-   * @returns void
-   */
-  validateDate(field, validationContainer) {
-    if (!field.valueAsDate || isNaN(field.valueAsDate.getTime())) {
-      this.showValidationMessage(
-        field,
-        validationContainer,
-        Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_DATE
-      );
-      return;
-    }
-
-    const today = Math.round(Date.now() / 1000);
-    const transactionDate = Math.round(
-      field.valueAsDate.getTime() / 1000 + field.valueAsDate.getTimezoneOffset() * 60
-    );
-
-    if (today < transactionDate) {
-      this.showValidationMessage(
-        field,
-        validationContainer,
-        Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_DATE
-      );
-      return;
-    }
-
-    this.hideValidationMessage(field, validationContainer);
-  }
-
-  /**
-   * Validates the value of the transaction amount input.
-   *
-   * @param   {Element} field               - Node element of the field to validate
-   * @param   {Element} validationContainer - Node element of the container for validation message
-   * @returns void
-   */
-  validateAmount(field, validationContainer) {
-    if (isNaN(field.value) || field.value <= 0) {
-      this.showValidationMessage(
-        field,
-        validationContainer,
-        Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_AMOUNT
-      );
-      return;
-    }
-
-    this.hideValidationMessage(field, validationContainer);
-  }
-
-  /**
-   * Creates "Not empty" validation metod for a field.
-   *
-   * @param   {String} copy    - Validation message copy
-   * @returns void
-   */
-  makeNotEmptyValidation(copy) {
-    return (field, validationContainer) => {
-      if (field.value.length === 0) {
-        this.showValidationMessage(
-          field,
-          validationContainer,
-          copy
-        );
-        return;
-      }
-
-      this.hideValidationMessage(field, validationContainer);
-    }
-  }
-
-  /**
-   * Creates "Not empty" validation metod for a field.
-   *
-   * @param   {Array} list    - List of items to check uniqness
-   * @param   {String} copy   - Validation message copy
-   * @returns void
-   */
-  makeNotInListValidation(list, copy) {
-    return (field, validationContainer) => {
-      const inList = list.find((item) => item === field.value);
-      if (field.value.length === 0 || inList) {
-        this.showValidationMessage(
-          field,
-          validationContainer,
-          copy
-        );
-        return;
-      }
-
-      this.hideValidationMessage(field, validationContainer);
-    }
-  }
-
-  /**
-   * Creates "Not empty" validation metod with a dependancy on another field
-   * (at least one of the fields shouldn't be empty).
-   *
-   * @param   {Element} otherField               - Node element of the dependant field
-   * @param   {Element} otherValidationContainer - Node element of the dependant field's
-   *                                               validation container
-   * @param   {String} copy                      - Validation message copy
-   * @returns void
-   */
-  makeOneNotEmptyValidation(otherField, otherValidationContainer, copy) {
-    return (field, validationContainer) => {
-      const otherFieldLength = (otherField instanceof Element) ? otherField.value.length : 0;
-      if (field.value.length === 0 && otherFieldLength === 0) {
-        this.showValidationMessage(
-          field,
-          validationContainer,
-          copy
-        );
-        return;
-      }
-
-      this.hideValidationMessage(field, validationContainer);
-      this.hideValidationMessage(otherField, otherValidationContainer);
-    }
   }
 }
