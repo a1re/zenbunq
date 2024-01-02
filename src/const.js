@@ -175,7 +175,16 @@ export const Selector = {
     BUTTON: '.panel__settings-link',
     LIST: {
       WRAPPER: '.settings__card-list',
-      TEMPLATE: '#settings-card-list-template'
+      TEMPLATE: '#settings-card-list-template',
+      EDIT_BUTTON: '.button__edit',
+      DELETE_BUTTON: '.button__delete'
+    },
+    BADGE: {
+      CATEGORIES: '.categories-count',
+      ACCOUNTS: '.accounts-count',
+      COUNTERPARTIES: '.counterparties-count',
+      TEMPLATE: '#counter-badge-template',
+      COUNT: '.header__badge'
     },
     CATEGORIES: {
       ID: '#settings-categories-list',
@@ -235,6 +244,16 @@ export const Copy = {
     },
     REMOVE_COUNTERPARTY: {
       HEADER: 'Удалить контрагента?',
+      ACCEPT_BUTTON: 'Удалить',
+      DECLINE_BUTTON: 'Отмена',
+    },
+    REMOVE_ACCOUNT: {
+      HEADER: 'Удалить счет?',
+      ACCEPT_BUTTON: 'Удалить',
+      DECLINE_BUTTON: 'Отмена',
+    },
+    REMOVE_CATEGORY: {
+      HEADER: 'Удалить категорию?',
       ACCEPT_BUTTON: 'Удалить',
       DECLINE_BUTTON: 'Отмена',
     }
