@@ -2,7 +2,7 @@ import {Selector, Value, Copy} from './const';
 import NodeComposer from './node-composer';
 import error from './helpers/error';
 import Data from './data';
-import FormField from './helpers/form-field';
+import ModalWindow from './helpers/modal-window';
 
 export default class Records {
   /**
@@ -190,6 +190,8 @@ export default class Records {
    * @returns {Object} - Object with node values for NodeComposer
    */
   composeRow(id, transaction) {
+    const modal = new ModalWindow(this._composer);
+
     return {
       id,
       wrapper: Selector.TRANSACTIONS.LIST.WRAPPER,
@@ -245,11 +247,11 @@ export default class Records {
 
         deleteButtonList.forEach((deleteButton) => {
           deleteButton.onclick = () => {
-            this.showConfirmationModal(
-              Copy.MODAL.REMOVE_TRANSACTION.HEADER,
-              Copy.MODAL.REMOVE_TRANSACTION.ACCEPT_BUTTON,
-              Copy.MODAL.REMOVE_TRANSACTION.DECLINE_BUTTON,
-              () => {
+            modal.showConfirmationModal({
+              prompt: Copy.MODAL.REMOVE_TRANSACTION.HEADER,
+              acceptButtonCopy: Copy.MODAL.REMOVE_TRANSACTION.ACCEPT_BUTTON,
+              declineButtonCopy: Copy.MODAL.REMOVE_TRANSACTION.DECLINE_BUTTON,
+              acceptCallback: () => {
                 this._composer.removeNode(id);
                 this._transactions.remove(id);
                   
@@ -264,12 +266,12 @@ export default class Records {
                   }
                 }
 
-                this.hideModal();
+                modal.hideModal();
               },
-              () => {
-                this.hideModal();
+              declineCallback: () => {
+                modal.hideModal();
               }
-            );
+            });
           }
         });
 
@@ -366,7 +368,7 @@ export default class Records {
                 transaction.incomeAccount = originalTransactionValues.incomeAccount;
 
                 this._transactions.update(id, transaction);
-                this.hideModal();
+                modal.hideModal();
 
                 const updatedTransactionNode = this.composeRow(id, transaction);
                 updatedTransactionNode.wrapper = id;
@@ -374,7 +376,7 @@ export default class Records {
                 this._composer.composeNode(updatedTransactionNode);
               },
               () => {
-                this.hideModal();
+                modal.hideModal();
               }
             )
           }
@@ -420,6 +422,7 @@ export default class Records {
    * @returns void
    */
   insertNewCounterparties(id, container) {
+    const modal = new ModalWindow(this._composer);
     const counterpartyList = [];
     this._transactions.get().forEach((transaction) => {
       const isUnknown = !this._counterparties.find((counterparty) => {
@@ -450,11 +453,12 @@ export default class Records {
             }
 
             deleteButton.onclick = () => {
-              this.showConfirmationModal(
-                Copy.MODAL.REMOVE_COUNTERPARTY.HEADER,
-                Copy.MODAL.REMOVE_COUNTERPARTY.ACCEPT_BUTTON,
-                Copy.MODAL.REMOVE_COUNTERPARTY.DECLINE_BUTTON,
-                () => {
+
+              modal.showConfirmationModal({
+                prompt: Copy.MODAL.REMOVE_COUNTERPARTY.HEADER,
+                acceptButtonCopy: Copy.MODAL.REMOVE_COUNTERPARTY.ACCEPT_BUTTON,
+                declineButtonCopy: Copy.MODAL.REMOVE_COUNTERPARTY.DECLINE_BUTTON,
+                acceptCallback: () => {
                   this._composer.removeNode('#' + id);
                   
                   const amountBadge = document.querySelector(Selector.COUNTERPARTIES.NEW.AMOUNT);
@@ -466,12 +470,12 @@ export default class Records {
                       this._composer.removeNode(Selector.COUNTERPARTIES.LIST.ID);
                     }
                   }
-                  this.hideModal();
+                  modal.hideModal();
                 },
-                () => {
-                  this.hideModal();
+                declineCallback: () => {
+                  modal.hideModal();
                 }
-              );
+              });
             }
 
             const addButton = element.querySelector(Selector.COUNTERPARTIES.ITEM.ADD_BUTTON);
@@ -553,10 +557,10 @@ export default class Records {
                       this._composer.removeNode(Selector.COUNTERPARTIES.LIST.ID);
                     }
                   }
-                  this.hideModal();
+                  modal.hideModal();
                 },
                 () => {
-                  this.hideModal();
+                  modal.hideModal();
                 }
               )
             }
@@ -580,70 +584,6 @@ export default class Records {
   }
 
   /**
-   * Shows a confirmation dialog with callbacks for "Submit" and "Decline" buttons.
-   *
-   * @param   {String} promptCopy        - Copy of the prompt to show
-   * @param   {String} acceptButtonCopy  - Copy of the prompt to show
-   * @param   {String} declineButtonCopy - Copy of the prompt to show
-   * @param   {Function} acceptCallback  - Callback to be called on pressing "Submit" button
-   * @param   {Function} declineCallback - Callback to be called on pressing "Decline" button
-   * @returns void
-   */
-  showConfirmationModal(promptCopy, acceptButtonCopy, declineButtonCopy, acceptCallback, declineCallback) {
-    const page = document.querySelector(Selector.PAGE);
-    page.classList.add(Value.PAGE_NOSCROLL_MODIFIER);
-
-    this._composer.composeNode({
-      id: Selector.MODAL.ID,
-      wrapper: Selector.MODAL.WRAPPER,
-      template: Selector.MODAL.TEMPLATE,
-      children: [{
-        wrapper: Selector.MODAL.CONTENT.WRAPPER,
-        template: Selector.MODAL.CONFIRMATION_DIALOG.TEMPLATE,
-        values: [
-          {
-            wrapper: Selector.MODAL.BUTTON.ACCEPT,
-            innerText: acceptButtonCopy
-          },
-          {
-            wrapper: Selector.MODAL.BUTTON.DECLINE,
-            innerText: declineButtonCopy
-          }
-        ]
-      }],
-      values: [{
-        wrapper: Selector.MODAL.CONTENT.HEADER,
-        innerText: promptCopy
-      }],
-      afterInsert: (element) => {
-        element.style.top = window.scrollY + 'px';
-
-        const closeButton = element.querySelector(Selector.MODAL.BUTTON.CLOSE);
-        const acceptButton = element.querySelector(Selector.MODAL.BUTTON.ACCEPT);
-        const declineButton = element.querySelector(Selector.MODAL.BUTTON.DECLINE);
-
-        acceptButton.onclick = acceptCallback;
-        declineButton.onclick = declineCallback;
-
-        closeButton.onclick = () => {
-          this.hideModal();
-        };
-
-        document.onkeyup = (evt) => {
-          if (evt.key === 'Escape') {
-            this.hideModal();
-          }
-        }
-      },
-      beforeUnset: (element) => {
-        const closeButton = element.querySelector(Selector.MODAL.BUTTON.CLOSE);
-        closeButton.onclick = null;
-        document.onkeyup = null;
-      }
-    });
-  }
-
-  /**
    * Shows a modal with a transaction edit form.
    *
    * @param   {Object} transacton        - Values of the transaction to edit
@@ -652,122 +592,66 @@ export default class Records {
    * @returns void
    */
   showTransactionEditModal(transacton, acceptCallback, declineCallback) {
-    const page = document.querySelector(Selector.PAGE);
-    page.classList.add(Value.PAGE_NOSCROLL_MODIFIER);
-
-    const formField = new FormField(this._composer);
-
-    this._composer.composeNode({
-      id: Selector.MODAL.ID,
-      wrapper: Selector.MODAL.WRAPPER,
-      template: Selector.MODAL.TEMPLATE,
-      children: [{
-        wrapper: Selector.MODAL.CONTENT.WRAPPER,
-        template: Selector.TRANSACTION_EDIT_FORM.TEMPLATE
-      }],
-      values: [{
-        wrapper: Selector.MODAL.CONTENT.HEADER,
-        innerText: Copy.TRANSACTION_EDIT_FORM.HEADER
-      }],
-      afterInsert: (element) => {
-        element.style.top = window.scrollY + 'px';
-
-        formField.set({
-          scope: element,
+    const modal = new ModalWindow(this._composer);
+    modal.showForm({
+      header: Copy.TRANSACTION_EDIT_FORM.HEADER,
+      template: Selector.TRANSACTION_EDIT_FORM.TEMPLATE,
+      fields: [
+        {
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.DATE.FIELD,
           validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.DATE.VALIDATION_CONTAINER,
           fieldValue: transacton.date,
-          validationCallback: formField.validateDate(Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_DATE)
-        });
-
-        formField.set({
-          scope: element,
+          validationCallback: modal.formField.validateDate(Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_DATE)
+        },
+        {
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.CATEGORY.FIELD,
           fieldValue: transacton.category,
           datalistSelector: Selector.TRANSACTION_EDIT_FORM.CATEGORY.LIST,
           datalist: this._categories.get()
-        });
-
-        formField.set({
-          scope: element,
+        },
+        {
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.COUNTERPARTY.FIELD,
           fieldValue: transacton.counterpartyLabel,
           datalistSelector: Selector.TRANSACTION_EDIT_FORM.COUNTERPARTY.LIST,
           datalist: this._counterparties.get().map((counterparty) => counterparty.label)
-        });
-
-        formField.set({
-          scope: element,
+        },
+        {
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.FIELD,
           validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.VALIDATION_CONTAINER,
           fieldValue: transacton.outcomeAccountLabel,
-          validationCallback: formField.validateOneNotEmpty(
-            element.querySelector(Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.FIELD),
-            element.querySelector(Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.VALIDATION_CONTAINER),
+          validationCallback: modal.formField.validateOneNotEmpty(
+            Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.FIELD,
+            Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.VALIDATION_CONTAINER,
             Copy.TRANSACTION_EDIT_FORM.ERROR.EMPTY_ACCOUNT
           ),
           datalistSelector: Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.LIST,
           datalist: this._accounts.get().map((account) => account.label)
-        });
-
-        formField.set({
-          scope: element,
+        },
+        {
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.FIELD,
           validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.VALIDATION_CONTAINER,
           fieldValue: transacton.incomeAccountLabel,
-          validationCallback: formField.validateOneNotEmpty(
-            element.querySelector(Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.FIELD),
-            element.querySelector(Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.VALIDATION_CONTAINER),
+          validationCallback: modal.formField.validateOneNotEmpty(
+            Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.FIELD,
+            Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.VALIDATION_CONTAINER,
             Copy.TRANSACTION_EDIT_FORM.ERROR.EMPTY_ACCOUNT
           ),
           datalistSelector: Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.LIST,
           datalist: this._accounts.get().map((account) => account.label)
-        });
-
-        formField.set({
-          scope: element,
+        },
+        {
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.AMOUNT.FIELD,
           validationContainerSelector: Selector.TRANSACTION_EDIT_FORM.AMOUNT.VALIDATION_CONTAINER,
           fieldValue: transacton.outcome || transacton.income,
-          validationCallback: formField.validateAmount(Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_AMOUNT)
-        });
-
-        formField.set({
-          scope: element,
+          validationCallback: modal.formField.validateAmount(Copy.TRANSACTION_EDIT_FORM.ERROR.INCORRECT_AMOUNT)
+        },
+        {
           fieldSelector: Selector.TRANSACTION_EDIT_FORM.COMMENT.FIELD,
           fieldValue: transacton.comment
-        });
-
-        const closeButton = element.querySelector(Selector.MODAL.BUTTON.CLOSE);
-        const acceptButton = element.querySelector(Selector.MODAL.BUTTON.ACCEPT);
-        const declineButton = element.querySelector(Selector.MODAL.BUTTON.DECLINE);
-
-        acceptButton.onclick = acceptCallback;
-        declineButton.onclick = declineCallback;
-
-        closeButton.onclick = () => {
-          this.hideModal();
-        };
-
-        document.onkeyup = (evt) => {
-          if (evt.key === 'Escape') {
-            this.hideModal();
-          }
         }
-      },
-      beforeUnset: (element) => {
-        const closeButton = element.querySelector(Selector.MODAL.BUTTON.CLOSE);
-        closeButton.onclick = null;
-        document.onkeyup = null;
-
-        formField.unset(
-          element,
-          Selector.TRANSACTION_EDIT_FORM.DATE.FIELD,
-          Selector.TRANSACTION_EDIT_FORM.OUTCOME_ACCOUNT.FIELD,
-          Selector.TRANSACTION_EDIT_FORM.INCOME_ACCOUNT.FIELD,
-          Selector.TRANSACTION_EDIT_FORM.AMOUNT.FIELD,
-        );
-      }
+      ],
+      acceptCallback,
+      declineCallback
     });
   }
 
@@ -780,11 +664,6 @@ export default class Records {
    * @returns void
    */
   showCounterpartyAddModal(counterpartyKey, acceptCallback, declineCallback) {
-    const page = document.querySelector(Selector.PAGE);
-    page.classList.add(Value.PAGE_NOSCROLL_MODIFIER);
-
-    const formField = new FormField(this._composer);
-
     const transactions = this._transactions.filter((transaction) => transaction.counterparty === counterpartyKey);
     
     const transactionNodes = transactions.map((transaction) => {
@@ -816,102 +695,45 @@ export default class Records {
       };
     });
 
-    this._composer.composeNode({
-      id: Selector.MODAL.ID,
-      wrapper: Selector.MODAL.WRAPPER,
-      template: Selector.MODAL.TEMPLATE,
-      children: [
+    const modal = new ModalWindow(this._composer);
+    modal.showForm({
+      header: Copy.COUNTERPARTY_ADD_FORM.HEADER,
+      template: Selector.COUNTERPARTY_ADD_FORM.TEMPLATE,
+      fields: [
         {
-          wrapper: Selector.MODAL.CONTENT.WRAPPER,
-          template: Selector.COUNTERPARTY_ADD_FORM.TEMPLATE
-        },
-        {
-          wrapper: Selector.MODAL.CONTENT.WRAPPER,
-          template: Selector.COUNTERPARTY_ADD_FORM.TRANSACTIONS_TABLE.TEMPLATE,
-          children: transactionNodes
-        }
-      ],
-      values: [{
-        wrapper: Selector.MODAL.CONTENT.HEADER,
-        innerText: Copy.COUNTERPARTY_ADD_FORM.HEADER
-      }],
-      afterInsert: (element) => {
-        element.style.top = window.scrollY + 'px';
-
-        formField.set({
-          scope: element,
           fieldSelector: Selector.COUNTERPARTY_ADD_FORM.KEY.FIELD,
           validationContainerSelector: Selector.COUNTERPARTY_ADD_FORM.KEY.VALIDATION_CONTAINER,
           fieldValue: counterpartyKey,
-          validationCallback: formField.validateNotInList(
+          validationCallback: modal.formField.validateNotInList(
             this._counterparties.get().map((counterparty) => counterparty.key),
             Copy.COUNTERPARTY_ADD_FORM.ERROR.EMPTY_KEY
           )
-        });
-
-        formField.set({
-          scope: element,
+        },
+        {
           fieldSelector: Selector.COUNTERPARTY_ADD_FORM.CATEGORY.FIELD,
           datalistSelector: Selector.COUNTERPARTY_ADD_FORM.CATEGORY.LIST,
           validationContainerSelector: Selector.COUNTERPARTY_ADD_FORM.CATEGORY.VALIDATION_CONTAINER,
           datalist: this._categories.get(),
-          validationCallback: formField.validateNotEmpty(
+          validationCallback: modal.formField.validateNotEmpty(
             Copy.COUNTERPARTY_ADD_FORM.ERROR.EMPTY_CATEGORY
           )
-        });
-
-        formField.set({
-          scope: element,
+        },
+        {
           fieldSelector: Selector.COUNTERPARTY_ADD_FORM.NAME.FIELD,
           validationContainerSelector: Selector.COUNTERPARTY_ADD_FORM.NAME.VALIDATION_CONTAINER,
-          validationCallback: formField.validateNotEmpty(
+          validationCallback: modal.formField.validateNotEmpty(
             Copy.COUNTERPARTY_ADD_FORM.ERROR.EMPTY_NAME
           )
-        });
-
-        const closeButton = element.querySelector(Selector.MODAL.BUTTON.CLOSE);
-        const acceptButton = element.querySelector(Selector.MODAL.BUTTON.ACCEPT);
-        const declineButton = element.querySelector(Selector.MODAL.BUTTON.DECLINE);
-
-        acceptButton.onclick = acceptCallback;
-        declineButton.onclick = declineCallback;
-
-        closeButton.onclick = () => {
-          this.hideModal();
-        };
-
-        document.onkeyup = (evt) => {
-          if (evt.key === 'Escape') {
-            this.hideModal();
-          }
         }
-      },
-      beforeUnset: (element) => {
-        const closeButton = element.querySelector(Selector.MODAL.BUTTON.CLOSE);
-        closeButton.onclick = null;
-        document.onkeyup = null;
-
-        formField.unset(
-          element,
-          Selector.COUNTERPARTY_ADD_FORM.KEY.FIELD,
-          Selector.COUNTERPARTY_ADD_FORM.CATEGORY.FIELD,
-          Selector.COUNTERPARTY_ADD_FORM.NAME.FIELD
-        );
-      }
+      ],
+      acceptCallback,
+      declineCallback
     });
 
-  }
-
-  /**
-   * Hides confirmation dialog.
-   *
-   * @param   {String} id - Id of the window to hide
-   * @returns void
-   */
-  hideModal() {
-    const page = document.querySelector(Selector.PAGE);
-    page.classList.remove(Value.PAGE_NOSCROLL_MODIFIER);
-
-    this._composer.removeNode(Selector.MODAL.ID);
+    this._composer.composeNode({
+      wrapper: Selector.MODAL.CONTENT.WRAPPER,
+      template: Selector.COUNTERPARTY_ADD_FORM.TRANSACTIONS_TABLE.TEMPLATE,
+      children: transactionNodes
+    });
   }
 }
