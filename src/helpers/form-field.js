@@ -11,7 +11,7 @@ export default class FormField {
     INVALID_COMPOSER: "Invalid composer object",
     FIELD_NOT_FOUND: "Field '{0}' is not found",
     INCORRECT_SCOPE: "Incorrect scope for querying elements",
-    VALIDATION_CONTAINER_NOT_FOUND: "Validation container for the field is not found"
+    VALIDATION_CONTAINER_NOT_FOUND: "Validation container for the field is not found",
   }
 
   /**
@@ -256,14 +256,26 @@ export default class FormField {
    * Creates "Not empty" validation metod with a dependancy on another field
    * (at least one of the fields shouldn't be empty).
    *
-   * @param   {Element} otherField               - Node element of the dependant field
-   * @param   {Element} otherValidationContainer - Node element of the dependant field's
-   *                                               validation container
+   * @param   {String} otherFieldSelector               - Node element of the dependant field
+   * @param   {String} otherValidationContainerSelector - Node element of the dependant field's
+   *                                                      validation container
    * @returns {Function}        - Validation callback, that accepsts field (Element)
    *                              and validationContainer (Element) as parameters
    */
-  validateOneNotEmpty(otherField, otherValidationContainer, message) {
+  validateOneNotEmpty(otherFieldSelector, otherValidationContainerSelector, message) {
     return (field, validationContainer) => {
+      const otherField = document.querySelector(otherFieldSelector);
+      if (!otherField) {
+        error(this._errorMessage.FIELD_NOT_FOUND, otherFieldSelector);
+        return
+      }
+
+      const otherValidationContainer = document.querySelector(otherValidationContainerSelector);
+      if (!otherValidationContainer) {
+        error(this._errorMessage.VALIDATION_CONTAINER_NOT_FOUND);
+        return
+      }
+
       const otherFieldLength = (otherField instanceof Element) ? otherField.value.length : 0;
       if (field.value.length === 0 && otherFieldLength === 0) {
         this.showValidationMessage(
