@@ -256,7 +256,6 @@ export default class Records {
                 this._transactions.remove(id);
                   
                 const amountBadge = document.querySelector(Selector.TRANSACTIONS.AMOUNT);
-                console.log(amountBadge);
                 if (amountBadge) {
                   const amount = parseInt(amountBadge.innerText, 10) - 1;
                   if (amount > 0) {
@@ -973,9 +972,10 @@ export default class Records {
   /**
    * Unnregisters onChange listeners for the field(s).
    *
-   * @param  {element} scope       - Node in the document tree that is parent
-   *                                 to the elements defined as selectors
-   * @param  {String} ...selectors - Selector(s) of the field(s) to unse
+   * @param   {element} scope       - Node in the document tree that is parent
+   *                                  to the elements defined as selectors
+   * @param   {String} ...selectors - Selector(s) of the field(s) to unset
+   * @returns void
    */
   unsetFormFields(scope, ...selectors) {
     if (!(scope instanceof Element)) {
