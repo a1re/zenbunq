@@ -193,6 +193,14 @@ export const Selector = {
       TEMPLATE: '#settings-category-card-template',
       CARD: {
         NAME: '.card__name'
+      },
+      FORM: {
+        ID: '#settings-category-form',
+        TEMPLATE: '#settings-category-form-template',
+        NAME: {
+          FIELD: '#field--name',
+          VALIDATION_CONTAINER: '#field--name ~ .form__validation-container'
+        }
       }
     },
     ACCOUNTS: {
@@ -203,6 +211,18 @@ export const Selector = {
       CARD: {
         KEY: '.card__key',
         NAME: '.card__name'
+      },
+      FORM: {
+        ID: '#settings-account-form',
+        TEMPLATE: '#settings-account-form-template',
+        KEY: {
+          FIELD: '#field--key',
+          VALIDATION_CONTAINER: '#field--key ~ .form__validation-container'
+        },
+        NAME: {
+          FIELD: '#field--name',
+          VALIDATION_CONTAINER: '#field--name ~ .form__validation-container'
+        },
       }
     },
     COUNTERPARTIES: {
@@ -214,6 +234,23 @@ export const Selector = {
         KEY: '.card__key',
         NAME: '.card__name',
         CATEGORY: '.card__category'
+      },
+      FORM: {
+        ID: '#settings-counterparty-form',
+        TEMPLATE: '#settings-counterparty-form-template',
+        KEY: {
+          FIELD: '#field--key',
+          VALIDATION_CONTAINER: '#field--key ~ .form__validation-container'
+        },
+        CATEGORY: {
+          FIELD: '#field--category',
+          LIST: '#list--category',
+          VALIDATION_CONTAINER: '#field--category ~ .form__validation-container'
+        },
+        NAME: {
+          FIELD: '#field--name',
+          VALIDATION_CONTAINER: '#field--name ~ .form__validation-container'
+        }
       }
     }
   }
@@ -286,5 +323,25 @@ export const Copy = {
   },
   COUNTERPARTIES_NOT_LOADED: 'Ошибка загрузки контрагентов',
   CATEGORIES_NOT_LOADED: 'Ошибка загрузки категорий',
-  ACCOUNTS_NOT_LOADED: 'Ошибка загрузки счетов'
+  ACCOUNTS_NOT_LOADED: 'Ошибка загрузки счетов',
+  SETTINGS: {
+    CATEGORY: {
+      ADD: 'Добавление категории',
+      EDIT: 'Редактирование категории'
+    },
+    COUNTERPARTY: {
+      ADD: 'Добавление контрагента',
+      EDIT: 'Редактирование контрагента'
+    },
+    ACCOUNT: {
+      ADD: 'Добавление счета',
+      EDIT: 'Редактирование счета'
+    },
+    ERROR: {
+      EMPTY_KEY: 'Укажите уникальный идентификатор',
+      EMPTY_CATEGORY: 'Укажите категорию',
+      EMPTY_NAME: 'Укажите имя',
+      EXISTING_NAME: 'Укажите уникальное имя'
+    }
+  }
 };

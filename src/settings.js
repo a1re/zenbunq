@@ -2,6 +2,7 @@ import {Selector, Value, Copy} from './const';
 import NodeComposer from './node-composer';
 import error from './helpers/error';
 import Data from './data';
+import ModalWindow from './helpers/modal-window';
 
 export default class Settings {
   /**
@@ -12,7 +13,10 @@ export default class Settings {
     INVALID_COMPOSER: "Invalid composer object",
     INVALID_DATA: "Invalid data connection: '{0}' should be an instance of Data",
     BADGE_WRAPPER_NOT_FOUND: "Badge wrapper count for '{0}' not found",
-    BADGE_NOT_FOUND: "Badge count for '{0}' not found"
+    BADGE_NOT_FOUND: "Badge count for '{0}' not found",
+    CATEGORY_FORM_NOT_FOUND: "Category form not found",
+    ACCOUNT_FORM_NOT_FOUND: "Account form not found",
+    COUNTERPARTY_FORM_NOT_FOUND: "Counterparty form not found"
   }
 
   /**
@@ -75,6 +79,7 @@ export default class Settings {
    * @returns @void
    */
   insertAccounts(wrapper) {
+    const modal = new ModalWindow(this._composer);
     const accounts = this._accounts.get(true).map((account) => {
       return {
         id: account.id,
@@ -93,15 +98,15 @@ export default class Settings {
         afterInsert: (element) => {
           const deleteButton = element.querySelector(Selector.SETTINGS.LIST.DELETE_BUTTON);
           deleteButton.onclick = () => {
-            this.showConfirmationModal(
-              Copy.MODAL.REMOVE_ACCOUNT.HEADER,
-              Copy.MODAL.REMOVE_ACCOUNT.ACCEPT_BUTTON,
-              Copy.MODAL.REMOVE_ACCOUNT.DECLINE_BUTTON,
-              () => {
+            modal.showConfirmationModal({
+              prompt: Copy.MODAL.REMOVE_ACCOUNT.HEADER,
+              acceptButtonCopy: Copy.MODAL.REMOVE_ACCOUNT.ACCEPT_BUTTON,
+              declineButtonCopy: Copy.MODAL.REMOVE_ACCOUNT.DECLINE_BUTTON,
+              acceptCallback: () => {
                 this._composer.removeNode(account.id);
                 this._accounts.remove(account.id);
 
-                this.hideModal();
+                modal.hideModal();
 
                 const header = document.querySelector(Selector.SETTINGS.BADGE.ACCOUNTS);
                 if (!header) {
@@ -118,10 +123,10 @@ export default class Settings {
                 const accountCount = parseInt(amountBadge.innerText, 10);
                 this._setCounterBadge(Selector.SETTINGS.BADGE.ACCOUNTS, accountCount - 1);
               },
-              () => {
-                this.hideModal();
+              declineCallback: () => {
+                modal.hideModal();
               }
-            );
+            });
           }
         },
         beforeUnset: (element) => {
@@ -150,67 +155,203 @@ export default class Settings {
    * @returns void
    */
   insertCategories(wrapper) {
-    const categories = this._categories.get(true).map((category) => {
-      return {
-        id: category.id,
-        wrapper: Selector.SETTINGS.LIST.WRAPPER,
-        template: Selector.SETTINGS.CATEGORIES.TEMPLATE,
-        values: [
-          {
-            wrapper: Selector.SETTINGS.CATEGORIES.CARD.NAME,
-            innerText: category.value
-          }
-        ],
-        afterInsert: (element) => {
-          const deleteButton = element.querySelector(Selector.SETTINGS.LIST.DELETE_BUTTON);
-          deleteButton.onclick = () => {
-            this.showConfirmationModal(
-              Copy.MODAL.REMOVE_CATEGORY.HEADER,
-              Copy.MODAL.REMOVE_CATEGORY.ACCEPT_BUTTON,
-              Copy.MODAL.REMOVE_CATEGORY.DECLINE_BUTTON,
-              () => {
-                this._composer.removeNode(category.id);
-                this._categories.remove(category.id);
-
-                this.hideModal();
-
-                const header = document.querySelector(Selector.SETTINGS.BADGE.CATEGORIES);
-                if (!header) {
-                  error(this._errorMessage.BADGE_WRAPPER_NOT_FOUND, 'categories');
-                  return;
-                }
-
-                const amountBadge = header.querySelector(Selector.SETTINGS.BADGE.COUNT);
-                if (!amountBadge) {
-                  error(this._errorMessage.BADGE_NOT_FOUND, 'categories');
-                  return;
-                }
-
-                const categoryCount = parseInt(amountBadge.innerText, 10);
-                this._setCounterBadge(Selector.SETTINGS.BADGE.CATEGORIES, categoryCount - 1);
-              },
-              () => {
-                this.hideModal();
-              }
-            );
-          }
-        },
-        beforeUnset: (element) => {
-          const deleteButton = element.querySelector(Selector.SETTINGS.LIST.DELETE_BUTTON);
-          deleteButton.onclick = undefined;
-        }
-      }
-    });
-
     this._composer.composeNode({
       id: Selector.SETTINGS.CATEGORIES.ID,
       wrapper: wrapper,
       template: Selector.SETTINGS.LIST.TEMPLATE,
-      children: categories,
       incremental: false
     });
 
+    const categories = this._categories.get(true).map((category) => {
+      this._addCategoryCard(category.id, category.value);
+    });
+
+    const addCategoryButton = document.querySelector(Selector.SETTINGS.CATEGORIES.ADD_BUTTON);
+    if (addCategoryButton) {
+      const modal = new ModalWindow(this._composer);
+
+      addCategoryButton.onclick = () => {
+        modal.showForm({
+          header: Copy.SETTINGS.CATEGORY.EDIT,
+          template: Selector.SETTINGS.CATEGORIES.FORM.TEMPLATE,
+          fields: [
+            {
+              fieldSelector: Selector.SETTINGS.CATEGORIES.FORM.NAME.FIELD,
+              validationContainerSelector: Selector.SETTINGS.CATEGORIES.FORM.NAME.VALIDATION_CONTAINER,
+              fieldValue: '',
+              validationCallback: modal.formField.validateNotInList(
+                this._categories.get(),
+                Copy.SETTINGS.ERROR.EXISTING_NAME
+              )
+            },
+          ],
+          acceptCallback: (evt) => {
+            evt.preventDefault();
+
+            const categoryEditForm = document.querySelector(Selector.SETTINGS.CATEGORIES.FORM.ID);
+            if (!categoryEditForm) {
+              error(this._errorMessage.CATEGORY_FORM_NOT_FOUND);
+              return;
+            }
+
+            const changeEvent = new Event('change');
+
+            const fields = [
+              categoryEditForm.querySelector(Selector.SETTINGS.CATEGORIES.FORM.NAME.FIELD)
+            ];
+
+            fields.forEach((field) => {
+              field.dispatchEvent(changeEvent);
+            });
+
+            if (categoryEditForm.reportValidity() === false) {
+              return;
+            }
+
+            const categoryEditFormData = new FormData(categoryEditForm);
+            const formValues = Object.fromEntries(categoryEditFormData);
+
+            const newCategoryValue = formValues[Selector.SETTINGS.CATEGORIES.FORM.NAME.FIELD.replace(/^(\#)/s, '')];
+
+            const categoryId = this._categories.add(newCategoryValue);
+
+            this._addCategoryCard(categoryId, newCategoryValue);
+            this._setCounterBadge(Selector.SETTINGS.BADGE.CATEGORIES, this._categories.get().length);
+            modal.hideModal();
+          },
+          declineCallback: () => {
+            modal.hideModal();
+          }
+        })
+      }
+    }
+
     this._setCounterBadge(Selector.SETTINGS.BADGE.CATEGORIES, categories.length);
+  }
+
+  /**
+   * Private method of inserting a category card in the list.
+   * 
+   * @param   {String} categoryId     - Category id
+   * @param   {String} categoryValue  - Name of the category
+   * @returns void
+   */
+  _addCategoryCard(categoryId, categoryValue) {
+    const modal = new ModalWindow(this._composer);
+    this._composer.composeNode({
+      id: categoryId,
+      wrapper: Selector.SETTINGS.LIST.WRAPPER,
+      template: Selector.SETTINGS.CATEGORIES.TEMPLATE,
+      values: [
+        {
+          wrapper: Selector.SETTINGS.CATEGORIES.CARD.NAME,
+          innerText: categoryValue
+        }
+      ],
+      afterInsert: (element) => {
+        const deleteButton = element.querySelector(Selector.SETTINGS.LIST.DELETE_BUTTON);
+        deleteButton.onclick = () => {
+          modal.showConfirmationModal({
+            prompt: Copy.MODAL.REMOVE_CATEGORY.HEADER,
+            acceptButtonCopy: Copy.MODAL.REMOVE_CATEGORY.ACCEPT_BUTTON,
+            declineButtonCopy: Copy.MODAL.REMOVE_CATEGORY.DECLINE_BUTTON,
+            acceptCallback: () => {
+              this._composer.removeNode(categoryId);
+              this._categories.remove(categoryId);
+
+              modal.hideModal();
+
+              const header = document.querySelector(Selector.SETTINGS.BADGE.CATEGORIES);
+              if (!header) {
+                error(this._errorMessage.BADGE_WRAPPER_NOT_FOUND, 'categories');
+                return;
+              }
+
+              const amountBadge = header.querySelector(Selector.SETTINGS.BADGE.COUNT);
+              if (!amountBadge) {
+                error(this._errorMessage.BADGE_NOT_FOUND, 'categories');
+                return;
+              }
+
+              const categoryCount = parseInt(amountBadge.innerText, 10);
+              this._setCounterBadge(Selector.SETTINGS.BADGE.CATEGORIES, categoryCount - 1);
+            },
+            declineCallback: () => {
+              modal.hideModal();
+            }
+          });
+        }
+        const editButton = element.querySelector(Selector.SETTINGS.LIST.EDIT_BUTTON);
+        editButton.onclick = () => {
+          modal.showForm({
+            header: Copy.SETTINGS.CATEGORY.EDIT,
+            template: Selector.SETTINGS.CATEGORIES.FORM.TEMPLATE,
+            fields: [
+              {
+                fieldSelector: Selector.SETTINGS.CATEGORIES.FORM.NAME.FIELD,
+                validationContainerSelector: Selector.SETTINGS.CATEGORIES.FORM.NAME.VALIDATION_CONTAINER,
+                fieldValue: categoryValue,
+                validationCallback: modal.formField.validateNotInList(
+                  this._categories.get(),
+                  Copy.SETTINGS.ERROR.EXISTING_NAME
+                )
+              },
+
+            ],
+            acceptCallback: (evt) => {
+              evt.preventDefault();
+
+              const categoryEditForm = document.querySelector(Selector.SETTINGS.CATEGORIES.FORM.ID);
+              if (!categoryEditForm) {
+                error(this._errorMessage.CATEGORY_FORM_NOT_FOUND);
+                return;
+              }
+
+              const changeEvent = new Event('change');
+
+              const fields = [
+                categoryEditForm.querySelector(Selector.SETTINGS.CATEGORIES.FORM.NAME.FIELD)
+              ];
+
+              fields.forEach((field) => {
+                field.dispatchEvent(changeEvent);
+              });
+
+              if (categoryEditForm.reportValidity() === false) {
+                return;
+              }
+
+              const categoryEditFormData = new FormData(categoryEditForm);
+              const formValues = Object.fromEntries(categoryEditFormData);
+
+              const newCategoryValue = formValues[Selector.SETTINGS.CATEGORIES.FORM.NAME.FIELD.replace(/^(\#)/s, '')];
+              this._categories.update(categoryId, newCategoryValue);
+
+              const categoryCard = document.querySelector(categoryId);
+              const categoryWrapper = categoryCard.querySelector(Selector.SETTINGS.CATEGORIES.CARD.NAME);
+              categoryWrapper.innerText = newCategoryValue;
+              
+              modal.hideModal();
+
+            },
+            declineCallback: () => {
+              modal.hideModal();
+            }
+          })
+        }
+      },
+      beforeUnset: (element) => {
+        const deleteButton = element.querySelector(Selector.SETTINGS.LIST.DELETE_BUTTON);
+        if (deleteButton) {
+          deleteButton.onclick = undefined;
+        }
+
+        const editButton = element.querySelector(Selector.SETTINGS.LIST.EDIT_BUTTON);
+        if (editButton) {
+          editButton.onclick = undefined;
+        }
+      }
+    })
   }
 
   /**
@@ -221,6 +362,7 @@ export default class Settings {
    * @returns @void
    */
   insertCounterparties(wrapper) {
+    const modal = new ModalWindow(this._composer);
     const counterparties = this._counterparties.get(true).map((counterparty) => {
       return {
         id: counterparty.id,
@@ -243,15 +385,15 @@ export default class Settings {
         afterInsert: (element) => {
           const deleteButton = element.querySelector(Selector.SETTINGS.LIST.DELETE_BUTTON);
           deleteButton.onclick = () => {
-            this.showConfirmationModal(
-              Copy.MODAL.REMOVE_COUNTERPARTY.HEADER,
-              Copy.MODAL.REMOVE_COUNTERPARTY.ACCEPT_BUTTON,
-              Copy.MODAL.REMOVE_COUNTERPARTY.DECLINE_BUTTON,
-              () => {
+            modal.showConfirmationModal({
+              prompt: Copy.MODAL.REMOVE_COUNTERPARTY.HEADER,
+              acceptButtonCopy: Copy.MODAL.REMOVE_COUNTERPARTY.ACCEPT_BUTTON,
+              declineButtonCopy: Copy.MODAL.REMOVE_COUNTERPARTY.DECLINE_BUTTON,
+              acceptCallback: () => {
                 this._composer.removeNode(counterparty.id);
                 this._counterparties.remove(counterparty.id);
 
-                this.hideModal();
+                modal.hideModal();
 
                 const header = document.querySelector(Selector.SETTINGS.BADGE.COUNTERPARTIES);
                 if (!header) {
@@ -268,10 +410,10 @@ export default class Settings {
                 const counterpartyCount = parseInt(amountBadge.innerText, 10);
                 this._setCounterBadge(Selector.SETTINGS.BADGE.COUNTERPARTIES, counterpartyCount - 1);
               },
-              () => {
-                this.hideModal();
+              declineCallback: () => {
+                modal.hideModal();
               }
-            );
+            });
           }
         },
         beforeUnset: (element) => {
@@ -290,83 +432,6 @@ export default class Settings {
     });
 
     this._setCounterBadge(Selector.SETTINGS.BADGE.COUNTERPARTIES, counterparties.length);
-  }
-
-
-  /**
-   * Shows a confirmation dialog with callbacks for "Submit" and "Decline" buttons.
-   *
-   * @param   {String} promptCopy        - Copy of the prompt to show
-   * @param   {String} acceptButtonCopy  - Copy of the prompt to show
-   * @param   {String} declineButtonCopy - Copy of the prompt to show
-   * @param   {Function} acceptCallback  - Callback to be called on pressing "Submit" button
-   * @param   {Function} declineCallback - Callback to be called on pressing "Decline" button
-   * @returns void
-   */
-  showConfirmationModal(promptCopy, acceptButtonCopy, declineButtonCopy, acceptCallback, declineCallback) {
-    const page = document.querySelector(Selector.PAGE);
-    page.classList.add(Value.PAGE_NOSCROLL_MODIFIER);
-
-    this._composer.composeNode({
-      id: Selector.MODAL.ID,
-      wrapper: Selector.MODAL.WRAPPER,
-      template: Selector.MODAL.TEMPLATE,
-      children: [{
-        wrapper: Selector.MODAL.CONTENT.WRAPPER,
-        template: Selector.MODAL.CONFIRMATION_DIALOG.TEMPLATE,
-        values: [
-          {
-            wrapper: Selector.MODAL.BUTTON.ACCEPT,
-            innerText: acceptButtonCopy
-          },
-          {
-            wrapper: Selector.MODAL.BUTTON.DECLINE,
-            innerText: declineButtonCopy
-          }
-        ]
-      }],
-      values: [{
-        wrapper: Selector.MODAL.CONTENT.HEADER,
-        innerText: promptCopy
-      }],
-      afterInsert: (element) => {
-        element.style.top = window.scrollY + 'px';
-
-        const closeButton = element.querySelector(Selector.MODAL.BUTTON.CLOSE);
-        const acceptButton = element.querySelector(Selector.MODAL.BUTTON.ACCEPT);
-        const declineButton = element.querySelector(Selector.MODAL.BUTTON.DECLINE);
-
-        acceptButton.onclick = acceptCallback;
-        declineButton.onclick = declineCallback;
-
-        closeButton.onclick = () => {
-          this.hideModal();
-        };
-
-        document.onkeyup = (evt) => {
-          if (evt.key === 'Escape') {
-            this.hideModal();
-          }
-        }
-      },
-      beforeUnset: (element) => {
-        const closeButton = element.querySelector(Selector.MODAL.BUTTON.CLOSE);
-        closeButton.onclick = null;
-        document.onkeyup = null;
-      }
-    });
-  }
-
-  /**
-   * Hides confirmation dialog.
-   *
-   * @returns void
-   */
-  hideModal() {
-    const page = document.querySelector(Selector.PAGE);
-    page.classList.remove(Value.PAGE_NOSCROLL_MODIFIER);
-
-    this._composer.removeNode(Selector.MODAL.ID);
   }
 
   /**

@@ -144,7 +144,7 @@ export default class Data {
    * Adds a new entry to this._entries and assigns an id to it.
    *
    * @param   {*} entry - New entry for this._entries
-   * @returns void
+   * @returns {Strigs}  - Id of the added entry
    */
   add(entry) {
     const lastIndex = parseInt(
@@ -153,6 +153,8 @@ export default class Data {
     );
     const id = this._name + lastIndex + 1;
     this._entries.push({id, value:entry});
+
+    return id;
   }
 
   /**
