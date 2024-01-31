@@ -338,9 +338,9 @@ export const Copy = {
       EDIT: 'Редактирование счета'
     },
     ERROR: {
-      EMPTY_KEY: 'Укажите уникальный идентификатор',
       EMPTY_CATEGORY: 'Укажите категорию',
       EMPTY_NAME: 'Укажите имя',
+      EXISTING_KEY: 'Укажите уникальный идентификатор',
       EXISTING_NAME: 'Укажите уникальное имя'
     }
   }

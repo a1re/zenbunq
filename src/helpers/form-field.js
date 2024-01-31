@@ -253,6 +253,35 @@ export default class FormField {
   }
 
   /**
+   * Creates a callback for "Not in list" validation method for a field.
+   *
+   * @param   {Data} data                   - Data object fot validation
+   * @param   {Function} validationCallback - Callback for validation
+   * @param   {String} excludeId            - Id of the record that should not be taken into account
+   * @param   {String} message              - Validation message
+   * @returns {Function}                    - Validation callback, that accepsts field (Element)
+   *                                          and validationContainer (Element) as parameters
+   */
+  validateUniqueData(data, validationCallback, excludeId, message) {
+    return (field, validationContainer) => {
+      const inList = data
+        .get(true)
+        .filter((item) => item.id !== excludeId)
+        .find(validationCallback(field.value));
+      if (field.value.length === 0 || inList) {
+        this.showValidationMessage(
+          field,
+          validationContainer,
+          message
+        );
+        return;
+      }
+
+      this.hideValidationMessage(field, validationContainer);
+    }
+  }
+
+  /**
    * Creates "Not empty" validation metod with a dependancy on another field
    * (at least one of the fields shouldn't be empty).
    *

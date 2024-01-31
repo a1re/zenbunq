@@ -12,11 +12,9 @@ export default class Settings {
   _errorMessage = {
     INVALID_COMPOSER: "Invalid composer object",
     INVALID_DATA: "Invalid data connection: '{0}' should be an instance of Data",
-    BADGE_WRAPPER_NOT_FOUND: "Badge wrapper count for '{0}' not found",
-    BADGE_NOT_FOUND: "Badge count for '{0}' not found",
-    CATEGORY_FORM_NOT_FOUND: "Category form not found",
-    ACCOUNT_FORM_NOT_FOUND: "Account form not found",
-    COUNTERPARTY_FORM_NOT_FOUND: "Counterparty form not found"
+    BADGE_WRAPPER_NOT_FOUND: "Badge wrapper '{0}' not found",
+    FORM_NOT_FOUND: "Form '{0}' not found",
+    FIELDS_VALUES_NOT_MATCHING: "Fields and values should match"
   }
 
   /**
@@ -72,264 +70,404 @@ export default class Settings {
   }
 
   /**
-   * Inserts the list of account cards to the page.
+   * Inserts account cards.
    * 
-   * @param  {String/Element} wrapper - Selector of the DOM Node or Node itself that
-   *                                    will be filled with the list of accounts
-   * @returns @void
+   * @param {String/HTMLElement} wrapper – Selector or direct HTML Node where to insert
+   *                                       account cards
+   * @returns void
    */
   insertAccounts(wrapper) {
     const modal = new ModalWindow(this._composer);
-    const accounts = this._accounts.get(true).map((account) => {
-      return {
-        id: account.id,
-        wrapper: Selector.SETTINGS.LIST.WRAPPER,
-        template: Selector.SETTINGS.ACCOUNTS.TEMPLATE,
-        values: [
-          {
-            wrapper: Selector.SETTINGS.ACCOUNTS.CARD.KEY,
-            innerText: account.value.key
-          },
-          {
-            wrapper: Selector.SETTINGS.ACCOUNTS.CARD.NAME,
-            innerText: account.value.label
-          }
-        ],
-        afterInsert: (element) => {
-          const deleteButton = element.querySelector(Selector.SETTINGS.LIST.DELETE_BUTTON);
-          deleteButton.onclick = () => {
-            modal.showConfirmationModal({
-              prompt: Copy.MODAL.REMOVE_ACCOUNT.HEADER,
-              acceptButtonCopy: Copy.MODAL.REMOVE_ACCOUNT.ACCEPT_BUTTON,
-              declineButtonCopy: Copy.MODAL.REMOVE_ACCOUNT.DECLINE_BUTTON,
-              acceptCallback: () => {
-                this._composer.removeNode(account.id);
-                this._accounts.remove(account.id);
 
-                modal.hideModal();
-
-                const header = document.querySelector(Selector.SETTINGS.BADGE.ACCOUNTS);
-                if (!header) {
-                  error(this._errorMessage.BADGE_WRAPPER_NOT_FOUND, 'accounts');
-                  return;
-                }
-
-                const amountBadge = header.querySelector(Selector.SETTINGS.BADGE.COUNT);
-                if (!amountBadge) {
-                  error(this._errorMessage.BADGE_NOT_FOUND, 'accounts');
-                  return;
-                }
-
-                const accountCount = parseInt(amountBadge.innerText, 10);
-                this._setCounterBadge(Selector.SETTINGS.BADGE.ACCOUNTS, accountCount - 1);
-              },
-              declineCallback: () => {
-                modal.hideModal();
-              }
-            });
+    this._insertEntries({
+      id: Selector.SETTINGS.ACCOUNTS.ID,
+      wrapper,
+      template: Selector.SETTINGS.ACCOUNTS.TEMPLATE,
+      data: this._accounts,
+      fields: [
+        {
+          key: 'key',
+          cardSelector: Selector.SETTINGS.ACCOUNTS.CARD.KEY,
+          fieldSelector: Selector.SETTINGS.ACCOUNTS.FORM.KEY.FIELD,
+          validationContainerSelector: Selector.SETTINGS.ACCOUNTS.FORM.KEY.VALIDATION_CONTAINER,
+          validationUnique: {
+            data: this._accounts,
+            callback: (value) => (account) => account.value.key === value
           }
         },
-        beforeUnset: (element) => {
-          const deleteButton = element.querySelector(Selector.SETTINGS.LIST.DELETE_BUTTON);
-          deleteButton.onclick = undefined;
+        {
+          key: 'label',
+          cardSelector: Selector.SETTINGS.ACCOUNTS.CARD.NAME,
+          fieldSelector: Selector.SETTINGS.ACCOUNTS.FORM.NAME.FIELD,
+          validationContainerSelector: Selector.SETTINGS.ACCOUNTS.FORM.NAME.VALIDATION_CONTAINER,
+          validationCallback: modal.formField.validateNotEmpty(Copy.SETTINGS.ERROR.EMPTY_NAME)
         }
-      }
+      ],
+      deleteDialog: {
+        prompt: Copy.MODAL.REMOVE_ACCOUNT.HEADER,
+        acceptButtonCopy: Copy.MODAL.REMOVE_ACCOUNT.ACCEPT_BUTTON,
+        declineButtonCopy: Copy.MODAL.REMOVE_ACCOUNT.DECLINE_BUTTON,
+      },
+      editDialog: {
+        header: Copy.SETTINGS.ACCOUNT.EDIT,
+        template: Selector.SETTINGS.ACCOUNTS.FORM.TEMPLATE,
+        id: Selector.SETTINGS.ACCOUNTS.FORM.ID
+      },
+      badge: Selector.SETTINGS.BADGE.ACCOUNTS,
+      addButton: Selector.SETTINGS.ACCOUNTS.ADD_BUTTON
     });
-
-    this._composer.composeNode({
-      id: Selector.SETTINGS.ACCOUNTS.ID,
-      wrapper: wrapper,
-      template: Selector.SETTINGS.LIST.TEMPLATE,
-      children: accounts,
-      incremental: false
-    });
-
-    this._setCounterBadge(Selector.SETTINGS.BADGE.ACCOUNTS, accounts.length);
   }
 
   /**
-   * Inserts the list of account cards to the page.
+   * Inserts category cards.
    * 
-   * @param  {String/Element} wrapper - Selector of the DOM Node or Node itself that
-   *                                    will be filled with the list of accounts
+   * @param {String/HTMLElement} wrapper – Selector or direct HTML Node where to insert
+   *                                       category cards
    * @returns void
    */
   insertCategories(wrapper) {
-    this._composer.composeNode({
+    const modal = new ModalWindow(this._composer);
+
+    this._insertEntries({
       id: Selector.SETTINGS.CATEGORIES.ID,
-      wrapper: wrapper,
-      template: Selector.SETTINGS.LIST.TEMPLATE,
-      incremental: false
+      wrapper,
+      template: Selector.SETTINGS.CATEGORIES.TEMPLATE,
+      data: this._categories,
+      fields: [{
+        cardSelector: Selector.SETTINGS.CATEGORIES.CARD.NAME,
+        fieldSelector: Selector.SETTINGS.CATEGORIES.FORM.NAME.FIELD,
+        validationContainerSelector: Selector.SETTINGS.CATEGORIES.FORM.NAME.VALIDATION_CONTAINER,
+        validationUnique: {
+          data: this._categories,
+          callback: (value) => (account) => account.value === value
+        }
+      }],
+      deleteDialog: {
+        prompt: Copy.MODAL.REMOVE_CATEGORY.HEADER,
+        acceptButtonCopy: Copy.MODAL.REMOVE_CATEGORY.ACCEPT_BUTTON,
+        declineButtonCopy: Copy.MODAL.REMOVE_CATEGORY.DECLINE_BUTTON,
+      },
+      editDialog: {
+        header: Copy.SETTINGS.CATEGORY.EDIT,
+        template: Selector.SETTINGS.CATEGORIES.FORM.TEMPLATE,
+        id: Selector.SETTINGS.CATEGORIES.FORM.ID
+      },
+      badge: Selector.SETTINGS.BADGE.CATEGORIES,
+      addButton: Selector.SETTINGS.CATEGORIES.ADD_BUTTON
     });
-
-    const categories = this._categories.get(true).map((category) => {
-      this._addCategoryCard(category.id, category.value);
-    });
-
-    const addCategoryButton = document.querySelector(Selector.SETTINGS.CATEGORIES.ADD_BUTTON);
-    if (addCategoryButton) {
-      const modal = new ModalWindow(this._composer);
-
-      addCategoryButton.onclick = () => {
-        modal.showForm({
-          header: Copy.SETTINGS.CATEGORY.EDIT,
-          template: Selector.SETTINGS.CATEGORIES.FORM.TEMPLATE,
-          fields: [
-            {
-              fieldSelector: Selector.SETTINGS.CATEGORIES.FORM.NAME.FIELD,
-              validationContainerSelector: Selector.SETTINGS.CATEGORIES.FORM.NAME.VALIDATION_CONTAINER,
-              fieldValue: '',
-              validationCallback: modal.formField.validateNotInList(
-                this._categories.get(),
-                Copy.SETTINGS.ERROR.EXISTING_NAME
-              )
-            },
-          ],
-          acceptCallback: (evt) => {
-            evt.preventDefault();
-
-            const categoryEditForm = document.querySelector(Selector.SETTINGS.CATEGORIES.FORM.ID);
-            if (!categoryEditForm) {
-              error(this._errorMessage.CATEGORY_FORM_NOT_FOUND);
-              return;
-            }
-
-            const changeEvent = new Event('change');
-
-            const fields = [
-              categoryEditForm.querySelector(Selector.SETTINGS.CATEGORIES.FORM.NAME.FIELD)
-            ];
-
-            fields.forEach((field) => {
-              field.dispatchEvent(changeEvent);
-            });
-
-            if (categoryEditForm.reportValidity() === false) {
-              return;
-            }
-
-            const categoryEditFormData = new FormData(categoryEditForm);
-            const formValues = Object.fromEntries(categoryEditFormData);
-
-            const newCategoryValue = formValues[Selector.SETTINGS.CATEGORIES.FORM.NAME.FIELD.replace(/^(\#)/s, '')];
-
-            const categoryId = this._categories.add(newCategoryValue);
-
-            this._addCategoryCard(categoryId, newCategoryValue);
-            this._setCounterBadge(Selector.SETTINGS.BADGE.CATEGORIES, this._categories.get().length);
-            modal.hideModal();
-          },
-          declineCallback: () => {
-            modal.hideModal();
-          }
-        })
-      }
-    }
-
-    this._setCounterBadge(Selector.SETTINGS.BADGE.CATEGORIES, categories.length);
   }
 
   /**
-   * Private method of inserting a category card in the list.
+   * Inserts counterparty cards.
    * 
-   * @param   {String} categoryId     - Category id
-   * @param   {String} categoryValue  - Name of the category
+   * @param {String/HTMLElement} wrapper – Selector or direct HTML Node where to insert
+   *                                       counterparty cards
    * @returns void
    */
-  _addCategoryCard(categoryId, categoryValue) {
+  insertCounterparties(wrapper) {
     const modal = new ModalWindow(this._composer);
-    this._composer.composeNode({
-      id: categoryId,
-      wrapper: Selector.SETTINGS.LIST.WRAPPER,
-      template: Selector.SETTINGS.CATEGORIES.TEMPLATE,
-      values: [
+
+    this._insertEntries({
+      id: Selector.SETTINGS.COUNTERPARTIES.ID,
+      wrapper,
+      template: Selector.SETTINGS.COUNTERPARTIES.TEMPLATE,
+      data: this._counterparties,
+      fields: [
         {
-          wrapper: Selector.SETTINGS.CATEGORIES.CARD.NAME,
-          innerText: categoryValue
+          key: 'key',
+          cardSelector: Selector.SETTINGS.COUNTERPARTIES.CARD.KEY,
+          fieldSelector: Selector.SETTINGS.COUNTERPARTIES.FORM.KEY.FIELD,
+          validationContainerSelector: Selector.SETTINGS.COUNTERPARTIES.FORM.KEY.VALIDATION_CONTAINER,
+          validationUnique: {
+            data: this._counterparties,
+            callback: (value) => (counterparty) => counterparty.value.key === value
+          }
+        },
+        {
+          key: 'category',
+          cardSelector: Selector.SETTINGS.COUNTERPARTIES.CARD.CATEGORY,
+          fieldSelector: Selector.SETTINGS.COUNTERPARTIES.FORM.CATEGORY.FIELD,
+          validationContainerSelector: Selector.SETTINGS.COUNTERPARTIES.FORM.CATEGORY.VALIDATION_CONTAINER,
+          validationCallback: modal.formField.validateNotEmpty(Copy.SETTINGS.ERROR.EMPTY_CATEGORY),
+          datalistSelector: Selector.SETTINGS.COUNTERPARTIES.FORM.CATEGORY.LIST,
+          datalist: this._categories.get()
+        },
+        {
+          key: 'label',
+          cardSelector: Selector.SETTINGS.COUNTERPARTIES.CARD.NAME,
+          fieldSelector: Selector.SETTINGS.COUNTERPARTIES.FORM.NAME.FIELD,
+          validationContainerSelector: Selector.SETTINGS.COUNTERPARTIES.FORM.NAME.VALIDATION_CONTAINER,
+          validationCallback: modal.formField.validateNotEmpty(Copy.SETTINGS.ERROR.EMPTY_NAME)
         }
       ],
+      deleteDialog: {
+        prompt: Copy.MODAL.REMOVE_COUNTERPARTY.HEADER,
+        acceptButtonCopy: Copy.MODAL.REMOVE_COUNTERPARTY.ACCEPT_BUTTON,
+        declineButtonCopy: Copy.MODAL.REMOVE_COUNTERPARTY.DECLINE_BUTTON
+      },
+      editDialog: {
+        header: Copy.SETTINGS.COUNTERPARTY.EDIT,
+        template: Selector.SETTINGS.COUNTERPARTIES.FORM.TEMPLATE,
+        id: Selector.SETTINGS.COUNTERPARTIES.FORM.ID
+      },
+      badge: Selector.SETTINGS.BADGE.COUNTERPARTIES,
+      addButton: Selector.SETTINGS.COUNTERPARTIES.ADD_BUTTON
+    });
+  }
+
+  /**
+   * Private universal method for inserting a list of entries.
+   * 
+   * @param {String}             options.id           - Assigned id of the contatining element for the entries list
+   * @param {String/HTMLElement} options.wrapper      - Selector or direct HTML Node where to insert entries list
+   * @param {String}             options.template     - Id of the list wrapper template
+   * @param {Data}               options.data         - Data object of entries
+   * @param {Array}              options.fields       - Array of fields settings. Each element is an object with
+   *                                                    the following settings: key, cardSelector, fieldSelector
+   *                                                    validationContainerSelector (optional), validationCallback
+   *                                                    (optional), validationUnique (if set, validationCallback is
+   *                                                    ignored), datalistSelector (optional), datalist (optional)
+   * @param {Object}             options.deleteDialog - Settings object (prompt, acceptButtonCopy, declineButtonCopy)
+   * @param {Object}             options.editDialog   - Settings object (header, template, id)
+   * @param {String}             options.badge        - Selector of the badge element (optional)
+   * @param {String}             options.addButton    - Selector of the add button element
+   */
+  _insertEntries({id, wrapper, template, data, fields, deleteDialog, editDialog, badge, addButton: addButtonSelector}) {
+    this._composer.composeNode({
+      id,
+      wrapper,
+      template: Selector.SETTINGS.LIST.TEMPLATE,
+      afterInsert: () => {
+        const entries = data.get(true);
+
+        entries.forEach((entry) => {
+          this._insertCard({
+            ...entry,
+            wrapper: id,
+            template,
+            fields,
+            deleteDialog,
+            editDialog, 
+            data,
+            badge
+          });
+        });
+
+        this._setCounterBadge(badge, entries.length);
+
+        const addButton = document.querySelector(addButtonSelector);
+        if (!addButton) {
+          return;
+        } 
+
+        addButton.onclick = (evt) => {
+          const modal = new ModalWindow(this._composer);
+
+          modal.showForm({
+            header: editDialog.header,
+            template: editDialog.template,
+            fields: fields.map((field) => {
+              if (field.validationUnique) {
+                field.validationCallback = modal.formField.validateUniqueData(
+                  field.validationUnique.data, 
+                  field.validationUnique.callback,
+                  '0',
+                  Copy.SETTINGS.ERROR.EXISTING_KEY
+                );
+              }
+              return field;
+            }),
+            acceptCallback: (evt) => {
+              evt.preventDefault();
+
+              const addForm = document.querySelector(editDialog.id);
+              if (!addForm) {
+                error(this._errorMessage.FORM_NOT_FOUND, editDialog.id);
+                return;
+              }
+
+              const changeEvent = new Event('change');
+
+              fields.forEach((field) => {
+                const formField = addForm.querySelector(field.fieldSelector);
+                if (formField) {
+                  formField.dispatchEvent(changeEvent);
+                }
+              });
+
+              if (addForm.reportValidity() === false) {
+                return;
+              }
+
+              const addFormData = new FormData(addForm);
+              const formValues = Object.fromEntries(addFormData);
+
+              let entity = {};
+              
+              fields.forEach((field, i) => {
+                const formValue = formValues[field.fieldSelector.replace(/^(\#)/s, '')];
+                if (field.key) {
+                  entity[field.key] = formValue;
+                } else {
+                  entity = formValue;
+                }
+                fields[i].fieldValue = formValue;
+              });
+
+              const itemId =  data.add(entity);
+
+              this._insertCard({
+                id: itemId,
+                value: entity,
+                wrapper: id,
+                template,
+                fields,
+                deleteDialog,
+                editDialog, 
+                data,
+                badge
+              });
+
+              this._setCounterBadge(badge, data.get().length);
+              modal.hideModal();
+            },
+            declineCallback: () => {
+              modal.hideModal();
+            }
+          })
+        }
+
+      },
+      beforeUnset: (element) => {
+        const addButton = element.querySelector(addButtonSelector);
+        if (addButton) {
+          addButton.onclick = undefined;
+        } 
+      },
+      incremental: false
+    });
+  }
+
+
+  /**
+   * Private universal method for inserting a card enty.
+   * 
+   * @param {String}             options.id           - Assigned id of the card
+   * @param {String/Object}      options.value        - Value of the entity (can be an object)
+   * @param {String/HTMLElement} options.wrapper      - Selector or direct HTML Node where to insert the card
+   * @param {String}             options.template     - Id of the card template
+   * @param {Data}               options.data         - Data object of entries
+   * @param {Array}              options.fields       - Array of fields settings. Each element is an object with
+   *                                                    the following settings: key, cardSelector, fieldSelector
+   *                                                    validationContainerSelector (optional), validationCallback
+   *                                                    (optional), validationUnique (if set, validationCallback is
+   *                                                    ignored), datalistSelector (optional), datalist (optional)
+   * @param {Object}             options.deleteDialog - Settings object (prompt, acceptButtonCopy, declineButtonCopy)
+   * @param {Object}             options.editDialog   - Settings object (header, template, id)
+   * @param {String}             options.badge        - Selector of the badge element (optional)
+   */
+  _insertCard({id, value, wrapper, template, fields, deleteDialog, editDialog, data, badge}) {
+    const modal = new ModalWindow(this._composer);
+
+    const cardValues = fields.map((field) => {
+      return {
+        wrapper: field.cardSelector,
+        innerText: (field.key) ? value[field.key] : value
+      }
+    });
+
+    const fieldValues = fields.map((field) => {
+      const fieldValue =  (field.key) ? value[field.key] : value;
+
+      if (field.validationUnique) {
+        field.validationCallback = modal.formField.validateUniqueData(
+          field.validationUnique.data, 
+          field.validationUnique.callback,
+          id,
+          Copy.SETTINGS.ERROR.EXISTING_KEY
+        );
+      }
+
+      return {
+        ...field,
+        fieldValue
+      }
+    });
+
+    this._composer.composeNode({
+      id,
+      wrapper,
+      template,
+      values: cardValues,
       afterInsert: (element) => {
         const deleteButton = element.querySelector(Selector.SETTINGS.LIST.DELETE_BUTTON);
         deleteButton.onclick = () => {
           modal.showConfirmationModal({
-            prompt: Copy.MODAL.REMOVE_CATEGORY.HEADER,
-            acceptButtonCopy: Copy.MODAL.REMOVE_CATEGORY.ACCEPT_BUTTON,
-            declineButtonCopy: Copy.MODAL.REMOVE_CATEGORY.DECLINE_BUTTON,
+            ...deleteDialog,
             acceptCallback: () => {
-              this._composer.removeNode(categoryId);
-              this._categories.remove(categoryId);
+              this._composer.removeNode(id);
+              data.remove(id);
 
               modal.hideModal();
 
-              const header = document.querySelector(Selector.SETTINGS.BADGE.CATEGORIES);
-              if (!header) {
-                error(this._errorMessage.BADGE_WRAPPER_NOT_FOUND, 'categories');
-                return;
-              }
-
-              const amountBadge = header.querySelector(Selector.SETTINGS.BADGE.COUNT);
-              if (!amountBadge) {
-                error(this._errorMessage.BADGE_NOT_FOUND, 'categories');
-                return;
-              }
-
-              const categoryCount = parseInt(amountBadge.innerText, 10);
-              this._setCounterBadge(Selector.SETTINGS.BADGE.CATEGORIES, categoryCount - 1);
+              this._setCounterBadge(badge, data.get().length);
             },
             declineCallback: () => {
               modal.hideModal();
             }
           });
         }
+
         const editButton = element.querySelector(Selector.SETTINGS.LIST.EDIT_BUTTON);
         editButton.onclick = () => {
           modal.showForm({
-            header: Copy.SETTINGS.CATEGORY.EDIT,
-            template: Selector.SETTINGS.CATEGORIES.FORM.TEMPLATE,
-            fields: [
-              {
-                fieldSelector: Selector.SETTINGS.CATEGORIES.FORM.NAME.FIELD,
-                validationContainerSelector: Selector.SETTINGS.CATEGORIES.FORM.NAME.VALIDATION_CONTAINER,
-                fieldValue: categoryValue,
-                validationCallback: modal.formField.validateNotInList(
-                  this._categories.get(),
-                  Copy.SETTINGS.ERROR.EXISTING_NAME
-                )
-              },
-
-            ],
+            header: editDialog.header,
+            template: editDialog.template,
+            fields: fieldValues,
             acceptCallback: (evt) => {
               evt.preventDefault();
 
-              const categoryEditForm = document.querySelector(Selector.SETTINGS.CATEGORIES.FORM.ID);
-              if (!categoryEditForm) {
-                error(this._errorMessage.CATEGORY_FORM_NOT_FOUND);
+              const editForm = document.querySelector(editDialog.id);
+              if (!editForm) {
+                error(this._errorMessage.FORM_NOT_FOUND, editDialog.id);
                 return;
               }
 
               const changeEvent = new Event('change');
 
-              const fields = [
-                categoryEditForm.querySelector(Selector.SETTINGS.CATEGORIES.FORM.NAME.FIELD)
-              ];
-
               fields.forEach((field) => {
-                field.dispatchEvent(changeEvent);
+                const formField = editForm.querySelector(field.fieldSelector);
+                if (formField) {
+                  formField.dispatchEvent(changeEvent);
+                }
               });
 
-              if (categoryEditForm.reportValidity() === false) {
+              if (editForm.reportValidity() === false) {
                 return;
               }
 
-              const categoryEditFormData = new FormData(categoryEditForm);
-              const formValues = Object.fromEntries(categoryEditFormData);
+              const editFormData = new FormData(editForm);
+              const formValues = Object.fromEntries(editFormData);
 
-              const newCategoryValue = formValues[Selector.SETTINGS.CATEGORIES.FORM.NAME.FIELD.replace(/^(\#)/s, '')];
-              this._categories.update(categoryId, newCategoryValue);
+              let entity = {};
+              
+              fieldValues.forEach((field, i) => {
+                const formValue = formValues[field.fieldSelector.replace(/^(\#)/s, '')];
+                if (field.key) {
+                  entity[field.key] = formValue;
+                } else {
+                  entity = formValue;
+                }
+                fieldValues[i].fieldValue = formValue;
+              });
 
-              const categoryCard = document.querySelector(categoryId);
-              const categoryWrapper = categoryCard.querySelector(Selector.SETTINGS.CATEGORIES.CARD.NAME);
-              categoryWrapper.innerText = newCategoryValue;
+              data.update(id, entity);
+
+              const entityCard = document.querySelector(id);
+              fieldValues.forEach((field) => {
+                const cardField = entityCard.querySelector(field.cardSelector);
+                cardField.innerText = field.fieldValue;
+              });
               
               modal.hideModal();
 
@@ -341,97 +479,14 @@ export default class Settings {
         }
       },
       beforeUnset: (element) => {
+
         const deleteButton = element.querySelector(Selector.SETTINGS.LIST.DELETE_BUTTON);
-        if (deleteButton) {
-          deleteButton.onclick = undefined;
-        }
+        deleteButton.onclick = undefined;
 
         const editButton = element.querySelector(Selector.SETTINGS.LIST.EDIT_BUTTON);
-        if (editButton) {
-          editButton.onclick = undefined;
-        }
-      }
-    })
-  }
-
-  /**
-   * Inserts the list of counterparty cards to the page.
-   * 
-   * @param  {String/Element} wrapper - Selector of the DOM Node or Node itself that
-   *                                    will be filled with the list of counterparties
-   * @returns @void
-   */
-  insertCounterparties(wrapper) {
-    const modal = new ModalWindow(this._composer);
-    const counterparties = this._counterparties.get(true).map((counterparty) => {
-      return {
-        id: counterparty.id,
-        wrapper: Selector.SETTINGS.LIST.WRAPPER,
-        template: Selector.SETTINGS.COUNTERPARTIES.TEMPLATE,
-        values: [
-          {
-            wrapper: Selector.SETTINGS.COUNTERPARTIES.CARD.CATEGORY,
-            innerText: counterparty.value.category
-          },
-          {
-            wrapper: Selector.SETTINGS.COUNTERPARTIES.CARD.KEY,
-            innerText: counterparty.value.key
-          },
-          {
-            wrapper: Selector.SETTINGS.COUNTERPARTIES.CARD.NAME,
-            innerText: counterparty.value.label
-          }
-        ],
-        afterInsert: (element) => {
-          const deleteButton = element.querySelector(Selector.SETTINGS.LIST.DELETE_BUTTON);
-          deleteButton.onclick = () => {
-            modal.showConfirmationModal({
-              prompt: Copy.MODAL.REMOVE_COUNTERPARTY.HEADER,
-              acceptButtonCopy: Copy.MODAL.REMOVE_COUNTERPARTY.ACCEPT_BUTTON,
-              declineButtonCopy: Copy.MODAL.REMOVE_COUNTERPARTY.DECLINE_BUTTON,
-              acceptCallback: () => {
-                this._composer.removeNode(counterparty.id);
-                this._counterparties.remove(counterparty.id);
-
-                modal.hideModal();
-
-                const header = document.querySelector(Selector.SETTINGS.BADGE.COUNTERPARTIES);
-                if (!header) {
-                  error(this._errorMessage.BADGE_WRAPPER_NOT_FOUND, 'counterparties');
-                  return;
-                }
-
-                const amountBadge = header.querySelector(Selector.SETTINGS.BADGE.COUNT);
-                if (!amountBadge) {
-                  error(this._errorMessage.BADGE_NOT_FOUND, 'counterparties');
-                  return;
-                }
-
-                const counterpartyCount = parseInt(amountBadge.innerText, 10);
-                this._setCounterBadge(Selector.SETTINGS.BADGE.COUNTERPARTIES, counterpartyCount - 1);
-              },
-              declineCallback: () => {
-                modal.hideModal();
-              }
-            });
-          }
-        },
-        beforeUnset: (element) => {
-          const deleteButton = element.querySelector(Selector.SETTINGS.LIST.DELETE_BUTTON);
-          deleteButton.onclick = undefined;
-        }
+        editButton.onclick = undefined;
       }
     });
-
-    this._composer.composeNode({
-      id: Selector.SETTINGS.COUNTERPARTIES.ID,
-      wrapper: wrapper,
-      template: Selector.SETTINGS.LIST.TEMPLATE,
-      children: counterparties,
-      incremental: false
-    });
-
-    this._setCounterBadge(Selector.SETTINGS.BADGE.COUNTERPARTIES, counterparties.length);
   }
 
   /**
@@ -444,6 +499,11 @@ export default class Settings {
    * @returns void
    */
   _setCounterBadge(wrapper, count) {
+    if (!document.querySelector(wrapper)) {
+      error(this._errorMessage.BADGE_WRAPPER_NOT_FOUND, wrapper);
+      return;
+    }
+
     if (count > 0) {
       this._composer.composeNode({
         wrapper: wrapper,
