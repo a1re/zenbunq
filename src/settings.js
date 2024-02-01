@@ -71,7 +71,7 @@ export default class Settings {
 
   /**
    * Inserts account cards.
-   * 
+   *
    * @param {String/HTMLElement} wrapper – Selector or direct HTML Node where to insert
    *                                       account cards
    * @returns void
@@ -120,7 +120,7 @@ export default class Settings {
 
   /**
    * Inserts category cards.
-   * 
+   *
    * @param {String/HTMLElement} wrapper – Selector or direct HTML Node where to insert
    *                                       category cards
    * @returns void
@@ -159,7 +159,7 @@ export default class Settings {
 
   /**
    * Inserts counterparty cards.
-   * 
+   *
    * @param {String/HTMLElement} wrapper – Selector or direct HTML Node where to insert
    *                                       counterparty cards
    * @returns void
@@ -217,7 +217,7 @@ export default class Settings {
 
   /**
    * Private universal method for inserting a list of entries.
-   * 
+   *
    * @param {String}             options.id           - Assigned id of the contatining element for the entries list
    * @param {String/HTMLElement} options.wrapper      - Selector or direct HTML Node where to insert entries list
    * @param {String}             options.template     - Id of the list wrapper template
@@ -247,7 +247,7 @@ export default class Settings {
             template,
             fields,
             deleteDialog,
-            editDialog, 
+            editDialog,
             data,
             badge
           });
@@ -258,7 +258,7 @@ export default class Settings {
         const addButton = document.querySelector(addButtonSelector);
         if (!addButton) {
           return;
-        } 
+        }
 
         addButton.onclick = (evt) => {
           const modal = new ModalWindow(this._composer);
@@ -269,7 +269,7 @@ export default class Settings {
             fields: fields.map((field) => {
               if (field.validationUnique) {
                 field.validationCallback = modal.formField.validateUniqueData(
-                  field.validationUnique.data, 
+                  field.validationUnique.data,
                   field.validationUnique.callback,
                   '0',
                   Copy.SETTINGS.ERROR.EXISTING_KEY
@@ -303,7 +303,7 @@ export default class Settings {
               const formValues = Object.fromEntries(addFormData);
 
               let entity = {};
-              
+
               fields.forEach((field, i) => {
                 const formValue = formValues[field.fieldSelector.replace(/^(\#)/s, '')];
                 if (field.key) {
@@ -314,7 +314,7 @@ export default class Settings {
                 fields[i].fieldValue = formValue;
               });
 
-              const itemId =  data.add(entity);
+              const itemId = data.add(entity);
 
               this._insertCard({
                 id: itemId,
@@ -323,7 +323,7 @@ export default class Settings {
                 template,
                 fields,
                 deleteDialog,
-                editDialog, 
+                editDialog,
                 data,
                 badge
               });
@@ -342,7 +342,7 @@ export default class Settings {
         const addButton = element.querySelector(addButtonSelector);
         if (addButton) {
           addButton.onclick = undefined;
-        } 
+        }
       },
       incremental: false
     });
@@ -351,7 +351,7 @@ export default class Settings {
 
   /**
    * Private universal method for inserting a card enty.
-   * 
+   *
    * @param {String}             options.id           - Assigned id of the card
    * @param {String/Object}      options.value        - Value of the entity (can be an object)
    * @param {String/HTMLElement} options.wrapper      - Selector or direct HTML Node where to insert the card
@@ -381,7 +381,7 @@ export default class Settings {
 
       if (field.validationUnique) {
         field.validationCallback = modal.formField.validateUniqueData(
-          field.validationUnique.data, 
+          field.validationUnique.data,
           field.validationUnique.callback,
           id,
           Copy.SETTINGS.ERROR.EXISTING_KEY
@@ -450,7 +450,7 @@ export default class Settings {
               const formValues = Object.fromEntries(editFormData);
 
               let entity = {};
-              
+
               fieldValues.forEach((field, i) => {
                 const formValue = formValues[field.fieldSelector.replace(/^(\#)/s, '')];
                 if (field.key) {
@@ -468,7 +468,7 @@ export default class Settings {
                 const cardField = entityCard.querySelector(field.cardSelector);
                 cardField.innerText = field.fieldValue;
               });
-              
+
               modal.hideModal();
 
             },
@@ -491,7 +491,7 @@ export default class Settings {
 
   /**
    * Inserts a badge with counter into weapper
-   * 
+   *
    * @param  {String/Element} wrapper - Selector of the DOM Node or Node itself that
    *                                    will contain badge
    * @param  {Number}         count   - Number in the badge. If 0 or less, the badge

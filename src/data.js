@@ -119,7 +119,7 @@ export default class Data {
    */
   filter(callback, includeId) {
     const foundEntries = [];
-    
+
     this._entries.forEach((entry) => {
       if(callback(entry.value)) {
         foundEntries.push(includeId ? entry : entry.value);
@@ -147,11 +147,11 @@ export default class Data {
    * @returns {Strigs}  - Id of the added entry
    */
   add(entry) {
-    const lastIndex = parseInt(
-      this._entries[this._entries.length-1].id.substr(this._name.length),
-      10
-    );
-    const id = this._name + lastIndex + 1;
+    const lastIndex = (this._entries.length > 0)
+      ? parseInt(this._entries[this._entries.length-1].id.substr(this._name.length), 10)
+      : 0;
+
+    const id = this._name + (lastIndex + 1);
     this._entries.push({id, value:entry});
 
     return id;
@@ -213,9 +213,9 @@ export default class Data {
     this._entries.sort((entry) => sortCallback(entry.value))
   }
 
-  /** 
+  /**
    * Dynamic attribute, representing the amount of entries in data entity.
-   * 
+   *
    * @returns {Number} - amount of rows
    */
   get length() {
