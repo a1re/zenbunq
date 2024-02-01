@@ -69,6 +69,7 @@ export const Selector = {
     ID: '#modal',
     WRAPPER: '.page__modal',
     TEMPLATE: '#modal-template',
+    WINDOW: '.modal__window',
     CONTENT: {
       WRAPPER: '.modal__content',
       HEADER: '.modal__header'
@@ -257,6 +258,7 @@ export const Selector = {
 };
 
 export const Value = {
+  MODAL_WINDOW_WIDE_MODIFIER: 'modal__window--wide',
   EXPANDED_TRANSACTION_ROW: 'transactions__row--expanded',
   PAGE_NOSCROLL_MODIFIER: 'page--noscroll',
   FORM_INPUT_ERROR_CLASS: 'form__text-input--error',

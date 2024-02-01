@@ -164,7 +164,7 @@ export default class Records {
         Value.CSV_FILENAME.EXTENSION;
 
       const blob = new Blob([csv.join("\n")], {type: "text/csv;charset=utf-8;"});
-            
+
       if (navigator.msSaveBlob) { // IE 10+
           navigator.msSaveBlob(blob, filename);
       } else {
@@ -254,7 +254,7 @@ export default class Records {
               acceptCallback: () => {
                 this._composer.removeNode(id);
                 this._transactions.remove(id);
-                  
+
                 const amountBadge = document.querySelector(Selector.TRANSACTIONS.AMOUNT);
                 if (amountBadge) {
                   const amount = parseInt(amountBadge.innerText, 10) - 1;
@@ -460,7 +460,7 @@ export default class Records {
                 declineButtonCopy: Copy.MODAL.REMOVE_COUNTERPARTY.DECLINE_BUTTON,
                 acceptCallback: () => {
                   this._composer.removeNode('#' + id);
-                  
+
                   const amountBadge = document.querySelector(Selector.COUNTERPARTIES.NEW.AMOUNT);
                   if (amountBadge) {
                     const amount = parseInt(amountBadge.innerText, 10) - 1;
@@ -489,7 +489,7 @@ export default class Records {
                 transaction.counterparty,
                 (evt) => {
                   evt.preventDefault();
-  
+
                   const counterpartyAddForm = document.querySelector(Selector.COUNTERPARTY_ADD_FORM.ID);
                   if (!counterpartyAddForm) {
                     error(this._errorMessage.COUNTERPARTY_FORM_NOT_FOUND);
@@ -507,14 +507,14 @@ export default class Records {
                   fields.forEach((field) => {
                     field.dispatchEvent(changeEvent);
                   })
-  
+
                   if (counterpartyAddForm.reportValidity() === false) {
                     return;
                   }
-  
+
                   const counterpartyAddFormData = new FormData(counterpartyAddForm);
                   const formValues = Object.fromEntries(counterpartyAddFormData);
-  
+
                   const counterparty = {
                     key: formValues[Selector.COUNTERPARTY_ADD_FORM
                       .KEY.FIELD.replace(/^(\#)/s, '')],
@@ -541,13 +541,13 @@ export default class Records {
                     };
 
                     this._transactions.update(transaction.id, updatedTransaction);
-                    
+
                     const updatedTransactionNode = this.composeRow(transaction.id, updatedTransaction);
                     updatedTransactionNode.wrapper = transaction.id;
                     updatedTransactionNode.replaceWrapper = true;
                     this._composer.composeNode(updatedTransactionNode);
                   });
-                  
+
                   const amountBadge = document.querySelector(Selector.COUNTERPARTIES.NEW.AMOUNT);
                   if (amountBadge) {
                     const amount = parseInt(amountBadge.innerText, 10) - 1;
@@ -665,7 +665,7 @@ export default class Records {
    */
   showCounterpartyAddModal(counterpartyKey, acceptCallback, declineCallback) {
     const transactions = this._transactions.filter((transaction) => transaction.counterparty === counterpartyKey);
-    
+
     const transactionNodes = transactions.map((transaction) => {
       return {
         wrapper: Selector.COUNTERPARTY_ADD_FORM.TRANSACTIONS_TABLE.ID,
@@ -729,6 +729,11 @@ export default class Records {
       acceptCallback,
       declineCallback
     });
+
+    const modalWindow = document.querySelector(Selector.MODAL.WINDOW);
+    if (modalWindow) {
+      modalWindow.classList.add(Value.MODAL_WINDOW_WIDE_MODIFIER);
+    }
 
     this._composer.composeNode({
       wrapper: Selector.MODAL.CONTENT.WRAPPER,
