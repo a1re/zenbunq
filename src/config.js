@@ -6,7 +6,7 @@ export const CSV = {
 };
 
 export const RESOURCE = {
-  COUNTERPARTIES: '/counterparties.json',
-  ACCOUNTS: '/accounts.json',
-  CATEGORIES: '/categories.json'
+  COUNTERPARTIES: '/api.php?data=counterparties',
+  ACCOUNTS: '/api.php?data=accounts',
+  CATEGORIES: '/api.php?data=categories'
 };

@@ -34,9 +34,7 @@ module.exports = {
       }),
       new CopyPlugin({
         patterns: [
-          path.resolve(__dirname, SOURCE_PATH, "counterparties.json"),
-          path.resolve(__dirname, SOURCE_PATH, "accounts.json"),
-          path.resolve(__dirname, SOURCE_PATH, "categories.json")
+          path.resolve(__dirname, SOURCE_PATH, "api.php")
         ]
       }),
     ],
