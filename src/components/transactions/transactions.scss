@@ -54,9 +54,20 @@
     &__date,
     &__category,
     &__payer,
-    &__payee,
+    &__payee {
+      display: none;
+    }
+
     &__comment {
       display: none;
+
+      .modal__window & {
+        display: block;
+
+        max-width: 100%;
+
+        font-size: 12px;
+      }
     }
 
     &__header-row {
@@ -83,6 +94,11 @@
 
         font-size: 18px;
         font-weight: bold;
+
+        .modal__window & {
+          font-size: 12px;
+          font-weight: normal;
+        }
       }
 
       .transactions__date {
@@ -95,6 +111,15 @@
 
         display: block;
         border-bottom: none;
+
+        .modal__window & {
+          position: static;
+
+          border-bottom: $lightGrey 1px solid;
+
+          color: $black;
+          font-style: normal;
+        }
       }
 
       .transactions__category {
